@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "directories": {
-    "test": "flutter test"
+    "lib": "lib",
+    "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "flutter test",
+    "format": "dart format ."
   },
   "repository": {
     "type": "git",

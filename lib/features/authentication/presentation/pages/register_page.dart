@@ -1,37 +1,41 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
-import 'package:discover/features/authentication/presentation/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
-class AuthenticationPage extends StatefulWidget {
-  const AuthenticationPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<AuthenticationPage> createState() => _AuthenticationPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _AuthenticationPageState extends State<AuthenticationPage> {
+class _RegisterPageState extends State<RegisterPage> {
 
   final authService = AuthenticationService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
-  void login() async {
+  void signUp() async {
     final email = _emailController.text;
     final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email e password non possono essere vuoti')),
-      );
+    if(password != confirmPassword) {
+      if(mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Le password non corrispondono')), //TODO: Replace with coll snackbar
+        );
+      }
       return;
     }
 
-    try{
-      await authService.signInWithEmailPassword(email, password);
-    }catch (error) {
-      if(mounted) {
+    try {
+      await authService.signUpWithEmailPassword(email, password);
+      Navigator.pop(context);
+    } catch (error) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: $error')),
+          SnackBar(content: Text('Registrazione fallita: $error')), //TODO: Replace with coll snackbar
         );
       }
     }
@@ -39,9 +43,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+   return Scaffold(
       appBar: AppBar(
-        title: const Text('Login', style: TextStyle(color: Colors.black),),
+        title: const Text('Registrati', style: TextStyle(color: Colors.black),),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.transparent,
@@ -86,29 +90,23 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             obscureText: true,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: login,
-            child: const Text('Login'),
-          ),
-          const SizedBox(height: 20),
-          //Go to register page
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RegisterPage(),
+          TextField(
+            controller: _confirmPasswordController,
+            decoration: InputDecoration(
+              labelText: 'Conferma Password',
+              hintText: 'Conferma la tua password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.black),
               ),
             ),
-            child: 
-            const Center(
-              child:
-              Text('Non hai un account? Registrati', 
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+            obscureText: true,
           ),
-        ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: signUp,
+            child: const Text('Registrati'),
+          ),
       ],
       )
     );

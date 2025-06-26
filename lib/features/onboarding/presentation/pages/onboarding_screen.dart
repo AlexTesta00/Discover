@@ -1,8 +1,6 @@
 import 'package:discover/config/themes/app_theme.dart';
-import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
+import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/onboarding/presentation/widgets/onboarding_builder.dart';
-import 'package:discover/features/onboarding/presentation/widgets/second_intro_page.dart';
-import 'package:discover/features/onboarding/presentation/widgets/third_intro_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -86,7 +84,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     Navigator.pushReplacement(
                       context, 
                       MaterialPageRoute(
-                        builder: (context) => const AuthenticationPage()
+                        builder: (context) => const AuthenticationGate()
                       ),
                     );
                   },

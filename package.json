@@ -21,9 +21,20 @@
   },
   "homepage": "https://github.com/AlexTesta00/Discover#readme",
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^11.0.3",
-    "semantic-release": "^24.2.5"
+    "semantic-release-preconfigured-conventional-commits": "latest"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
   }
 }

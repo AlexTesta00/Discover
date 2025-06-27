@@ -16,6 +16,7 @@ dependencies:
   google_fonts: ^6.2.1
   supabase_flutter: ^2.9.1
   flutter_dotenv: ^5.2.1
+  fpdart: ^1.1.1
 
 dev_dependencies:
   flutter_test:

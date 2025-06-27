@@ -10,10 +10,25 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
 
-  final authService = AuthenticationService();
-
   void logout() async {
-    await authService.signOut();
+    final result = await signOut().run();
+
+    result.match(
+      (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Logout fallito: $error')),
+          );
+        }
+      },
+      (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logout riuscito')),
+          );
+        }
+      },
+    );
   }
 
   @override

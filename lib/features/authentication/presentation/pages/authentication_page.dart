@@ -11,7 +11,6 @@ class AuthenticationPage extends StatefulWidget {
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
 
-  final authService = AuthenticationService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -26,15 +25,24 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       return;
     }
 
-    try{
-      await authService.signInWithEmailPassword(email, password);
-    }catch (error) {
-      if(mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: $error')),
-        );
-      }
-    }
+    final result = await signInWithEmailPassword(email, password).run();
+
+    result.match(
+      (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
+      },
+      (response) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login effettuato con successo')),
+          );
+        }
+      },
+    );
   }
 
   @override

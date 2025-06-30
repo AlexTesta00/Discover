@@ -49,11 +49,21 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   void loginWithGoogle() async {
     final webClientId = dotenv.env['WEB_CLIENT_ID'] ?? '';
+    final iosClientId = dotenv.env['IOS_CLIENT_ID'] ?? '';
     final googleSignIn = GoogleSignIn(
       serverClientId: webClientId,
+      clientId: iosClientId,
     );
-    final googleUser = await googleSignIn.signIn();  
-    final googleAuth = await googleUser!.authentication;  
+    final googleUser = await googleSignIn.signIn();
+
+    if (googleUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login con Google annullato')),
+      );
+      return;
+    }
+
+    final googleAuth = await googleUser.authentication;  
     final accessToken = googleAuth.accessToken;  
     final idToken = googleAuth.idToken;
 

@@ -1,6 +1,7 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/pages/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthenticationPage extends StatefulWidget {
@@ -47,7 +48,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   void loginWithGoogle() async {
-    const webClientId = '668217155582-vduv3d1h2l405vgc9iir5c1bk2kjgubt.apps.googleusercontent.com';
+    final webClientId = dotenv.env['WEB_CLIENT_ID'] ?? '';
     final googleSignIn = GoogleSignIn(
       serverClientId: webClientId,
     );

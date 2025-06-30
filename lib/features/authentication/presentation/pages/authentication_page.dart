@@ -1,6 +1,7 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/pages/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({super.key});
@@ -39,6 +40,50 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login effettuato con successo')),
+          );
+        }
+      },
+    );
+  }
+
+  void loginWithGoogle() async {
+    const webClientId = '668217155582-vduv3d1h2l405vgc9iir5c1bk2kjgubt.apps.googleusercontent.com';
+    final googleSignIn = GoogleSignIn(
+      serverClientId: webClientId,
+    );
+    final googleUser = await googleSignIn.signIn();  
+    final googleAuth = await googleUser!.authentication;  
+    final accessToken = googleAuth.accessToken;  
+    final idToken = googleAuth.idToken;
+
+    if (accessToken == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No Acess Token found.')),
+          );
+      return;
+    }  
+    
+    if (idToken == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No ID Token found.')),
+      );
+      return;
+    }
+
+    final result = await signInWithGoogle(idToken, accessToken).run();
+
+    result.match(
+      (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
+      },
+      (response) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login con Google effettuato con successo')),
           );
         }
       },
@@ -99,6 +144,36 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             child: const Text('Login'),
           ),
           const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(child: Divider(thickness: 1)),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), 
+              child: Text(' Oppure '),
+              ),
+              Expanded(child: Divider(thickness: 1)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          OutlinedButton.icon(
+            onPressed: loginWithGoogle,
+            icon: Image.asset(
+              'assets/icons/google_logo.png', // Assicurati di avere l'immagine nel percorso corretto
+              height: 24,
+              width: 24,
+            ),
+            label: const Text(
+              'Continua con Google',
+              style: TextStyle(color: Colors.black),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              side: const BorderSide(color: Colors.grey),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
           //Go to register page
           GestureDetector(
             onTap: () => Navigator.push(

@@ -31,6 +31,17 @@ TaskEither<ErrorMessage, void> signOut() {
   );
 }
 
+TaskEither<ErrorMessage, AuthResponse> signInWithGoogle (String idToken, String accessToken) {
+  return TaskEither.tryCatch(
+    () => _supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google, 
+      idToken: idToken,
+      accessToken: accessToken,
+      ),
+    (error, _) => _mapError(error),
+  );
+}
+
 String? getUserEmail() {
   final session = _supabase.auth.currentSession;
   final user = session?.user;

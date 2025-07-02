@@ -9,8 +9,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-
-  final authService = AuthenticationService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -23,22 +21,31 @@ class _RegisterPageState extends State<RegisterPage> {
     if(password != confirmPassword) {
       if(mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Le password non corrispondono')), //TODO: Replace with coll snackbar
+          const SnackBar(content: Text('Le password non corrispondono')),
         );
       }
       return;
     }
 
-    try {
-      await authService.signUpWithEmailPassword(email, password);
-      Navigator.pop(context);
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registrazione fallita: $error')), //TODO: Replace with coll snackbar
-        );
-      }
-    }
+    final result = await signUpWithEmailPassword(email, password).run();
+
+    result.match(
+      (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
+      },
+      (response) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registrazione riuscita!')),
+          );
+          Navigator.pop(context);
+        }
+      },
+    );
   }
 
   @override

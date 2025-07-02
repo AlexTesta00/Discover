@@ -18,6 +18,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   fpdart: ^1.1.1
   google_sign_in: ^6.1.5
+  persistent_bottom_nav_bar_v2: ^6.1.0
 
 dev_dependencies:
   flutter_test:

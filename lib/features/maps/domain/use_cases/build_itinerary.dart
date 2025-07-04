@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
-import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -54,23 +51,3 @@ List<PointOfInterest> addPointOfInterest(
   List<PointOfInterest> currentPoints, 
   LatLng position
 ) => List.unmodifiable([...currentPoints, PointOfInterest(position: position)]);
-
-TaskEither<ErrorMessage, List<PointOfInterest>> loadPointsFromJson() => 
-  TaskEither.tryCatch(
-    () async {
-      //This links expire in 10 years
-      final response = await http.get(Uri.parse(
-        'https://xvavdibparbwguuiftrs.supabase.co/storage/v1/object/sign/assets/riccione_points.json?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zZjJiMjFmOC0zY2FkLTQ4MzEtODI0Ny0zNjFkNGI4MTI3M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJhc3NldHMvcmljY2lvbmVfcG9pbnRzLmpzb24iLCJpYXQiOjE3NTE2MjAxOTQsImV4cCI6MjA2Njk4MDE5NH0.FjMR0uPuctCDrZDmK-YuS023lMSDnzAgAWNTCYjz0q4'
-      ));
-      if(response.statusCode != 200){
-        left("Impossibile accedere alla risorsa");
-      }
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => PointOfInterest(
-        title: json['title'],
-        description: json['description'],
-        imageUrl: json['imageUrl'],
-        position: LatLng(json['latitude'], json['longitude']),
-      )).toList();
-    }, 
-    (error, _) => "Errore durante il caricamento dei punti: $error");

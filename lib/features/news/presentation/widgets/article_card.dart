@@ -66,24 +66,27 @@ class ArticleCard extends StatelessWidget {
             const SizedBox(width: 12),
       
             // Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+            Hero(
+              tag: imageUrl,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
                   width: 72,
                   height: 72,
-                  color: Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 72,
-                  height: 72,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image),
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 72,
+                    height: 72,
+                    color: Colors.grey[200],
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 72,
+                    height: 72,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image),
+                  ),
                 ),
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discover/features/news/domain/entities/article.dart';
 import 'package:flutter/material.dart';
 
@@ -15,13 +16,16 @@ class ArticleDetailsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              article.image != ''
-                  ? Image.network(
-                      article.image,
-                      width: double.infinity,
-                      height: 300,
-                      fit: BoxFit.cover,
-                    )
+              article.image.isNotEmpty
+                  ? Hero(
+                    tag: article.image,
+                    child: CachedNetworkImage(
+                        imageUrl: article.image,
+                        width: double.infinity,
+                        height: 300,
+                        fit: BoxFit.cover,
+                      ),
+                  )
                   : Container(
                       width: double.infinity,
                       height: 300,

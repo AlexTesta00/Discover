@@ -1,4 +1,4 @@
-import 'package:discover/features/maps/data/data_sources/point_of_interest_remote_data_source.dart';
+import 'package:discover/features/maps/data/sources/point_of_interest_remote_data_source.dart';
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
 import 'package:discover/features/maps/domain/use_cases/build_itinerary.dart';
 import 'package:discover/features/maps/presentation/widgets/point_card.dart';

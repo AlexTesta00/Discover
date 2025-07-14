@@ -87,7 +87,9 @@ class _ItineraryPageState extends State<ItineraryPage> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                      subdomains: ['a', 'b', 'c'],
+                      userAgentPackageName: 'it.discover.discover',
                     ),
                     MarkerLayer(
                       markers: _markers.map((p) => Marker(

@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
-import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -54,17 +51,3 @@ List<PointOfInterest> addPointOfInterest(
   List<PointOfInterest> currentPoints, 
   LatLng position
 ) => List.unmodifiable([...currentPoints, PointOfInterest(position: position)]);
-
-TaskEither<ErrorMessage, List<PointOfInterest>> loadPointsFromJson() => 
-  TaskEither.tryCatch(
-    () async {
-      final jsonString = await rootBundle.loadString('assets/data/riccione_points.json');
-      final List<dynamic> jsonList = json.decode(jsonString);
-      return jsonList.map((json) => PointOfInterest(
-        title: json['title'],
-        description: json['description'],
-        imageUrl: json['imageUrl'],
-        position: LatLng(json['latitude'], json['longitude']),
-      )).toList();
-    }, 
-    (error, _) => "Errore durante il caricamento dei punti: $error");

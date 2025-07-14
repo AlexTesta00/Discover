@@ -1,5 +1,6 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
+import 'package:discover/features/news/presentation/pages/news_page.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -54,7 +55,14 @@ class _DashboardPageState extends State<DashboardPage> {
                 icon: Icon(Icons.map),
                 title: 'Itinerario',
               )
+            ),
+          PersistentTabConfig(
+            screen: const NewsPage(), 
+            item: ItemConfig(
+              icon: Icon(Icons.newspaper),
+              title: 'News'
             )
+          )
         ], 
         navBarBuilder: (navBarConfig) => Style2BottomNavBar(
           navBarConfig: navBarConfig

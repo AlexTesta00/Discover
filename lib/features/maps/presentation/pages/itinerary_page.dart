@@ -1,3 +1,4 @@
+import 'package:discover/features/maps/data/sources/point_of_interest_remote_data_source.dart';
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
 import 'package:discover/features/maps/domain/use_cases/build_itinerary.dart';
 import 'package:discover/features/maps/presentation/widgets/point_card.dart';
@@ -86,7 +87,9 @@ class _ItineraryPageState extends State<ItineraryPage> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                      subdomains: ['a', 'b', 'c'],
+                      userAgentPackageName: 'it.discover.discover',
                     ),
                     MarkerLayer(
                       markers: _markers.map((p) => Marker(

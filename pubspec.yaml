@@ -24,6 +24,9 @@ dependencies:
   latlong2: ^0.9.1
   cached_network_image: ^3.4.1
   animations: ^2.0.11
+  http: ^1.4.0
+  intl: ^0.20.2
+  mocktail: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -35,5 +38,4 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/data/
     - .env

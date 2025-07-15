@@ -1,6 +1,7 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
+import 'package:discover/features/notices/presentation/pages/notices_page.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -61,6 +62,13 @@ class _DashboardPageState extends State<DashboardPage> {
             item: ItemConfig(
               icon: Icon(Icons.newspaper),
               title: 'News'
+            )
+          ),
+          PersistentTabConfig(
+            screen: const NoticesPage(), 
+            item: ItemConfig(
+              icon: Icon(Icons.notifications_active),
+              title: 'Avvisi'
             )
           )
         ], 

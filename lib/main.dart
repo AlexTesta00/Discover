@@ -16,7 +16,7 @@ Future main() async {
     url: dotenv.env['SUPABASE_URL'] ?? '',
   );
   final sharedPreferences = await SharedPreferences.getInstance();
-  final isFirstRun = sharedPreferences.getBool('onBoardingComplete') ?? true;
+  final isFirstRun = sharedPreferences.getBool('onBoardingComplete') ?? false;
 
   runApp(MyApp(isFirstRun: isFirstRun));
 }

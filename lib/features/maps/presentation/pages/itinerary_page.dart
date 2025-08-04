@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:discover/features/maps/data/sources/point_of_interest_remote_data_source.dart';
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
 import 'package:discover/features/maps/domain/use_cases/build_itinerary.dart';
+import 'package:discover/features/maps/domain/use_cases/location.dart';
+import 'package:discover/features/maps/domain/use_cases/route_service.dart';
 import 'package:discover/features/maps/presentation/widgets/point_card.dart';
+import 'package:discover/features/maps/presentation/widgets/user_dot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ItineraryPage extends StatefulWidget {
   const ItineraryPage({super.key});
@@ -19,10 +24,28 @@ class _ItineraryPageState extends State<ItineraryPage> {
   List<PointOfInterest> _markers = const [];
   List<PointOfInterest> _availablePoints = const [];
   List<PointOfInterest> _selectedPoints = const [];
+  List<LatLng> _routePoints = [];
+  LatLng? _userLocation;
+  StreamSubscription<Position>? _positionStream;
+  double _heading = 0.0;
+  bool _isMapExpanded = false;
+  bool _isItineraryActive = false;
+  int _currentRouteIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _loadPoints();
+    _startLocationTracking();
+  }
+
+  @override
+  void dispose() {
+    _positionStream?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadPoints() async {
     loadPointsFromJson().run().then((result) {
       result.match(
         (error) => ScaffoldMessenger.of(context).showSnackBar(
@@ -37,32 +60,117 @@ class _ItineraryPageState extends State<ItineraryPage> {
     });
   }
 
+  void _updateRouteProgress(LatLng userPos) {
+    if (_currentRouteIndex >= _routePoints.length - 1) return;
+
+    const double threshold = 8.0; // metri di tolleranza
+
+    final distance = Geolocator.distanceBetween(
+      userPos.latitude,
+      userPos.longitude,
+      _routePoints[_currentRouteIndex].latitude,
+      _routePoints[_currentRouteIndex].longitude,
+    );
+
+    if (distance < threshold) {
+      // L'utente ha raggiunto il prossimo punto del percorso
+      setState(() {
+        _currentRouteIndex++;
+        _routePoints = _routePoints.sublist(_currentRouteIndex);
+      });
+    }
+  }
+
+  void _startLocationTracking() async {
+    final hasPermission = await LocationService.requestLocationPermission();
+    if (!hasPermission) return;
+
+    _positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 1, 
+      ),
+    ).listen((Position position) {
+      final userPos = LatLng(position.latitude, position.longitude);
+
+      setState(() {
+        _userLocation = userPos;
+        _heading = position.heading;
+      });
+
+      _mapController.move(_userLocation!, _mapController.camera.zoom);
+
+      if (_isItineraryActive && _routePoints.isNotEmpty) {
+        _updateRouteProgress(userPos);
+        _recalculateRoute();
+      }
+    });
+  }
+
+  Future<void> _buildRoute() async {
+    if (_selectedPoints.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Seleziona almeno 2 punti")),
+      );
+      return;
+    }
+
+    final points = _selectedPoints.map((p) => p.position).toList();
+
+    try {
+      points.insert(0, _userLocation!);
+      final route = await RouteService.getWalkingRoute(points);
+      setState(() {
+        _routePoints = route;
+        _isItineraryActive = true;
+        _currentRouteIndex = 0;
+      });
+      _mapController.move(points.first, 14);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Errore percorso: $e")),
+      );
+    }
+  }
+
+  void _resetItinerary() {
+    setState(() {
+      _isItineraryActive = false;
+      _selectedPoints = [];
+      _markers = [];
+      _routePoints = [];
+      _currentRouteIndex = 0;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Itinerario terminato.")),
+    );
+  }
+
+  Future<void> _recalculateRoute() async {
+    if (_selectedPoints.isEmpty || !_isItineraryActive || _userLocation == null) return;
+
+    final points = _selectedPoints.map((p) => p.position).toList();
+
+    try {
+      // Inseriamo sempre la posizione attuale come punto di partenza
+      points.insert(0, _userLocation!);
+      final route = await RouteService.getWalkingRoute(points);
+      setState(() {
+        _routePoints = route;
+        _currentRouteIndex = 0; // reset progress
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Errore nel ricalcolo del percorso: $e")),
+      );
+    }
+  }
+
   void _addMarker(LatLng position) {
     setState(() {
       _markers = addPointOfInterest(_markers, position);
     });
-  }
-
-  Future<void> _openGoogleMaps() async {
-    final result = buildItineraryUrl(_markers.map((m) => m.position).toList());
-
-    result.match(
-      (error) => {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error)),
-        )
-      },
-      (url) async {
-        final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Impossibile aprire Google Maps")),
-          );
-        }
-      }
-    );
   }
 
   @override
@@ -72,38 +180,72 @@ class _ItineraryPageState extends State<ItineraryPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            SizedBox(
-              height: 300,
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: SizedBox(
+              key: ValueKey<bool>(_isMapExpanded),
+              height: _isMapExpanded
+                  ? MediaQuery.of(context).size.height
+                  : 300,
+              width: _isMapExpanded
+                  ? MediaQuery.of(context).size.width
+                  : double.infinity,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(_isMapExpanded ? 0 : 8.0),
                 child: FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: LatLng(
-                      44.014144673845216,
-                      12.637168847679812
-                    ),
+                    initialCenter: LatLng(44.014144673845216, 12.637168847679812),
                     initialZoom: 13.0,
+                    onLongPress: (tapPosition, latlng) {
+                      setState(() {
+                        _isMapExpanded = !_isMapExpanded;
+                      });
+                    },
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                      urlTemplate:
+                          'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'it.discover.discover',
                     ),
+                    // itinerary
+                    if (_routePoints.isNotEmpty)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: _routePoints,
+                            strokeWidth: 5.0,
+                            color: Colors.blueAccent,
+                          ),
+                        ],
+                      ),
                     MarkerLayer(
-                      markers: _markers.map((p) => Marker(
-                          point: p.position,
-                          width: 40.0,
-                          height: 40.0, 
-                          child: const Icon(Icons.location_on, color: Colors.red, size: 40.0)
+                      markers: [
+                        if (_userLocation != null)
+                          Marker(
+                            point: _userLocation!,
+                            width: 50.0,
+                            height: 50.0,
+                            child: const UserDot()
+                          ),
+                        ..._markers.map(
+                          (p) => Marker(
+                            point: p.position,
+                            width: 40.0,
+                            height: 40.0,
+                            child: const Icon(Icons.location_on,
+                                color: Colors.red, size: 40.0),
+                          ),
                         ),
-                      ).toList(),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
+          ),
             const SizedBox(height: 8.0),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,47 +257,63 @@ class _ItineraryPageState extends State<ItineraryPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(
-                  height: 200,
-                  child: _availablePoints.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _availablePoints.length,
-                          itemBuilder: (context, index) {
-                            final point = _availablePoints[index];
-                            final isSelected = _selectedPoints.contains(point);
-                            return PointCard(
-                              point: point,
-                              selected: isSelected,
-                              onSelected: (checked) {
-                                setState(() {
-                                  if (checked == true) {
-                                    _selectedPoints = List.unmodifiable([..._selectedPoints, point]);
-                                    _markers = addPointOfInterest(_markers, point.position);
-                                  } else {
-                                    _selectedPoints = List.unmodifiable(_selectedPoints.where((p) => p != point));
-                                    _markers = List.unmodifiable(_markers.where((p) => p.position != point.position));
-                                  }
-                                });
-                                _mapController.move(point.position, _mapController.camera.zoom);
-                              },
-                            );
-                          },
-                        ),
-                ),
+              SizedBox(
+                height: 200,
+                child: _availablePoints.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _availablePoints.length,
+                        itemBuilder: (context, index) {
+                          final point = _availablePoints[index];
+                          final isSelected = _selectedPoints.contains(point);
+                          return AbsorbPointer( 
+                            absorbing: _isItineraryActive,
+                            child: Opacity(
+                              opacity: _isItineraryActive ? 0.4 : 1.0,
+                              child: PointCard(
+                                point: point,
+                                selected: isSelected,
+                                onSelected: (checked) {
+                                  setState(() {
+                                    if (checked == true) {
+                                      _selectedPoints = List.unmodifiable([..._selectedPoints, point]);
+                                      _markers = addPointOfInterest(_markers, point.position);
+                                    } else {
+                                      _selectedPoints = List.unmodifiable(
+                                        _selectedPoints.where((p) => p != point),
+                                      );
+                                      _markers = List.unmodifiable(
+                                        _markers.where((p) => p.position != point.position),
+                                      );
+                                    }
+                                  });
+                                  _mapController.move(point.position, _mapController.camera.zoom);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
               ],
             ),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton.icon(
-                onPressed: _openGoogleMaps,
-                icon: const Icon(Icons.directions),
-                label: const Text("Inizia Itinerario"),
+                onPressed: () {
+                  if (_isItineraryActive) {
+                    _resetItinerary();
+                  } else {
+                    _buildRoute();
+                  }
+                },
+                icon: Icon(_isItineraryActive ? Icons.stop : Icons.directions),
+                label: Text(_isItineraryActive ? "Finisci Itinerario" : "Inizia Itinerario"),
                 style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: const TextStyle(fontSize: 18),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18),
                 ),
               ),
             )

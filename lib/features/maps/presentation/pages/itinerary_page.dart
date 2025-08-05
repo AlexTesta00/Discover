@@ -5,6 +5,7 @@ import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
 import 'package:discover/features/maps/domain/use_cases/build_itinerary.dart';
 import 'package:discover/features/maps/domain/use_cases/location.dart';
 import 'package:discover/features/maps/domain/use_cases/route_service.dart';
+import 'package:discover/features/maps/presentation/pages/transport_model_dialog.dart';
 import 'package:discover/features/maps/presentation/widgets/point_card.dart';
 import 'package:discover/features/maps/presentation/widgets/user_dot.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class _ItineraryPageState extends State<ItineraryPage> {
   bool _isMapExpanded = false;
   bool _isItineraryActive = false;
   int _currentRouteIndex = 0;
+  String _selectedProfile = "foot-walking";
 
   @override
   void initState() {
@@ -88,7 +90,7 @@ class _ItineraryPageState extends State<ItineraryPage> {
     _positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.best,
-        distanceFilter: 1, 
+        distanceFilter: 5, 
       ),
     ).listen((Position position) {
       final userPos = LatLng(position.latitude, position.longitude);
@@ -119,7 +121,7 @@ class _ItineraryPageState extends State<ItineraryPage> {
 
     try {
       points.insert(0, _userLocation!);
-      final route = await RouteService.getWalkingRoute(points);
+      final route = await RouteService.getRoute(points, profile: _selectedProfile);
       setState(() {
         _routePoints = route;
         _isItineraryActive = true;
@@ -155,7 +157,7 @@ class _ItineraryPageState extends State<ItineraryPage> {
     try {
       // Inseriamo sempre la posizione attuale come punto di partenza
       points.insert(0, _userLocation!);
-      final route = await RouteService.getWalkingRoute(points);
+      final route = await RouteService.getRoute(points);
       setState(() {
         _routePoints = route;
         _currentRouteIndex = 0; // reset progress
@@ -165,6 +167,28 @@ class _ItineraryPageState extends State<ItineraryPage> {
         SnackBar(content: Text("Errore nel ricalcolo del percorso: $e")),
       );
     }
+  }
+
+  void _showTransportModeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return TransportModeDialog(
+          onWalkingSelected: () {
+            setState(() {
+              _selectedProfile = "foot-walking";
+            });
+            _buildRoute();
+          },
+          onCyclingSelected: () {
+            setState(() {
+              _selectedProfile = "cycling-regular";
+            });
+            _buildRoute();
+          },
+        );
+      },
+    );
   }
 
   void _addMarker(LatLng position) {
@@ -306,7 +330,7 @@ class _ItineraryPageState extends State<ItineraryPage> {
                   if (_isItineraryActive) {
                     _resetItinerary();
                   } else {
-                    _buildRoute();
+                    _showTransportModeDialog();
                   }
                 },
                 icon: Icon(_isItineraryActive ? Icons.stop : Icons.directions),

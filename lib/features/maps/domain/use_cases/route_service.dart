@@ -4,15 +4,17 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
 class RouteService {
-  static const String _baseUrl =
-      "https://api.openrouteservice.org/v2/directions/foot-walking";
+
   static String _apiKey = dotenv.env['ROUTE_SERVICE'] ?? '';
 
-  static Future<List<LatLng>> getWalkingRoute(List<LatLng> wayPoints) async {
+  static Future<List<LatLng>> getRoute(List<LatLng> wayPoints, {String profile = "foot-walking"}) async {
     if (wayPoints.length < 2) return [];
 
     final coordinates =
         wayPoints.map((p) => [p.longitude, p.latitude]).toList();
+
+      
+    final String baseUrl = "https://api.openrouteservice.org/v2/directions/$profile";
 
     final body = {
       "coordinates": coordinates,
@@ -20,7 +22,7 @@ class RouteService {
     };
 
     final response = await http.post(
-      Uri.parse(_baseUrl),
+      Uri.parse(baseUrl),
       headers: {
         "Authorization": _apiKey.trim(),
         "Content-Type": "application/json",

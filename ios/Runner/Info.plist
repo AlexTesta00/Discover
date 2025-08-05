@@ -58,6 +58,11 @@
 	<string>Permetti accesso alla galleria per selezionare una foto</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Permetti accesso alla fotocamera per scattare una foto</string>
-
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Questa app utilizza la tua posizione per mostrarti dove ti trovi sulla mappa e costruire un itinerario.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Questa app necessita della tua posizione per offrirti itinerari precisi anche in background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Questa app utilizza la tua posizione per funzionalità di navigazione.</string>
 </dict>
 </plist>

@@ -1,3 +1,4 @@
+import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
@@ -56,27 +57,31 @@ class _DashboardPageState extends State<DashboardPage> {
             item: ItemConfig(
                 icon: Icon(Icons.map),
                 title: 'Itinerario',
+                activeForegroundColor: AppTheme.primaryColor
               )
             ),
           PersistentTabConfig(
             screen: const NewsPage(), 
             item: ItemConfig(
               icon: Icon(Icons.newspaper),
-              title: 'News'
+              title: 'News',
+              activeForegroundColor: AppTheme.primaryColor
             )
           ),
           PersistentTabConfig(
             screen: const NoticesPage(), 
             item: ItemConfig(
               icon: Icon(Icons.notifications_active),
-              title: 'Avvisi'
+              title: 'Avvisi',
+              activeForegroundColor: AppTheme.primaryColor
             )
           ),
           PersistentTabConfig(
             screen: const ProfileScreen(),
             item: ItemConfig(
               icon: Icon(Icons.account_circle),
-              title: 'Profilo'
+              title: 'Profilo',
+              activeForegroundColor: AppTheme.primaryColor
             )
           ),
         ], 

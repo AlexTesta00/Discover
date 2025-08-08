@@ -5,6 +5,7 @@ class AppTheme {
   static const Color primaryColor = Color(0xFFEF4565);
   static const Color accentColor = Color(0xFF3DA9FC);
   static const Color secondaryColor = Color(0xFF90B4CE);
+  static const Color creamColor = Color.fromRGBO(249, 247, 243, 1);
 
     static ThemeData get lightTheme {
     return ThemeData(

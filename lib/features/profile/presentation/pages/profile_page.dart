@@ -12,15 +12,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Profilo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F7C6E)),
-        scaffoldBackgroundColor: const Color(0xFFF6F3EF),
-        textTheme: const TextTheme(
-          titleMedium: TextStyle(fontWeight: FontWeight.w600),
-          bodyMedium: TextStyle(color: Colors.black87),
-        ),
-      ),
       home: const ProfileScreen(),
     );
   }
@@ -68,7 +59,7 @@ class ProfileScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                  color: Colors.black.withOpacity(.08),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 16,
                                   offset: const Offset(0, 8))
                             ],
@@ -105,21 +96,25 @@ class ProfileScreen extends StatelessWidget {
                       title: 'Livello',
                       subtitle: 'Avventuriero',
                       assetImagePath: 'assets/icons/binoculars.png',
+                      description: "Il livello indica quanto sei esperto e familiare con il parco in questo momento. Più esplori e ti metti in gioco, più crescerà! Completando missioni oppure visitando punti di interesse lungo gli itinerari che puoi creare nella sezione Itinerari, guadagnerai punti esperienza. Ogni volta che accumuli abbastanza punti, il tuo grado di confidenza con il parco aumenterà, permettendoti di conoscerne sempre meglio segreti, curiosità e luoghi speciali.",
                     ),
                     InfoCard(
                       title: 'Prossimo Livello',
                       subtitle: 'Ricercatore',
                       assetImagePath: 'assets/icons/research.png',
+                      description: "Il prossimo livello rappresenta il traguardo che ti aspetta: un nuovo grado di confidenza con il parco, che potrai raggiungere accumulando punti esperienza. Per avvicinarti a questo obiettivo, esplora, completa missioni e percorri itinerari: ogni passo, ogni scoperta e ogni sfida superata ti farà guadagnare punti, avvicinandoti sempre di più al tuo prossimo livello di esploratore.",
                     ),
                     InfoCard(
                       title: 'Fenicotteri',
                       subtitle: '157',
                       assetImagePath: 'assets/icons/flamingo.png',
+                      description: "I fenicotteri sono la moneta speciale del parco: più esplori, ti avventuri tra i sentieri e completi missioni, più ne accumulerai. Ogni fenicottero che guadagni è prezioso, perché potrai usarlo per acquistare collezionabili unici nel negozio del parco oppure per ottenere sconti esclusivi nei vari punti vendita. In poche parole, più vivi il parco, più ricompense e vantaggi potrai ottenere!",
                     ),
                     InfoCard(
                       title: 'Punti Esperienza',
                       subtitle: '1250',
                       assetImagePath: 'assets/icons/upgrade.png',
+                      description: "I punti esperienza sono il cuore del tuo percorso per diventare un vero ricercatore avanzato del parco. Ogni volta che li guadagni, compiendo missioni, esplorando nuovi angoli o scoprendo curiosità, aumenti il tuo grado di confidenza con l’ambiente che ti circonda. Più punti accumuli, più la tua conoscenza e la tua familiarità con il parco cresceranno, permettendoti di viverlo con occhi sempre più esperti e curiosi.",
                     ),
                   ],
                 ),

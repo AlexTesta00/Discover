@@ -15,6 +15,14 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  int _currentIndex = 0;
+
+  final List<String> _titles = [
+    'Itinerario',
+    'News',
+    'Avvisi',
+    'Profilo',
+  ];
 
   void logout() async {
     final result = await signOut().run();
@@ -41,7 +49,10 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(color: Colors.black),),
+        title: Text(
+            _titles[_currentIndex], 
+            style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.transparent,
@@ -51,6 +62,11 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       ),
       body: PersistentTabView(
+        onTabChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         tabs: [
           PersistentTabConfig(
             screen: const ItineraryPage(), 

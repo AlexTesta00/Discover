@@ -2,6 +2,7 @@ import 'package:discover/features/authentication/domain/use_cases/authentication
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
 import 'package:discover/features/notices/presentation/pages/notices_page.dart';
+import 'package:discover/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -70,7 +71,14 @@ class _DashboardPageState extends State<DashboardPage> {
               icon: Icon(Icons.notifications_active),
               title: 'Avvisi'
             )
-          )
+          ),
+          PersistentTabConfig(
+            screen: const ProfileScreen(),
+            item: ItemConfig(
+              icon: Icon(Icons.account_circle),
+              title: 'Profilo'
+            )
+          ),
         ], 
         navBarBuilder: (navBarConfig) => Style2BottomNavBar(
           navBarConfig: navBarConfig

@@ -17,6 +17,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void login() async {
     final email = _emailController.text;
@@ -49,64 +57,81 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     );
   }
 
-  void loginWithGoogle() async {
-    final webClientId = dotenv.env['WEB_CLIENT_ID'] ?? '';
-    final iosClientId = dotenv.env['IOS_CLIENT_ID'] ?? '';
-    final googleSignIn = GoogleSignIn(
-      serverClientId: webClientId,
-      clientId: iosClientId,
-    );
-    final googleUser = await googleSignIn.signIn();
+  Future<void> loginWithGoogle() async {
+    if (_loading) return;
+    setState(() => _loading = true);
 
-    if (googleUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login con Google annullato')),
+    try {
+      final webClientId = dotenv.env['WEB_CLIENT_ID'] ?? '';
+      final iosClientId = dotenv.env['IOS_CLIENT_ID'] ?? '';
+
+      final googleSignIn = GoogleSignIn(
+        serverClientId: webClientId.isEmpty ? null : webClientId,
+        clientId: iosClientId.isEmpty ? null : iosClientId,
       );
-      return;
-    }
 
-    final googleAuth = await googleUser.authentication;  
-    final accessToken = googleAuth.accessToken;  
-    final idToken = googleAuth.idToken;
-
-    if (accessToken == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No Acess Token found.')),
-          );
-      return;
-    }  
-    
-    if (idToken == null) {
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No ID Token found.')),
-      );
-      return;
-    }
+          const SnackBar(content: Text('Login con Google annullato')),
+        );
+        return;
+      }
 
-    final result = await signInWithGoogle(idToken, accessToken).run();
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
 
-    result.match(
-      (error) {
+      if (idToken == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
-      },
-      (response) async {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nessun ID Token trovato.')),
+        );
+        return;
+      }
+      if (accessToken == null) {
         if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nessun Access Token trovato.')),
+        );
+        return;
+      }
 
-        final session = response.session ?? Supabase.instance.client.auth.currentSession;
+      final result = await signInWithGoogle(idToken, accessToken).run();
 
-        if (session != null) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const DashboardPage()),
-            (_) => false,
-          );
-        } else {
+      result.match(
+        (error) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login Google eseguito, ma nessuna sessione attiva.')),
+            SnackBar(content: Text(error)),
           );
-        }
-      },
-    );
+        },
+        (response) async {
+          if (!mounted) return;
+
+          final session = response.session ?? Supabase.instance.client.auth.currentSession;
+
+          if (session != null) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const DashboardPage()),
+              (_) => false,
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Login Google eseguito, ma nessuna sessione attiva.')),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Errore inatteso: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -174,15 +199,21 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
-            onPressed: loginWithGoogle,
-            icon: Image.asset(
-              'assets/icons/google_logo.png', // Assicurati di avere l'immagine nel percorso corretto
-              height: 24,
-              width: 24,
-            ),
-            label: const Text(
-              'Continua con Google',
-              style: TextStyle(color: Colors.black),
+            onPressed: _loading ? null : loginWithGoogle,
+            icon: _loading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Image.asset(
+                    'assets/icons/google_logo.png',
+                    height: 24,
+                    width: 24,
+                  ),
+            label: Text(
+              _loading ? 'Accesso in corso...' : 'Continua con Google',
+              style: const TextStyle(color: Colors.black),
             ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),

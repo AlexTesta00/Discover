@@ -1,10 +1,12 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
+import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
 import 'package:discover/features/notices/presentation/pages/notices_page.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -16,6 +18,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
+  bool _loggingOut = false;
 
   final List<String> _titles = [
     'Itinerario',
@@ -24,25 +27,38 @@ class _DashboardPageState extends State<DashboardPage> {
     'Profilo',
   ];
 
-  void logout() async {
-    final result = await signOut().run();
+  Future<void> logout() async {
+    if (_loggingOut) return;
+    setState(() => _loggingOut = true);
 
-    result.match(
-      (error) {
-        if (mounted) {
+    try {
+      try { await GoogleSignIn().signOut(); } catch (_) {}
+
+      final result = await signOut().run();
+
+      result.match(
+        (error) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Logout fallito: $error')),
           );
-        }
-      },
-      (_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Logout riuscito')),
+        },
+        (_) {
+          if (!mounted) return;
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const AuthenticationGate()),
+            (_) => false,
           );
-        }
-      },
-    );
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Errore inatteso: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _loggingOut = false);
+    }
   }
 
   @override

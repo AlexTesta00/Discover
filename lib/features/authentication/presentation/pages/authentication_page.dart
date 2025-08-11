@@ -1,8 +1,10 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/pages/register_page.dart';
+import 'package:discover/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({super.key});
@@ -85,16 +87,22 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
     result.match(
       (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       },
-      (response) {
-        if (mounted) {
+      (response) async {
+        if (!mounted) return;
+
+        final session = response.session ?? Supabase.instance.client.auth.currentSession;
+
+        if (session != null) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+            (_) => false,
+          );
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login con Google effettuato con successo')),
+            const SnackBar(content: Text('Login Google eseguito, ma nessuna sessione attiva.')),
           );
         }
       },

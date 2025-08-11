@@ -1,4 +1,5 @@
 import 'package:discover/config/themes/app_theme.dart';
+import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:flutter/material.dart';
 
@@ -70,8 +71,8 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'mario.rossi@gmail.com',
+                        Text(
+                          getUserEmail() ?? "Email non presente",
                           style: TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 8),

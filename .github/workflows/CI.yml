@@ -15,8 +15,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          cat > .env << 'EOF'
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          WEB_CLIENT_ID=${{ secrets.WEB_CLIENT_ID }}
+          IOS_CLIENT_ID=${{ secrets.IOS_CLIENT_ID }}
+          ROUTE_SERVICE=${{ secrets.ROUTE_SERVICE }}
+          EOF
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -68,6 +73,16 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
+      
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          WEB_CLIENT_ID=${{ secrets.WEB_CLIENT_ID }}
+          IOS_CLIENT_ID=${{ secrets.IOS_CLIENT_ID }}
+          ROUTE_SERVICE=${{ secrets.ROUTE_SERVICE }}
+          EOF
 
       # 👉 Build APK debug (universale)
       - name: Build Android debug APK

@@ -70,12 +70,12 @@ void main() {
     await _drainMicrotasks();
 
     expect(updated.xpReached, 120);
-    expect(updated.currentLevel.name, 'Level 2');
-    expect(updated.nextLevel?.name, 'Level 3');
+    expect(updated.currentLevel.name, 'Raccoglitore di indizi');
+    expect(updated.nextLevel?.name, 'Cercatore di piume');
 
     final reloaded = await repo.fetch(email);
     expect(reloaded!.xpReached, 120);
-    expect(reloaded.currentLevel.name, 'Level 2');
+    expect(reloaded.currentLevel.name, 'Raccoglitore di indizi');
 
     expect(events.length, 2);
     expect(events[0], isA<XpAdded>());
@@ -84,8 +84,8 @@ void main() {
 
     expect(events[1], isA<LevelUp>());
     final lvl = events[1] as LevelUp;
-    expect(lvl.fromLevelName, 'Level 1');
-    expect(lvl.toLevelName, 'Level 2');
+    expect(lvl.fromLevelName, 'Scout delle orme');
+    expect(lvl.toLevelName, 'Raccoglitore di indizi');
 
     await sub.cancel();
   });
@@ -100,14 +100,14 @@ void main() {
     final updated = await service.addXpWithLevelEvent(email, 260);
     await _drainMicrotasks();
 
-    expect(updated.currentLevel.name, 'Level 3');
+    expect(updated.currentLevel.name, 'Cercatore di piume');
     expect(updated.xpReached, 260);
 
     expect(events.whereType<XpAdded>().length, 1);
     expect(events.whereType<LevelUp>().length, 1);
     final up = events.whereType<LevelUp>().first;
-    expect(up.fromLevelName, 'Level 1');
-    expect(up.toLevelName, 'Level 3');
+    expect(up.fromLevelName, 'Scout delle orme');
+    expect(up.toLevelName, 'Cercatore di piume');
 
     await sub.cancel();
   });
@@ -196,10 +196,10 @@ void main() {
       final a = await service.getUserData('alice@mail.com');
       final b = await service.getUserData('bob@mail.com');
 
-      expect(a!.currentLevel.name, 'Level 2');
+      expect(a!.currentLevel.name, 'Raccoglitore di indizi');
       expect(a.amount.amount, 2);
 
-      expect(b!.currentLevel.name, 'Level 3');
+      expect(b!.currentLevel.name, 'Cercatore di piume');
       expect(b.amount.amount, 5);
     });
 
@@ -214,16 +214,16 @@ void main() {
     test('recomputeLevels ricalcola current/next e salva', () async {
       const email = 'recompute@test.com';
       final u0 = await service.getOrCreate(email: email);
-      expect(u0.currentLevel.name, 'Level 1');
+      expect(u0.currentLevel.name, 'Scout delle orme');
 
       final u1 = await service.addXpWithLevelEvent(email, 260);
-      expect(u1.currentLevel.name, 'Level 3');
+      expect(u1.currentLevel.name, 'Cercatore di piume');
 
       final u2 = await service.recomputeLevels(email);
-      expect(u2.currentLevel.name, 'Level 3');
+      expect(u2.currentLevel.name, 'Cercatore di piume');
 
       final reloaded = await repo.fetch(email);
-      expect(reloaded!.currentLevel.name, 'Level 3');
+      expect(reloaded!.currentLevel.name, 'Cercatore di piume');
     });
   });
 }

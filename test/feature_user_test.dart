@@ -18,8 +18,8 @@ void main() {
     test('inizializzazione con xpReached posiziona current e next coerenti', () {
       final u = User(email: 'x@y.z', xpReached: 120);
       // 120 >= 100 (Level 2), < 250 (Level 3)
-      expect(u.currentLevel.name, 'Level 2');
-      expect(u.nextLevel?.name, 'Level 3');
+      expect(u.currentLevel.name, 'Raccoglitore di indizi');
+      expect(u.nextLevel?.name, 'Cercatore di piume');
     });
 
     test('email presa dal provider se non passata esplicitamente', () {
@@ -39,32 +39,30 @@ void main() {
     test('addXp su soglia esatta: passa al livello successivo', () {
       final u = User(email: 'x@y.z'); // L1 (0)
       u.addXp(100); // soglia L2
-      expect(u.currentLevel.name, 'Level 2');
-      expect(u.nextLevel?.name, 'Level 3');
+      expect(u.currentLevel.name, 'Raccoglitore di indizi');
+      expect(u.nextLevel?.name, 'Cercatore di piume');
       expect(u.xpReached, 100);
     });
 
     test('addXp con salto di più livelli in una volta sola', () {
       final u = User(email: 'x@y.z'); // L1
       u.addXp(260); // > 250 => L3
-      expect(u.currentLevel.name, 'Level 3');
-      expect(u.nextLevel?.name, 'Level 4');
+      expect(u.currentLevel.name, 'Cercatore di piume');
+      expect(u.nextLevel?.name, 'Osservatore di Nidi');
       expect(u.xpReached, 260);
     });
 
     test('computeNextLevel restituisce il prossimo livello atteso', () {
       final u = User(email: 'x@y.z', xpReached: 500);
-      // 500 esatto => L4, prossimo L5
       final next = u.computeNextLevel();
-      expect(u.currentLevel.name, 'Level 4');
-      expect(next?.name, 'Level 5');
+      expect(u.currentLevel.name, 'Cacciatore di rarità');
+      expect(next?.name, 'Catalogatore di specie');
     });
 
     test('raggiunto ultimo livello: nextLevel diventa null', () {
       final u = User(email: 'x@y.z');
-      // portiamoci oltre l’ultima soglia (3800)
       u.addXp(5000);
-      expect(u.currentLevel.name, 'Level 10');
+      expect(u.currentLevel.name, 'Leggenda della ricerca');
       expect(u.nextLevel, isNull);
     });
 

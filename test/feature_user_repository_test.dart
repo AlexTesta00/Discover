@@ -56,7 +56,7 @@ void main() {
       final fetched = await repo.fetch('x@y.z');
       expect(fetched, isNotNull);
       expect(fetched!.xpReached, 260);
-      expect(fetched.currentLevel.name, 'Level 3');
+      expect(fetched.currentLevel.name, 'Cercatore di piume');
       expect(fetched.amount.amount, 5);
     });
 
@@ -71,8 +71,8 @@ void main() {
       });
 
       expect(updated.xpReached, 100);
-      expect(updated.currentLevel.name, 'Level 2');
-      expect(updated.nextLevel?.name, 'Level 3');
+      expect(updated.currentLevel.name, 'Raccoglitore di indizi');
+      expect(updated.nextLevel?.name, 'Cercatore di piume');
       expect(updated.amount.amount, 3);
 
       final fetched = await repo.fetch('u@ex.com');
@@ -116,8 +116,8 @@ void main() {
       expect(fetched, isNotNull);
       expect(fetched!.email, email);
       expect(fetched.xpReached, 500);
-      expect(fetched.currentLevel.name, 'Level 4');
-      expect(fetched.nextLevel?.name, 'Level 5');
+      expect(fetched.currentLevel.name, 'Cacciatore di rarità');
+      expect(fetched.nextLevel?.name, 'Catalogatore di specie');
       expect(fetched.amount.amount, 7);
       expect(fetched.levels.length, defaultLevels.length);
     });
@@ -158,11 +158,11 @@ void main() {
       final b = await repo.fetch('bob@mail.com');
 
       expect(a!.xpReached, 100);
-      expect(a.currentLevel.name, 'Level 2');
+      expect(a.currentLevel.name, 'Raccoglitore di indizi');
       expect(a.amount.amount, 2);
 
       expect(b!.xpReached, 260);
-      expect(b.currentLevel.name, 'Level 3');
+      expect(b.currentLevel.name, 'Cercatore di piume');
       expect(b.amount.amount, 5);
     });
   });

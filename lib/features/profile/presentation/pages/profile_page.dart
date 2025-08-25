@@ -153,8 +153,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _levelUpDialogOpen = false;
   }
 
-  // ----------------- UI -----------------
-
   @override
   Widget build(BuildContext context) {
     final emailText = _email ?? "Email non presente";
@@ -162,17 +160,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppTheme.creamColor,
       floatingActionButton: _loading || _error != null
-          ? null
-          : FloatingActionButton(
+      ? null
+      : Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // +50 XP
+            FloatingActionButton(
+              heroTag: 'fab_xp',
               onPressed: () => giveXp(
-                email: _email!,
-                xp: 50,
                 service: _service,
+                email: _email,
+                xp: 50,
                 context: context,
               ),
+              tooltip: 'Aggiungi XP',
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.upgrade),
             ),
+            const SizedBox(height: 12),
+
+            // +1 Fenicottero
+            FloatingActionButton(
+              heroTag: 'fab_flamingo_plus',
+              onPressed: () => giveFlamingo(
+                service: _service,
+                email: _email,
+                qty: 50,               // usa -1 per rimuovere
+                context: context,
+              ),
+              tooltip: 'Aggiungi fenicottero',
+              backgroundColor: Colors.pinkAccent,
+              child: const Icon(Icons.add),
+            ),
+          ],
+        ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
         top: false,
@@ -190,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               height: 220,
                               decoration: const BoxDecoration(
                                 image: DecorationImage(
-                                  image: AssetImage('assets/images/liquid.jpeg'),
+                                  image: AssetImage('assets/images/default-bg.jpg'),
                                   fit: BoxFit.cover,
                                   alignment: Alignment.center,
                                 ),
@@ -250,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                           padding: const EdgeInsets.all(4),
                                           child: const CircleAvatar(
-                                            backgroundImage: AssetImage('assets/images/profile-default-avatar.jpg'),
+                                            backgroundImage: AssetImage('assets/images/default-avatar.jpg'),
                                           ),
                                         ),
 

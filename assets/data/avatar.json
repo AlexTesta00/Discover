@@ -1,0 +1,22 @@
+[
+    {
+        "title": "Fenicottero",
+        "asset": "assets/avatar/flamingo.png",
+        "cost": 200
+    },
+    {
+        "title": "Leone",
+        "asset": "assets/avatar/lion.png",
+        "cost": 200
+    },
+    {
+        "title": "Gufo",
+        "asset": "assets/avatar/owl.png",
+        "cost": 200
+    },
+    {
+        "title": "Falco",
+        "asset": "assets/avatar/hawk.png",
+        "cost": 200
+    }
+]

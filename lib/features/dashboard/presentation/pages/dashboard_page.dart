@@ -5,6 +5,7 @@ import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
 import 'package:discover/features/notices/presentation/pages/notices_page.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
+import 'package:discover/features/shop/presentation/pages/shop_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -24,6 +25,7 @@ class _DashboardPageState extends State<DashboardPage> {
     'Itinerario',
     'News',
     'Avvisi',
+    'Negozio',
     'Profilo',
   ];
 
@@ -108,6 +110,14 @@ class _DashboardPageState extends State<DashboardPage> {
               activeForegroundColor: AppTheme.primaryColor
             )
           ),
+          PersistentTabConfig(
+            screen: const ShopPage(),
+            item: ItemConfig(
+              icon: Icon(Icons.store),
+              title: 'Negozio',
+              activeForegroundColor: AppTheme.primaryColor
+            )
+          ), 
           PersistentTabConfig(
             screen: const ProfileScreen(),
             item: ItemConfig(

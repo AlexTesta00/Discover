@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:discover/features/shop/domain/entities/shop_item.dart';
 
 class ShopCard extends StatelessWidget {
-  const ShopCard({super.key, required this.item, this.onTap});
+  const ShopCard({
+    super.key,
+    required this.item,
+    this.onTap,
+    this.owned = false,
+  });
 
   final ShopItem item;
   final VoidCallback? onTap;
+  final bool owned;
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +27,39 @@ class ShopCard extends StatelessWidget {
             aspectRatio: 1,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
-              child: Image.asset(
-                item.asset,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: theme.colorScheme.onPrimary,
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.image_not_supported),
-                ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    item.asset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: theme.colorScheme.surfaceVariant,
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.image_not_supported),
+                    ),
+                  ),
+                  if (owned)
+                    Positioned(
+                      left: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Acquistato',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

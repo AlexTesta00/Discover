@@ -1,3 +1,4 @@
+import 'package:discover/app/route_observer.dart';
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
@@ -24,7 +25,6 @@ Future main() async {
 class MyApp extends StatelessWidget {
 
   final bool isFirstRun;
-
   const MyApp({super.key, required this.isFirstRun});
 
   @override
@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
       home: isFirstRun ? const OnBoardingScreen() : const AuthenticationPage(),
+      navigatorObservers: [routeObserver],
     );
   }
 }

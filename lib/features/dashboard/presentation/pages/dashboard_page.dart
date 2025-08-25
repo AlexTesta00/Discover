@@ -20,6 +20,8 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
+  final GlobalKey<ShopPageState> _shopKey = GlobalKey<ShopPageState>();
+  final GlobalKey<ProfileScreenState> _profileKey = GlobalKey<ProfileScreenState>();
 
   final List<String> _titles = [
     'Itinerario',
@@ -80,10 +82,18 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       ),
       body: PersistentTabView(
-        onTabChanged: (index) {
+        onTabChanged: (index) async {
           setState(() {
             _currentIndex = index;
           });
+
+          if (index == 3) {
+            _shopKey.currentState?.refreshFromOutside();
+          }
+
+          if (index == 4) {
+            await _profileKey.currentState?.reloadVisualsFromPrefs();
+          }
         },
         tabs: [
           PersistentTabConfig(
@@ -111,7 +121,7 @@ class _DashboardPageState extends State<DashboardPage> {
             )
           ),
           PersistentTabConfig(
-            screen: const ShopPage(),
+            screen: ShopPage(key: _shopKey),
             item: ItemConfig(
               icon: Icon(Icons.store),
               title: 'Negozio',
@@ -119,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
             )
           ), 
           PersistentTabConfig(
-            screen: const ProfileScreen(),
+            screen: ProfileScreen(key: _profileKey),
             item: ItemConfig(
               icon: Icon(Icons.account_circle),
               title: 'Profilo',

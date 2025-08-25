@@ -7,11 +7,13 @@ class ShopSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.items,
+    required this.isOwned,
     this.onTap,
   });
 
   final String title;
   final List<ShopItem> items;
+  final bool Function(ShopItem item) isOwned;
   final void Function(ShopItem item)? onTap;
 
   @override
@@ -48,6 +50,7 @@ class ShopSection extends StatelessWidget {
                 width: cardWidth,
                 child: ShopCard(
                   item: item,
+                  owned: isOwned(item),
                   onTap: () => onTap?.call(item),
                 ),
               );

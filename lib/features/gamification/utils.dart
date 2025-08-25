@@ -12,8 +12,6 @@ String _resolveEmail({String? email, EmailProvider? emailProvider}) {
   return resolved;
 }
 
-/// Assegna XP all'utente (salva e aggiorna lo stato in memoria via UserService).
-/// Se passi [context], mostra una SnackBar di conferma/errore.
 Future<User> giveXp({
   required UserService service,
   String? email,
@@ -43,10 +41,6 @@ Future<User> giveXp({
   }
 }
 
-/// Aggiunge o rimuove fenicotteri:
-/// - qty > 0 => add
-/// - qty < 0 => remove (rispetta gli assert della entity Flamingo)
-/// Se passi [context], mostra una SnackBar di conferma/errore.
 Future<User> giveFlamingo({
   required UserService service,
   String? email,
@@ -69,7 +63,6 @@ Future<User> giveFlamingo({
         );
       }
     } else {
-      // qty < 0 -> remove
       updated = await service.removeFlamingo(key, -qty);
       if (context != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -86,4 +79,26 @@ Future<User> giveFlamingo({
     }
     rethrow;
   }
+}
+
+Future<int> getCurrentXp({
+  required UserService service,
+  String? email,
+  EmailProvider? emailProvider,
+}) async {
+  final key = _resolveEmail(email: email, emailProvider: emailProvider);
+  final user = await service.getUserData(key);
+  if (user == null) throw Exception('Utente non trovato');
+  return user.xpReached;
+}
+
+Future<int> getCurrentFlamingo({
+  required UserService service,
+  String? email,
+  EmailProvider? emailProvider,
+}) async {
+  final key = _resolveEmail(email: email, emailProvider: emailProvider);
+  final user = await service.getUserData(key);
+  if (user == null) throw Exception('Utente non trovato');
+  return user.amount.amount;
 }

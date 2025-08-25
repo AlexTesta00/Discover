@@ -4,6 +4,7 @@ import 'package:discover/features/authentication/domain/use_cases/authentication
 import 'package:discover/features/gamification/domain/entities/user.dart';
 import 'package:discover/features/gamification/domain/repository/user_repository.dart';
 import 'package:discover/features/gamification/domain/use_case/user_service.dart';
+import 'package:discover/features/gamification/utils.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:discover/features/profile/presentation/widgets/level_up_dialog.dart';
 import 'package:flutter/material.dart';
@@ -123,23 +124,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return remaining > 0 ? remaining : 0;
   }
 
-  /* Only for debug */
-  Future<void> _giveXp(int xp) async {
-    if (_email == null) return;
-    try {
-      await _service.addXpWithLevelEvent(_email!, xp);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('+$xp XP assegnati')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore: $e')),
-      );
-    }
-  }
-
   String _levelImageFor(String levelName) {
     try {
       final lvl = _user?.levels.firstWhere((l) => l.name == levelName);
@@ -180,7 +164,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       floatingActionButton: _loading || _error != null
           ? null
           : FloatingActionButton(
-              onPressed: () => _giveXp(50), // ogni pressione: +50 XP
+              onPressed: () => giveXp(
+                email: _email!,
+                xp: 50,
+                service: _service,
+                context: context,
+              ),
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.upgrade),
             ),

@@ -1,0 +1,67 @@
+[
+    {
+        "title": "Rosa",
+        "asset": "assets/shop/pink.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Astratto Liquido",
+        "asset": "assets/shop/abstract-1.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Astratto Spaziale",
+        "asset": "assets/shop/abstract-2.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Astratto Giungla",
+        "asset": "assets/shop/abstract-3.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Blu",
+        "asset": "assets/shop/blue.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Flora",
+        "asset": "assets/shop/flowers.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Sfumato Azzurro",
+        "asset": "assets/shop/gradient-1.jpg",
+        "cost": 70
+    },
+    {
+        "title": "Sfumato Viola",
+        "asset": "assets/shop/gradient-2.jpg",
+        "cost": 70
+    },
+    {
+        "title": "Terra",
+        "asset": "assets/shop/earth.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Meduse",
+        "asset": "assets/shop/jellyfish.jpg",
+        "cost": 100
+    },
+    {
+        "title": "Marmo Bianco",
+        "asset": "assets/shop/marmo-white.jpg",
+        "cost": 150
+    },
+    {
+        "title": "Pioggia",
+        "asset": "assets/shop/rain.jpg",
+        "cost": 80
+    },
+    {
+        "title": "Bianco",
+        "asset": "assets/shop/white.jpg",
+        "cost": 70
+    }
+]

@@ -1,38 +1,26 @@
 import 'dart:async';
-import 'package:discover/config/themes/app_theme.dart';
+import 'package:discover/core/app_service.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
-import 'package:discover/features/gamification/domain/entities/user.dart';
-import 'package:discover/features/gamification/domain/repository/user_repository.dart';
 import 'package:discover/features/gamification/domain/use_case/user_service.dart';
+import 'package:flutter/material.dart';
+import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:discover/features/profile/presentation/widgets/level_up_dialog.dart';
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Profilo',
-      debugShowCheckedModeBanner: false,
-      home: const ProfileScreen(),
-    );
-  }
-}
+import 'package:discover/features/gamification/domain/entities/user.dart';
+import 'package:discover/features/gamification/utils.dart';
+import 'package:discover/features/shop/domain/repository/shop_prefs.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ProfileScreenState createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  late final UserRepository _repo;
-  late final UserService _service;
+class ProfileScreenState extends State<ProfileScreen> {
+  // UserService condiviso
+  final _service = AppServices.userService;
+
   StreamSubscription<UserEvent>? _sub;
 
   User? _user;
@@ -40,15 +28,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _email;
   String? _error;
 
-  // per evitare di aprire più volte il dialog di level-up
+  // evita multipli dialog di level-up
   bool _levelUpDialogOpen = false;
+
+  // avatar/sfondo scelti
+  String _bgAsset = ShopPrefs.defaultBackground;
+  String _avatarAsset = ShopPrefs.defaultAvatar;
 
   @override
   void initState() {
     super.initState();
-    _repo = UserRepository();
-    _service = UserService(_repo);
     _bootstrap();
+    _loadVisuals(); // carica avatar/sfondo salvati
   }
 
   Future<void> _bootstrap() async {
@@ -79,7 +70,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         // se è un level-up, mostra il modale
         if (evt is LevelUp) {
-          // piccolo delay per permettere il rebuild prima del dialog
           await Future<void>.delayed(const Duration(milliseconds: 50));
           await _showLevelUpDialog(evt);
         }
@@ -95,16 +85,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _sub?.cancel();
-    _service.dispose();
     super.dispose();
   }
 
-  // ----------------- Helpers dominio / UI -----------------
+  Future<void> _loadVisuals() async {
+    try {
+      final bg = await ShopPrefs.getBackground();
+      final av = await ShopPrefs.getAvatar();
+      if (!mounted) return;
+      setState(() {
+        _bgAsset = bg;
+        _avatarAsset = av;
+      });
+    } catch (_) {
+      // fallback già impostati
+    }
+  }
+
+  /// Chiamata dalla Dashboard quando la tab Profilo diventa attiva
+  Future<void> reloadVisualsFromPrefs() async {
+    await _loadVisuals();
+  }
 
   double _levelProgress(User? u) {
     if (u == null) return 0.0;
     final next = u.nextLevel;
-    if (next == null) return 1.0; // ultimo livello: progresso completo
+    if (next == null) return 1.0;
 
     final curBase = u.currentLevel.xpToReachLevel;
     final nextXp = next.xpToReachLevel;
@@ -118,26 +124,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _xpToNext(User? u) {
     if (u == null) return 0;
     final next = u.nextLevel;
-    if (next == null) return 0; // ultimo livello
+    if (next == null) return 0;
     final remaining = next.xpToReachLevel - u.xpReached;
     return remaining > 0 ? remaining : 0;
-  }
-
-  /* Only for debug */
-  Future<void> _giveXp(int xp) async {
-    if (_email == null) return;
-    try {
-      await _service.addXpWithLevelEvent(_email!, xp);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('+$xp XP assegnati')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore: $e')),
-      );
-    }
   }
 
   String _levelImageFor(String levelName) {
@@ -145,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final lvl = _user?.levels.firstWhere((l) => l.name == levelName);
       if (lvl != null && lvl.imageUrl.isNotEmpty) return lvl.imageUrl;
     } catch (_) {}
-    return 'assets/icons/upgrade.png'; // fallback
+    return 'assets/icons/upgrade.png';
   }
 
   Future<void> _showLevelUpDialog(LevelUp evt) async {
@@ -170,7 +159,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ----------------- UI -----------------
-
   @override
   Widget build(BuildContext context) {
     final emailText = _email ?? "Email non presente";
@@ -179,10 +167,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppTheme.creamColor,
       floatingActionButton: _loading || _error != null
           ? null
-          : FloatingActionButton(
-              onPressed: () => _giveXp(50), // ogni pressione: +50 XP
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(Icons.upgrade),
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  heroTag: 'fab_xp',
+                  onPressed: () => giveXp(
+                    service: _service,
+                    email: _email,
+                    xp: 50,
+                    context: context,
+                  ),
+                  tooltip: 'Aggiungi XP',
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: const Icon(Icons.upgrade),
+                ),
+                const SizedBox(height: 12),
+
+                FloatingActionButton(
+                  heroTag: 'fab_flamingo_plus',
+                  onPressed: () => giveFlamingo(
+                    service: _service,
+                    email: _email,
+                    qty: 50,
+                    context: context,
+                  ),
+                  tooltip: 'Aggiungi fenicottero',
+                  backgroundColor: Colors.pinkAccent,
+                  child: const Icon(Icons.add),
+                ),
+              ],
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
@@ -197,14 +212,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            Container(
+                            // Header con sfondo scelto
+                            SizedBox(
                               height: 220,
-                              decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage('assets/images/liquid.jpeg'),
-                                  fit: BoxFit.cover,
-                                  alignment: Alignment.center,
-                                ),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.asset(
+                                    _bgAsset,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Image.asset(
+                                      ShopPrefs.defaultBackground,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Positioned(
@@ -213,7 +235,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               bottom: -80,
                               child: Column(
                                 children: [
-                                  // ----- Avatar con anello di progresso -----
                                   SizedBox(
                                     width: 120,
                                     height: 120,
@@ -233,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               width: 110,
                                               height: 110,
                                               child: CircularProgressIndicator(
-                                                value: value, // 0..1
+                                                value: value,
                                                 strokeWidth: 8,
                                                 backgroundColor: Colors.white.withOpacity(0.35),
                                                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -244,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           },
                                         ),
 
-                                        // Bordi + avatar
+                                        // Avatar selezionato
                                         Container(
                                           width: 88,
                                           height: 88,
@@ -260,8 +281,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ],
                                           ),
                                           padding: const EdgeInsets.all(4),
-                                          child: const CircleAvatar(
-                                            backgroundImage: AssetImage('assets/images/profile-default-avatar.jpg'),
+                                          child: ClipOval(
+                                            child: Image.asset(
+                                              _avatarAsset,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) => Image.asset(
+                                                ShopPrefs.defaultAvatar,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
                                           ),
                                         ),
 
@@ -297,7 +325,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 96),
 
-                        // GRID INFO
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: GridView.count(

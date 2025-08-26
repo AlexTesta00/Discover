@@ -25,11 +25,11 @@ Future<User> giveXp({
 
     final updated = await service.addXpWithLevelEvent(key, xp);
 
-    if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('+$xp XP assegnati')),
-      );
-    }
+    // if (context != null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('+$xp XP assegnati')),
+    //   );
+    // }
     return updated;
   } catch (e) {
     if (context != null) {
@@ -57,18 +57,18 @@ Future<User> giveFlamingo({
     late final User updated;
     if (qty > 0) {
       updated = await service.addFlamingo(key, qty);
-      if (context != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('+$qty fenicotteri')),
-        );
-      }
+      // if (context != null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('+$qty fenicotteri')),
+      //   );
+      // }
     } else {
       updated = await service.removeFlamingo(key, -qty);
-      if (context != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$qty fenicotteri')), // es. -1
-        );
-      }
+      // if (context != null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('$qty fenicotteri')), // es. -1
+      //   );
+      // }
     }
     return updated;
   } catch (e) {

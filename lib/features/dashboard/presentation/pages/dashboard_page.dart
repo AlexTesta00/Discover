@@ -1,6 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
+import 'package:discover/features/challenge/presentation/pages/challenge_page.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
 import 'package:discover/features/notices/presentation/pages/notices_page.dart';
@@ -25,6 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   final List<String> _titles = [
     'Itinerario',
+    'Challenge',
     'News',
     'Avvisi',
     'Negozio',
@@ -99,11 +101,19 @@ class _DashboardPageState extends State<DashboardPage> {
           PersistentTabConfig(
             screen: const ItineraryPage(), 
             item: ItemConfig(
-                icon: Icon(Icons.map),
+                icon: Icon(Icons.follow_the_signs_rounded),
                 title: 'Itinerario',
                 activeForegroundColor: AppTheme.primaryColor
               )
             ),
+          PersistentTabConfig(
+            screen: const ChallengesPage(), 
+            item: ItemConfig(
+              icon: Icon(Icons.emoji_events_rounded),
+              title: 'Challenge',
+              activeForegroundColor: AppTheme.primaryColor
+            )
+          ),
           PersistentTabConfig(
             screen: const NewsPage(), 
             item: ItemConfig(

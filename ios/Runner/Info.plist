@@ -64,5 +64,7 @@
 	<string>Questa app necessita della tua posizione per offrirti itinerari precisi anche in background.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Questa app utilizza la tua posizione per funzionalità di navigazione.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Scatta una foto per completare la challenge.</string>
 </dict>
 </plist>

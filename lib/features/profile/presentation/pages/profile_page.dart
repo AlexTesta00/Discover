@@ -40,6 +40,13 @@ class ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _bootstrap();
     _loadVisuals(); // carica avatar/sfondo salvati
+
+    AppBus.visualsVersion.addListener(_onVisualChanged);
+  }
+
+  void _onVisualChanged() {
+    //Ricarica avatar/sfondo
+    _loadVisuals();
   }
 
   Future<void> _bootstrap() async {
@@ -85,6 +92,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _sub?.cancel();
+    AppBus.visualsVersion.removeListener(_onVisualChanged);
     super.dispose();
   }
 

@@ -152,6 +152,7 @@ class ShopPageState extends State<ShopPage> {
   Future<void> _onTapItem(ShopItem item) async {
     widget.onTapItem?.call(item);
 
+    // Se NON è acquistato → prima acquisto, poi chiedo se impostarlo
     if (!_isOwned(item)) {
       final balance = _flamingos ?? await _refreshBalance();
       final doBuy = await _showPurchaseDialog(item: item, balance: balance);
@@ -167,6 +168,7 @@ class ShopPageState extends State<ShopPage> {
       }
 
       try {
+        // spesa
         await giveFlamingo(
           service: _userService,
           email: _email,
@@ -174,15 +176,18 @@ class ShopPageState extends State<ShopPage> {
           context: context,
         );
         await _refreshBalance();
-        await ShopPrefs.addOwned(item);
 
-        setState(() {
-          if (item.type == ShopItemType.background) {
-            _ownedBg.add(item.asset);
-          } else {
-            _ownedAv.add(item.asset);
-          }
-        });
+        // segna come acquistato
+        await ShopPrefs.addOwned(item);
+        if (mounted) {
+          setState(() {
+            if (item.type == ShopItemType.background) {
+              _ownedBg.add(item.asset);
+            } else {
+              _ownedAv.add(item.asset);
+            }
+          });
+        }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -190,21 +195,22 @@ class ShopPageState extends State<ShopPage> {
           );
         }
       } catch (_) {
-        // giveFlamingo mostra già snackbar d'errore
+        // giveFlamingo mostra già snackbar d’errore
+        return;
       }
-      return;
     }
 
-    // Già acquistato → chiedi se impostarlo
     final setIt = await _showSetDialog(item: item);
     if (setIt == true) {
       await ShopPrefs.setSelected(item);
-      if (!mounted) return;
-      final what = item.type == ShopItemType.background ? 'Sfondo impostato' : 'Avatar impostato';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(what)));
-      Navigator.of(context).maybePop(true); // notifica la pagina chiamante
+      AppBus.visualsVersion.value++;
+      if (mounted) {
+        final what = item.type == ShopItemType.background ? 'Sfondo impostato' : 'Avatar impostato';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(what)));
+      }
     }
   }
+
 
   Future<bool?> _showPurchaseDialog({
     required ShopItem item,

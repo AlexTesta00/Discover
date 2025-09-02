@@ -142,12 +142,21 @@ class _ChallengeCardState extends State<ChallengeCard> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(40),
-                child: Image.asset(
+                child: Image.network(
                   widget.challenge.image,
-                  width: 64,
-                  height: 64,
+                  width: 84,
+                  height: 84,
                   fit: BoxFit.cover,
-                ),
+                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 40),
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return const SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    );
+                  },
+                )
               ),
               const SizedBox(width: 16),
               Expanded(

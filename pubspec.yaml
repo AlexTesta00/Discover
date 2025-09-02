@@ -59,5 +59,4 @@ flutter:
     - assets/data/
     - assets/avatar/
     - assets/shop/
-    - assets/challenge/
     - .env

@@ -5,7 +5,9 @@
         "description": "Trova e fotografa un fenicottero",
         "image": "assets/challenge/fenicottero.jpg",
         "xp": 100,
-        "flamingo": 70
+        "flamingo": 70,
+        "expectedLabels": ["flamingo"],
+        "minConfidence": 0.7
     },
     {
         "id": "Paesaggio",
@@ -13,7 +15,9 @@
         "description": "Trova e fotografa un bel paesaggio",
         "image": "assets/challenge/paesaggio.jpg",
         "xp": 50,
-        "flamingo": 30
+        "flamingo": 30,
+        "expectedLabels": ["landscape", "scenery", "nature", "plant"],
+        "minConfidence": 0.6
     },
     {
         "id": "Rana",
@@ -21,6 +25,8 @@
         "description": "Trova e fotografa una rana",
         "image": "assets/challenge/rana.jpg",
         "xp": 100,
-        "flamingo": 70
+        "flamingo": 70,
+        "expectedLabels": ["frog", "tree frog", "toad"],
+        "minConfidence": 0.7
     }
 ]

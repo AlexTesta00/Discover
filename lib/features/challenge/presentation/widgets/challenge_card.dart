@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_store.dart';
+import 'package:discover/features/challenge/domain/use_case/challenge_validator.dart';
 import 'package:discover/features/challenge/domain/use_case/supabase_storage.dart';
+import 'package:discover/features/challenge/presentation/widgets/error_modal.dart';
 import 'package:discover/features/challenge/presentation/widgets/modal_card.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,45 +46,58 @@ class _ChallengeCardState extends State<ChallengeCard> {
     setState(() => _loading = true);
 
     try {
-      // 1) Apri fotocamera
+      // 1) Scatta/Seleziona
       final XFile? shot = await _picker.pickImage(
         source: ImageSource.camera,
         preferredCameraDevice: CameraDevice.rear,
-        imageQuality: 90,
+        imageQuality: 92,
       );
-      if (shot == null) return; // utente ha annullato
+      if (shot == null) return;
 
-      // 2) Dati utente
-      final email = getUserEmail() ?? "anonimo";
+      final file = File(shot.path);
 
+      // 2) Validazione immagine (ML Kit)
+      final validator = ChallengeValidator();
+      final res = await validator.validate(widget.challenge, file);
+
+      if (!res.passed) {
+        // Mostra breve feedback con le top etichette viste
+        final top = res.scores.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        final hint = top.take(3).map((e) => '${e.key} ${(e.value * 100).toStringAsFixed(0)}%').join(', ');
+
+        if (mounted) {
+          await showDialog(
+            context: context,
+            builder: (_) => ErrorModal(
+              message: 'Foto non valida per "${widget.challenge.title}".\n'
+                      'Ho rilevato: $hint',
+            ),
+          );
+        }
+        return;
+      }
+
+      // 3) Premiazione + upload + setDone
+      final email = getUserEmail();
       final ts = DateTime.now().millisecondsSinceEpoch;
-      final filename = '${widget.challenge.id}_${email}_$ts.jpg';
+      final filename = '${widget.challenge.id}_$email$ts.jpg';
 
       await _uploader.uploadChallengePhoto(
-        file: File(shot.path),
-        email: email,
+        file: file,
+        email: email ?? 'unknown',
         filename: filename,
       );
 
-      await giveXp(
-        service: AppServices.userService,
-        email: email,
-        xp: widget.challenge.xp,
-        context: context,
-      );
+      await giveXp(service: AppServices.userService,email: email, xp: widget.challenge.xp, context: context);
+      await giveFlamingo(service: AppServices.userService, email: email, qty: widget.challenge.flamingo, context: context);
 
-      await giveFlamingo(
-        service: AppServices.userService,
-        email: email,
-        qty: widget.challenge.flamingo,
-        context: context,
-      );
-
-      // 5) Segna completata
       await widget.store.setDone(widget.challenge.id, true);
-      if (mounted) {
+
+      if (!mounted) return;
       setState(() => _done = true);
-      showDialog(
+
+      await showDialog(
         context: context,
         barrierDismissible: false,
         builder: (_) => ModalCard(
@@ -90,11 +105,11 @@ class _ChallengeCardState extends State<ChallengeCard> {
           flamingo: widget.challenge.flamingo,
         ),
       );
-      }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Errore: $e')),
+        await showDialog(
+          context: context,
+          builder: (_) => ErrorModal(message: e.toString()),
         );
       }
     } finally {

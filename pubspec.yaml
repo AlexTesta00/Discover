@@ -34,6 +34,8 @@ dependencies:
   geolocator: ^14.0.2
   flutter_polyline_points: ^3.0.1
   flutter_launcher_icons: ^0.14.4
+  shimmer: ^3.0.0
+  google_mlkit_image_labeling: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -57,5 +59,4 @@ flutter:
     - assets/data/
     - assets/avatar/
     - assets/shop/
-    - assets/challenge/
     - .env

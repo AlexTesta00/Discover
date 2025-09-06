@@ -1,11 +1,23 @@
-import 'package:discover/features/challenge/domain/entities/challenge.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../domain/entities/challenge.dart';
 
 class ChallengeRepository {
-  static const String _path = 'assets/data/challenge.json';
+  static const String bucket = 'challenge';
+  static const String objectPath = 'data/challenge.json';
+
+  final _storage = Supabase.instance.client.storage;
 
   Future<List<Challenge>> loadAll() async {
-    final jsonStr = await rootBundle.loadString(_path);
-    return Challenge.listFromJson(jsonStr);
+    final publicUrl = _storage.from(bucket).getPublicUrl(objectPath);
+
+    final res = await http.get(Uri.parse(publicUrl));
+    if (res.statusCode != 200) {
+      throw Exception(
+        'Impossibile scaricare challenge.json (HTTP ${res.statusCode})',
+      );
+    }
+
+    return Challenge.listFromJson(res.body);
   }
 }

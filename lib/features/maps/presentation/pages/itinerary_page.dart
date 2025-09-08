@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:discover/core/app_service.dart';
+import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
+import 'package:discover/features/challenge/presentation/widgets/modal_card.dart';
+import 'package:discover/features/gamification/utils.dart';
 import 'package:discover/features/maps/data/sources/point_of_interest_remote_data_source.dart';
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
 import 'package:discover/features/maps/domain/use_cases/build_itinerary.dart';
@@ -90,7 +94,7 @@ class _ItineraryPageState extends State<ItineraryPage> {
     _positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.best,
-        distanceFilter: 5, 
+        distanceFilter: 1, 
       ),
     ).listen((Position position) {
       final userPos = LatLng(position.latitude, position.longitude);
@@ -104,7 +108,8 @@ class _ItineraryPageState extends State<ItineraryPage> {
 
       if (_isItineraryActive && _routePoints.isNotEmpty) {
         _updateRouteProgress(userPos);
-        _recalculateRoute();
+        _checkReachedPoints();
+        _checkRouteDeviation(userPos);
       }
     });
   }
@@ -196,6 +201,82 @@ class _ItineraryPageState extends State<ItineraryPage> {
       _markers = addPointOfInterest(_markers, position);
     });
   }
+
+  Future<void> _checkReachedPoints() async {
+    if (_userLocation == null || !_isItineraryActive) return;
+
+    const threshold = 20.0; // metri
+
+    final reached = _selectedPoints.where((point) {
+      final distance = Geolocator.distanceBetween(
+        _userLocation!.latitude,
+        _userLocation!.longitude,
+        point.position.latitude,
+        point.position.longitude,
+      );
+      return distance < threshold;
+    }).toList();
+
+    if (reached.isEmpty) return;
+
+    final email = getUserEmail();
+    if (email == null) return;
+
+    for (final point in reached) {
+      await giveXp(
+        service: AppServices.userService,
+        email: email,
+        xp: 50,
+        context: context,
+      );
+
+      await giveFlamingo(
+        service: AppServices.userService,
+        email: email,
+        qty: 50,
+        context: context,
+      );
+
+      await showDialog(
+        context: context, 
+        builder: (context) => ModalCard(xp: 50, flamingo: 50)
+      );
+    }
+
+    setState(() {
+      _selectedPoints = List.unmodifiable(
+        _selectedPoints.where((p) => !reached.contains(p)),
+      );
+      _markers = List.unmodifiable(
+        _markers.where((p) => !reached.map((r) => r.position).contains(p.position)),
+      );
+    });
+    await _recalculateRoute();
+
+    if(_selectedPoints.isEmpty) {
+      _resetItinerary();
+    }
+  }
+
+  void _checkRouteDeviation(LatLng userPos) {
+    const deviationThreshold = 10.0; // 10 metri top, ma su tante richieste mmm, magari 15-20 metri potrebbe essere giusto
+
+    final isFar = _routePoints.any((point) {
+      final distance = Geolocator.distanceBetween(
+        userPos.latitude,
+        userPos.longitude,
+        point.latitude,
+        point.longitude,
+      );
+      return distance < deviationThreshold;
+    });
+
+    if (!isFar) {
+      debugPrint("Utente fuori rotta, ricalcolo...");
+      _recalculateRoute();
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

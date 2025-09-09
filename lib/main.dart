@@ -17,15 +17,15 @@ Future main() async {
     url: dotenv.env['SUPABASE_URL'] ?? '',
   );
   final sharedPreferences = await SharedPreferences.getInstance();
-  final isFirstRun = sharedPreferences.getBool('onBoardingComplete') ?? false;
+  final hasCompleteOnBoarding = sharedPreferences.getBool('onBoardingComplete') ?? false;
 
-  runApp(MyApp(isFirstRun: isFirstRun));
+  runApp(MyApp(hasCompleteOnBoarding: hasCompleteOnBoarding));
 }
 
 class MyApp extends StatelessWidget {
 
-  final bool isFirstRun;
-  const MyApp({super.key, required this.isFirstRun});
+  final bool hasCompleteOnBoarding;
+  const MyApp({super.key, required this.hasCompleteOnBoarding});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
-      home: isFirstRun ? const OnBoardingScreen() : const AuthenticationPage(),
+      home: hasCompleteOnBoarding ? const AuthenticationPage() : const OnBoardingScreen(),
       navigatorObservers: [routeObserver],
     );
   }

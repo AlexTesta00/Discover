@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:discover/core/app_service.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/challenge/presentation/widgets/modal_card.dart';
@@ -277,6 +276,70 @@ class _ItineraryPageState extends State<ItineraryPage> {
     }
   }
 
+  Future<bool> _ensureLocationReady() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Attiva la geolocalizzazione per iniziare l'itinerario.")),
+        );
+      }
+      await Geolocator.openLocationSettings();
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Permesso posizione negato. Concedilo per avviare l'itinerario.")),
+        );
+      }
+      return false;
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return false;
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Permesso posizione necessario"),
+          content: const Text(
+            "Per avviare l'itinerario è necessario il permesso di accedere alla posizione. "
+            "Apri le impostazioni dell'app e abilita la posizione."
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Annulla")),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await Geolocator.openAppSettings();
+              },
+              child: const Text("Apri impostazioni"),
+            ),
+          ],
+        ),
+      );
+      return false;
+    }
+
+    if (_userLocation == null) {
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+      setState(() {
+        _userLocation = LatLng(pos.latitude, pos.longitude);
+        _heading = pos.heading;
+      });
+    }
+
+    return true;
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -407,10 +470,13 @@ class _ItineraryPageState extends State<ItineraryPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton.icon(
-                onPressed: () {
+              onPressed: () async {
                   if (_isItineraryActive) {
                     _resetItinerary();
                   } else {
+                    final ok = await _ensureLocationReady();
+                    if (!ok) return; // fermati se permessi/servizi non ok
+                    // se ok, prosegui
                     _showTransportModeDialog();
                   }
                 },

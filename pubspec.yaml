@@ -38,6 +38,7 @@ dependencies:
   google_mlkit_image_labeling: ^0.14.1
   connectivity_plus: ^6.1.5
   internet_connection_checker: ^3.0.1
+  showcaseview: ^4.0.1
 
 dev_dependencies:
   flutter_test:

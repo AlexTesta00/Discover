@@ -36,6 +36,9 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   shimmer: ^3.0.0
   google_mlkit_image_labeling: ^0.14.1
+  connectivity_plus: ^6.1.5
+  internet_connection_checker: ^3.0.1
+  showcaseview: ^4.0.1
 
 dev_dependencies:
   flutter_test:
@@ -46,9 +49,9 @@ flutter_launcher_icons:
   android: true
   ios: true
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/icons/app_icon_1024.png"
-  image_path_ios: "assets/icons/app_icon_1024.png"
-  image_path: "assets/icons/app_icon_1024.png"
+  adaptive_icon_foreground: "assets/icons/app_icon.png"
+  image_path_ios: "assets/icons/app_icon.png"
+  image_path: "assets/icons/app_icon.png"
 
 flutter:
   uses-material-design: true

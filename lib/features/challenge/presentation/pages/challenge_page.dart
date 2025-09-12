@@ -3,6 +3,7 @@ import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_store.dart';
 import 'package:discover/features/challenge/presentation/widgets/section_header.dart';
+import 'package:discover/features/challenge/presentation/widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 import '../widgets/challenge_card.dart';
 
@@ -32,7 +33,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonChallengesList(itemCount: 6);
           }
           if (snapshot.hasError) {
             return Center(

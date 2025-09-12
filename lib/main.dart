@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:discover/app/route_observer.dart';
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
+import 'package:discover/features/connectivity/presentation/widgets/network_gate.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -17,15 +19,15 @@ Future main() async {
     url: dotenv.env['SUPABASE_URL'] ?? '',
   );
   final sharedPreferences = await SharedPreferences.getInstance();
-  final isFirstRun = sharedPreferences.getBool('onBoardingComplete') ?? false;
+  final hasCompleteOnBoarding =
+      sharedPreferences.getBool('onBoardingComplete') ?? false;
 
-  runApp(MyApp(isFirstRun: isFirstRun));
+  runApp(MyApp(hasCompleteOnBoarding: hasCompleteOnBoarding));
 }
 
 class MyApp extends StatelessWidget {
-
-  final bool isFirstRun;
-  const MyApp({super.key, required this.isFirstRun});
+  final bool hasCompleteOnBoarding;
+  const MyApp({super.key, required this.hasCompleteOnBoarding});
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +35,15 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
-      home: isFirstRun ? const OnBoardingScreen() : const AuthenticationPage(),
+      home: hasCompleteOnBoarding
+          ? const AuthenticationPage()
+          : const OnBoardingScreen(),
       navigatorObservers: [routeObserver],
+      builder: (context, child) {
+        return NetworkGate(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

@@ -1,3 +1,17 @@
+## [1.10.0](https://github.com/AlexTesta00/Discover/compare/v1.9.0...v1.10.0) (2025-09-12)
+
+### Features
+
+* **challenge:** added skeleton loading page ([d71046e](https://github.com/AlexTesta00/Discover/commit/d71046ee768d3295a733ea06c8be70f056b0e963))
+* now when user reach a point, app give falmingo and xp ([ee57d33](https://github.com/AlexTesta00/Discover/commit/ee57d33f2a3bfdbe1b4ba535513133c4230ba998))
+* now, when the user does not have a connection, an overlay is displayed ([e3adbf3](https://github.com/AlexTesta00/Discover/commit/e3adbf3bed82efe5d3a0a37d86053c970dc0d308))
+
+### Bug Fixes
+
+* fix bug that never show onBoardingScreen ([5efb0a2](https://github.com/AlexTesta00/Discover/commit/5efb0a2bac23b60dc8357399e8f71fabf65d3ba3))
+* if the user does not accept the permissions, they will be requested ([a5cb3df](https://github.com/AlexTesta00/Discover/commit/a5cb3df5881ee29cd91ddfcb2cff33765b674fcf))
+* **news:** fix skeleton loading in news section ([a6cb779](https://github.com/AlexTesta00/Discover/commit/a6cb7796962bc100e0072b92e8689690414f2b73))
+
 ## [1.9.0](https://github.com/AlexTesta00/Discover/compare/v1.8.0...v1.9.0) (2025-09-06)
 
 ### Features

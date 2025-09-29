@@ -77,7 +77,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 GestureDetector(
                   onTap: () async {
                     final preference = await SharedPreferences.getInstance();
-                    await preference.setBool('onBoardingComplete', true);
+                    await preference.setBool('onBoardingComplete', false); //TODO!: Default true CHANGE TO TRUE
                     
                     if(!mounted) return;
 

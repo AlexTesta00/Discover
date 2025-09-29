@@ -5,8 +5,6 @@ import 'package:discover/features/challenge/presentation/pages/challenge_page.da
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/news/presentation/pages/news_page.dart';
 import 'package:discover/features/notices/presentation/pages/notices_page.dart';
-import 'package:discover/features/profile/presentation/pages/profile_page.dart';
-import 'package:discover/features/shop/presentation/pages/shop_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -21,16 +19,14 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
-  final GlobalKey<ShopPageState> _shopKey = GlobalKey<ShopPageState>();
-  final GlobalKey<ProfileScreenState> _profileKey = GlobalKey<ProfileScreenState>();
 
   final List<String> _titles = [
     'Itinerario',
     'Challenge',
-    'News',
-    'Avvisi',
-    'Negozio',
-    'Profilo',
+    //'News',
+    //'Avvisi',
+    //'Negozio',
+    //'Profilo',
   ];
 
   Future<void> logout() async {
@@ -88,14 +84,6 @@ class _DashboardPageState extends State<DashboardPage> {
           setState(() {
             _currentIndex = index;
           });
-
-          if (index == 3) {
-            _shopKey.currentState?.refreshFromOutside();
-          }
-
-          if (index == 4) {
-            await _profileKey.currentState?.reloadVisualsFromPrefs();
-          }
         },
         tabs: [
           PersistentTabConfig(
@@ -130,22 +118,22 @@ class _DashboardPageState extends State<DashboardPage> {
               activeForegroundColor: AppTheme.primaryColor
             )
           ),
-          PersistentTabConfig(
-            screen: ShopPage(key: _shopKey),
-            item: ItemConfig(
-              icon: Icon(Icons.store),
-              title: 'Negozio',
-              activeForegroundColor: AppTheme.primaryColor
-            )
-          ), 
-          PersistentTabConfig(
-            screen: ProfileScreen(key: _profileKey),
-            item: ItemConfig(
-              icon: Icon(Icons.account_circle),
-              title: 'Profilo',
-              activeForegroundColor: AppTheme.primaryColor
-            )
-          ),
+          // PersistentTabConfig(
+          //   screen: ShopPage(key: _shopKey),
+          //   item: ItemConfig(
+          //     icon: Icon(Icons.store),
+          //     title: 'Negozio',
+          //     activeForegroundColor: AppTheme.primaryColor
+          //   )
+          // ), 
+          // PersistentTabConfig(
+          //   screen: ProfileScreen(key: _profileKey),
+          //   item: ItemConfig(
+          //     icon: Icon(Icons.account_circle),
+          //     title: 'Profilo',
+          //     activeForegroundColor: AppTheme.primaryColor
+          //   )
+          // ),
         ], 
         navBarBuilder: (navBarConfig) => Style2BottomNavBar(
           navBarConfig: navBarConfig

@@ -1,5 +1,6 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
+import 'package:discover/features/onboarding/presentation/pages/finish_on_boarding.dart';
 import 'package:discover/features/onboarding/presentation/widgets/onboarding_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +53,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 description: 'Il progetto discover nasce dall’esigenza di fare qualcosa, in modo carino e confortevole senza che nessun animale venga maltrattato, sopratutto quei fenicotteri che sembrano sensibili a qualsiasi cosa, e sembra che sappiano cosa sono delle telecamere e vivono costantemente in un truman show',
                 imagePath: 'assets/images/citizen_3d.png',
               ),
+              
             ],
           ),
 
@@ -84,7 +86,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     Navigator.pushReplacement(
                       context, 
                       MaterialPageRoute(
-                        builder: (context) => const AuthenticationGate()
+                        builder: (context) => const FinishOnBoarding() //TODO: const AuthenticationGate() utils to late
                       ),
                     );
                   },

@@ -3,8 +3,6 @@ import 'package:discover/features/authentication/domain/use_cases/authentication
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_page.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
-import 'package:discover/features/news/presentation/pages/news_page.dart';
-import 'package:discover/features/notices/presentation/pages/notices_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -102,22 +100,22 @@ class _DashboardPageState extends State<DashboardPage> {
               activeForegroundColor: AppTheme.primaryColor
             )
           ),
-          PersistentTabConfig(
-            screen: const NewsPage(), 
-            item: ItemConfig(
-              icon: Icon(Icons.newspaper),
-              title: 'News',
-              activeForegroundColor: AppTheme.primaryColor
-            )
-          ),
-          PersistentTabConfig(
-            screen: const NoticesPage(), 
-            item: ItemConfig(
-              icon: Icon(Icons.notifications_active),
-              title: 'Avvisi',
-              activeForegroundColor: AppTheme.primaryColor
-            )
-          ),
+          // PersistentTabConfig(
+          //   screen: const NewsPage(), 
+          //   item: ItemConfig(
+          //     icon: Icon(Icons.newspaper),
+          //     title: 'News',
+          //     activeForegroundColor: AppTheme.primaryColor
+          //   )
+          // ),
+          // PersistentTabConfig(
+          //   screen: const NoticesPage(), 
+          //   item: ItemConfig(
+          //     icon: Icon(Icons.notifications_active),
+          //     title: 'Avvisi',
+          //     activeForegroundColor: AppTheme.primaryColor
+          //   )
+          // ),
           // PersistentTabConfig(
           //   screen: ShopPage(key: _shopKey),
           //   item: ItemConfig(

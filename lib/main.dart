@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:discover/app/route_observer.dart';
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
@@ -37,7 +36,6 @@ class MyApp extends StatelessWidget {
       home: hasCompleteOnBoarding
           ? const AuthenticationPage()
           : const OnBoardingScreen(),
-      navigatorObservers: [routeObserver],
     );
   }
 }

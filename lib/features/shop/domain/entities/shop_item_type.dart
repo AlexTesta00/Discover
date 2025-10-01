@@ -1,4 +1,0 @@
-enum ShopItemType {
-  background,
-  avatar
-}

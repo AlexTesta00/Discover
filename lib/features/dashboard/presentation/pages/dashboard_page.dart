@@ -21,10 +21,6 @@ class _DashboardPageState extends State<DashboardPage> {
   final List<String> _titles = [
     'Itinerario',
     'Challenge',
-    //'News',
-    //'Avvisi',
-    //'Negozio',
-    //'Profilo',
   ];
 
   Future<void> logout() async {
@@ -100,38 +96,6 @@ class _DashboardPageState extends State<DashboardPage> {
               activeForegroundColor: AppTheme.primaryColor
             )
           ),
-          // PersistentTabConfig(
-          //   screen: const NewsPage(), 
-          //   item: ItemConfig(
-          //     icon: Icon(Icons.newspaper),
-          //     title: 'News',
-          //     activeForegroundColor: AppTheme.primaryColor
-          //   )
-          // ),
-          // PersistentTabConfig(
-          //   screen: const NoticesPage(), 
-          //   item: ItemConfig(
-          //     icon: Icon(Icons.notifications_active),
-          //     title: 'Avvisi',
-          //     activeForegroundColor: AppTheme.primaryColor
-          //   )
-          // ),
-          // PersistentTabConfig(
-          //   screen: ShopPage(key: _shopKey),
-          //   item: ItemConfig(
-          //     icon: Icon(Icons.store),
-          //     title: 'Negozio',
-          //     activeForegroundColor: AppTheme.primaryColor
-          //   )
-          // ), 
-          // PersistentTabConfig(
-          //   screen: ProfileScreen(key: _profileKey),
-          //   item: ItemConfig(
-          //     icon: Icon(Icons.account_circle),
-          //     title: 'Profilo',
-          //     activeForegroundColor: AppTheme.primaryColor
-          //   )
-          // ),
         ], 
         navBarBuilder: (navBarConfig) => Style2BottomNavBar(
           navBarConfig: navBarConfig

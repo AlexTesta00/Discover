@@ -1,8 +1,9 @@
 import 'package:discover/config/themes/app_theme.dart';
-import 'package:discover/features/registration/domain/entities/registration_data.dart';
-import 'package:discover/features/registration/presentation/widgets/avatar_step.dart';
-import 'package:discover/features/registration/presentation/widgets/email_step.dart';
-import 'package:discover/features/registration/presentation/widgets/password_step.dart';
+import 'package:discover/features/authentication/domain/entities/registration_data.dart';
+import 'package:discover/features/authentication/domain/use_cases/registration_service.dart';
+import 'package:discover/features/authentication/presentation/widgets/avatar_step.dart';
+import 'package:discover/features/authentication/presentation/widgets/email_step.dart';
+import 'package:discover/features/authentication/presentation/widgets/password_step.dart';
 import 'package:flutter/material.dart';
 import '../widgets/progress_pills.dart';
 
@@ -26,6 +27,7 @@ class _OnboardingRegistrationPageState
 
   final data = RegistrationData();
   int step = 0;
+  bool loading = false;
 
   @override
   void dispose() {
@@ -36,7 +38,7 @@ class _OnboardingRegistrationPageState
     super.dispose();
   }
 
-  void _next() {
+  Future<void> _next() async {
     if (step == 0) {
       if (_emailKey.currentState?.validate() != true) return;
       data.email = _emailCtrl.text.trim();
@@ -48,10 +50,24 @@ class _OnboardingRegistrationPageState
         _snack('Seleziona un avatar per continuare');
         return;
       }
-      // TODO: integrazione backend
-      _snack(
-        'Account creato!\nEmail: ${data.email}\nAvatar: ${data.avatarKey}',
+
+      //Register user
+      setState(() => loading = true);
+
+      final result = await signUpAndCreateProfile(
+        email: data.email!,
+        password: data.password!,
+        avatarUrl: data.avatarKey!,
+      ).run();
+
+      if (!mounted) return;
+      setState(() => loading = false);
+
+      result.match(
+        (err) => _snack('Errore durante la registrazione: $err'),
+        (_) => _snack('Registrazione avvenuta con successo!'),
       );
+      
       return;
     }
     setState(() => step += 1);

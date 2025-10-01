@@ -1,6 +1,6 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
-import 'package:discover/features/registration/presentation/pages/welcome_registration.dart';
+import 'package:discover/features/authentication/presentation/pages/welcome_registration.dart';
 import 'package:flutter/material.dart';
 
 class FinishOnBoarding extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../widgets/step_scaffold.dart';
+import 'step_scaffold.dart';
 
 class AvatarStep extends StatelessWidget {
   final String? selectedKey;

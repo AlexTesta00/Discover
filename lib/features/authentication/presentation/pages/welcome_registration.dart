@@ -1,7 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/dashboard/presentation/pages/dashboard_page.dart';
-import 'package:discover/features/registration/presentation/pages/onboarding_registration.dart';
+import 'package:discover/features/authentication/presentation/pages/onboarding_registration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -52,7 +52,17 @@ class _WelcomeRegistrationState extends State<WelcomeRegistration> {
           if (!mounted) return;
           final session =
               response.session ?? Supabase.instance.client.auth.currentSession;
-
+          final ensure = await ensureProfileFromCurrentUser(
+            defaultAvatarUrl: 'assets/avatar/avatar_9.png',
+          ).run();
+          ensure.match(
+            (e) {
+              print("Errore ensure, $e");
+            },
+            (_) {
+              print("Ensure completed");
+            },
+          ); //TODO: Tech debit, ensure user creation in table profile
           if (session != null) {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const DashboardPage()),
@@ -134,7 +144,8 @@ class _WelcomeRegistrationState extends State<WelcomeRegistration> {
                         onPressed: () {
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                              builder: (_) => const OnboardingRegistrationPage(),
+                              builder: (_) =>
+                                  const OnboardingRegistrationPage(),
                             ),
                             (_) => false,
                           );

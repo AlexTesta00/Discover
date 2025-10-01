@@ -1,6 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:discover/features/registration/presentation/pages/onboarding_registration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -131,7 +132,12 @@ class _WelcomeRegistrationState extends State<WelcomeRegistration> {
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                         ),
                         onPressed: () {
-                          //TODO: Go to onboarding registration
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (_) => const OnboardingRegistrationPage(),
+                            ),
+                            (_) => false,
+                          );
                         },
                         child: const Text(
                           'Registrati con il telefono',

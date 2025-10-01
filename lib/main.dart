@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:discover/app/route_observer.dart';
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
-import 'package:discover/features/connectivity/presentation/widgets/network_gate.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -39,11 +38,6 @@ class MyApp extends StatelessWidget {
           ? const AuthenticationPage()
           : const OnBoardingScreen(),
       navigatorObservers: [routeObserver],
-      builder: (context, child) {
-        return NetworkGate(
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
     );
   }
 }

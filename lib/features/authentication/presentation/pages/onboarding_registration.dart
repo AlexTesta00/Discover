@@ -1,9 +1,11 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/entities/registration_data.dart';
 import 'package:discover/features/authentication/domain/use_cases/registration_service.dart';
+import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/authentication/presentation/widgets/avatar_step.dart';
 import 'package:discover/features/authentication/presentation/widgets/email_step.dart';
 import 'package:discover/features/authentication/presentation/widgets/password_step.dart';
+import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
 import '../widgets/progress_pills.dart';
 
@@ -51,7 +53,6 @@ class _OnboardingRegistrationPageState
         return;
       }
 
-      //Register user
       setState(() => loading = true);
 
       final result = await signUpAndCreateProfile(
@@ -63,11 +64,24 @@ class _OnboardingRegistrationPageState
       if (!mounted) return;
       setState(() => loading = false);
 
-      result.match(
-        (err) => _snack('Errore durante la registrazione: $err'),
-        (_) => _snack('Registrazione avvenuta con successo!'),
-      );
-      
+      result.match((err) => _snack('Errore durante la registrazione: $err'), (
+        _,
+      ) async {
+        //Modale di congratulazioni e reindirizzamento all auth gate
+        await showSuccessModal(
+          context,
+          title: "Congratulazioni!",
+          description: "Hai creato il tuo account con successo",
+        );
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AuthenticationGate()),
+        );
+      });
+
       return;
     }
     setState(() => step += 1);

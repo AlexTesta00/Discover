@@ -79,14 +79,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 GestureDetector(
                   onTap: () async {
                     final preference = await SharedPreferences.getInstance();
-                    await preference.setBool('onBoardingComplete', false); //TODO!: Default true CHANGE TO TRUE
+                    await preference.setBool('onBoardingComplete', true);
                     
                     if(!mounted) return;
 
                     Navigator.pushReplacement(
                       context, 
                       MaterialPageRoute(
-                        builder: (context) => const FinishOnBoarding() //TODO: const AuthenticationGate() utils to late
+                        builder: (context) => const FinishOnBoarding()
                       ),
                     );
                   },

@@ -54,6 +54,7 @@ class _WelcomeRegistrationState extends State<WelcomeRegistration> {
               response.session ?? Supabase.instance.client.auth.currentSession;
           final ensure = await ensureProfileFromCurrentUser(
             defaultAvatarUrl: 'assets/avatar/avatar_9.png',
+            defaultBackgroundUrl: 'assets/background/default.png',
           ).run();
           ensure.match(
             (e) {

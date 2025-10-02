@@ -1,6 +1,6 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/entities/registration_data.dart';
-import 'package:discover/features/authentication/domain/use_cases/registration_service.dart';
+import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/authentication/presentation/widgets/avatar_step.dart';
 import 'package:discover/features/authentication/presentation/widgets/email_step.dart';

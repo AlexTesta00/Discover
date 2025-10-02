@@ -2,13 +2,15 @@ class Profile {
   final String id;
   final String email;
   final String avatarUrl;
-  final DateTime? updatedAt;
+  final String backgroundUrl;
+  final int xp;
 
   Profile({
     required this.id,
     required this.email,
     required this.avatarUrl,
-    required this.updatedAt,
+    required this.backgroundUrl,
+    required this.xp,
   });
 
   factory Profile.fromMap(Map<String, dynamic> map) {
@@ -16,9 +18,10 @@ class Profile {
       id: map['id'] as String,
       email: map['email'] as String,
       avatarUrl: map['avatar_url'] as String? ?? '',
-      updatedAt: map['updated_at'] != null
-            ? DateTime.tryParse(map['updated_at'] as String)
-            : null,
+      backgroundUrl: map['background_url'] as String? ?? '',
+      xp: map['xp'] is int
+          ? map['xp'] as int
+          : int.tryParse(map['xp']?.toString() ?? '0') ?? 0,
     );
   }
 
@@ -27,6 +30,8 @@ class Profile {
       'id': id,
       'email': email,
       'avatar_url': avatarUrl,
+      'background_url': backgroundUrl,
+      'xp': xp,
     };
   }
 }

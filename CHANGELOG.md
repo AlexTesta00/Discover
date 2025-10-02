@@ -1,3 +1,14 @@
+## [2.0.0](https://github.com/AlexTesta00/Discover/compare/v1.10.0...v2.0.0) (2025-10-02)
+
+### ⚠ BREAKING CHANGES
+
+* **authentication:** now user can register and authenticate with a onboard screens
+
+### Features
+
+* **authentication:** added background_url and xp as user fileds ([7755012](https://github.com/AlexTesta00/Discover/commit/7755012241408737e86367af1e141bc5a59abf8e))
+* **authentication:** now user can register and authenticate with a onboard screens ([5b1e41b](https://github.com/AlexTesta00/Discover/commit/5b1e41b9132de548c74476e7b11278d33a17b20d))
+
 ## [1.10.0](https://github.com/AlexTesta00/Discover/compare/v1.9.0...v1.10.0) (2025-09-12)
 
 ### Features

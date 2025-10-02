@@ -7,7 +7,7 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFF90B4CE);
   static const Color creamColor = Color.fromRGBO(249, 247, 243, 1);
 
-    static ThemeData get lightTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme(
@@ -53,4 +53,10 @@ class AppTheme {
     );
   }
 
+  static InputDecoration inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+    );
+  }
 }

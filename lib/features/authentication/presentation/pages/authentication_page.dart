@@ -1,6 +1,6 @@
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
-import 'package:discover/features/authentication/presentation/pages/register_page.dart';
 import 'package:discover/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:discover/features/authentication/presentation/pages/welcome_registration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,7 +14,6 @@ class AuthenticationPage extends StatefulWidget {
 }
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
-
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
@@ -32,7 +31,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email e password non possono essere vuoti')),
+        const SnackBar(
+          content: Text('Email e password non possono essere vuoti'),
+        ),
       );
       return;
     }
@@ -42,9 +43,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     result.match(
       (error) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error)));
         }
       },
       (response) {
@@ -103,15 +104,27 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       result.match(
         (error) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error)));
         },
         (response) async {
           if (!mounted) return;
 
-          final session = response.session ?? Supabase.instance.client.auth.currentSession;
-
+          final session =
+              response.session ?? Supabase.instance.client.auth.currentSession;
+          final ensure = await ensureProfileFromCurrentUser(
+            defaultAvatarUrl: 'assets/avatar/avatar_9.png',
+            defaultBackgroundUrl: 'assets/background/default.png',
+          ).run();
+          ensure.match(
+            (e) {
+              print("Errore ensure, $e");
+            },
+            (_) {
+              print("Ensure completed");
+            },
+          ); //TODO: Tech debit, ensure user creation in table profile
           if (session != null) {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const DashboardPage()),
@@ -119,16 +132,20 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Login Google eseguito, ma nessuna sessione attiva.')),
+              const SnackBar(
+                content: Text(
+                  'Login Google eseguito, ma nessuna sessione attiva.',
+                ),
+              ),
             );
           }
         },
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore inatteso: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Errore inatteso: $e')));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -138,7 +155,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login', style: TextStyle(color: Colors.black),),
+        title: const Text('Login', style: TextStyle(color: Colors.black)),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.transparent,
@@ -183,16 +200,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             obscureText: true,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: login,
-            child: const Text('Login'),
-          ),
+          ElevatedButton(onPressed: login, child: const Text('Login')),
           const SizedBox(height: 20),
           Row(
             children: [
               Expanded(child: Divider(thickness: 1)),
-              Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), 
-              child: Text(' Oppure '),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(' Oppure '),
               ),
               Expanded(child: Divider(thickness: 1)),
             ],
@@ -229,21 +244,18 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const RegisterPage(),
+                builder: (context) => const WelcomeRegistration(),
               ),
             ),
-            child: 
-            const Center(
-              child:
-              Text('Non hai un account? Registrati', 
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                ),
+            child: const Center(
+              child: Text(
+                'Non hai un account? Registrati',
+                style: TextStyle(decoration: TextDecoration.underline),
               ),
+            ),
           ),
-        ),
-      ],
-      )
+        ],
+      ),
     );
   }
 }

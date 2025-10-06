@@ -1,8 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
-import 'package:discover/features/challenge/presentation/pages/challenge_page.dart';
-import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
+import 'package:discover/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -19,8 +18,7 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _loggingOut = false;
 
   final List<String> _titles = [
-    'Itinerario',
-    'Challenge',
+    'Profilo',
   ];
 
   Future<void> logout() async {
@@ -81,21 +79,13 @@ class _DashboardPageState extends State<DashboardPage> {
         },
         tabs: [
           PersistentTabConfig(
-            screen: const ItineraryPage(), 
+            screen: const ProfilePage(), 
             item: ItemConfig(
-                icon: Icon(Icons.follow_the_signs_rounded),
-                title: 'Itinerario',
+                icon: Icon(Icons.account_circle),
+                title: 'Profilo',
                 activeForegroundColor: AppTheme.primaryColor
               )
             ),
-          PersistentTabConfig(
-            screen: const ChallengesPage(), 
-            item: ItemConfig(
-              icon: Icon(Icons.emoji_events_rounded),
-              title: 'Challenge',
-              activeForegroundColor: AppTheme.primaryColor
-            )
-          ),
         ], 
         navBarBuilder: (navBarConfig) => Style2BottomNavBar(
           navBarConfig: navBarConfig

@@ -62,4 +62,5 @@ flutter:
     - assets/data/
     - assets/avatar/
     - assets/shop/
+    - assets/background/
     - .env

@@ -2,7 +2,10 @@ import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
 import 'package:discover/features/user/domain/entity/user.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:discover/utils/presentation/pages/error_page.dart';
+import 'package:discover/utils/presentation/pages/loading_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' hide State;
 
 class ProfileScreenState extends StatefulWidget {
   const ProfileScreenState({super.key});
@@ -12,7 +15,7 @@ class ProfileScreenState extends StatefulWidget {
 }
 
 class _ProfileScreenStateState extends State<ProfileScreenState> {
-  late Future<User> _userFuture;
+  late Future<Either<String, User>> _userFuture;
 
   @override
   void initState() {
@@ -20,69 +23,79 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
     super.initState();
   }
 
-  Future<User> _load() async {
-    final email = getUserEmail() ?? 'error';
-    final result = await Future.wait([
-      getUserAvatar(),
-      getUserBackground(),
-      getUserXp(),
-      getUserBalance(),
-      getMyLevel(),
-      getNextLevel(),
-    ], eagerError: true);
+  // --- versione con Either<String, User> ---
+  Future<Either<String, User>> _load() async {
+    try {
+      final email = getUserEmail();
+      if (email == null) {
+        return left('Email non trovata');
+      }
 
-    final userAvatar =
-        result[0] as String? ??
-        'assets/avatar/avatar_9.png'; //TODO: tech debit error avatar
-    final userBackground =
-        result[1] as String? ??
-        'assets/background/default.png'; //TODO: tech debit error background
-    final userXp = result[2] as int? ?? 0; //TODO: tech debit error xp
-    final userBalance = result[3] as int? ?? 0; //TODO: tech debit error balance
-    final userLevel =
-        result[4] as Level? ??
-        Level(
-          grade: 0,
-          name: 'Sconosciuto',
-          xpToReach: 0,
-        ); //TODO: tech debit error level
-    final nextLevel =
-        result[5] as Level? ??
-        Level(
-          grade: 0,
-          name: 'Sconosciuto',
-          xpToReach: 0,
-        ); //TODO: tech debit error gap
+      final result = await Future.wait([
+        getUserAvatar(),
+        getUserBackground(),
+        getUserXp(),
+        getUserBalance(),
+        getMyLevel(),
+        getNextLevel(),
+      ], eagerError: true);
 
-    return User(
-      email: email,
-      avatarImage: userAvatar,
-      backgroundImage: userBackground,
-      xp: userXp,
-      balance: userBalance,
-      level: userLevel,
-      nextLevel: nextLevel,
-    );
+      final userAvatar = (result[0] as String?) ?? 'assets/icons/error.png';
+      final userBackground = (result[1] as String?) ?? 'assets/background/error.png';
+      final userXp = (result[2] as int?) ?? 0;
+      final userBalance = (result[3] as int?) ?? 0;
+      final userLevel = (result[4] as Level?) ??
+          Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
+      final nextLevel = (result[5] as Level?) ??
+          Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
+
+      final user = User(
+        email: email,
+        avatarImage: userAvatar,
+        backgroundImage: userBackground,
+        xp: userXp,
+        balance: userBalance,
+        level: userLevel,
+        nextLevel: nextLevel,
+      );
+
+      return right(user);
+    } catch (e) {
+      return left('Errore durante il caricamento utente: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<Either<String, User>>(
       future: _userFuture,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snap.hasError) {
-          return Center(
-            child: Text('Error: ${snap.error}'),
-          ); //TODO: tech debit loading page
-        } else if (snap.hasData) {
-          final user = snap.data!;
-          return RefreshIndicator(
+          return LoadingPage();
+        }
+
+        if (snap.hasError) {
+          return ErrorPage(message: 'Errore imprevisto: ${snap.error}');
+        }
+
+        if (!snap.hasData) {
+          return ErrorPage(message: 'Nessun dato disponibile');
+        }
+
+        return snap.data!.match(
+          (err) => Center(
+            child: Text(
+              'Errore: $err',
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+          (user) => RefreshIndicator(
             displacement: 56,
             color: Theme.of(context).colorScheme.primary,
             onRefresh: () async {
-              setState(() { _userFuture = _load();});
+              setState(() {
+                _userFuture = _load();
+              });
               await _userFuture;
             },
             child: ProfilePage(
@@ -90,16 +103,15 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
               avatarImage: user.avatarImage,
               username: user.email.split('@').first,
               levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
-              friendsCount: 0, //TODO: tech debit friends count
-              challengeImages: const [], //TODO: tech debit challenges
-              progress: Level.progressToNextLevel(user.xp, user.nextLevel.xpToReach),
+              friendsCount: 0, // TODO: tech debit friends count
+              challengeImages: const [], // TODO: tech debit challenges
+              progress: Level.progressToNextLevel(
+                user.xp,
+                user.nextLevel.xpToReach,
+              ),
             ),
-          );
-        } else {
-          return const Center(
-            child: Text('Unknown error'),
-          ); //TODO: tech debit error page
-        }
+          ),
+        );
       },
     );
   }

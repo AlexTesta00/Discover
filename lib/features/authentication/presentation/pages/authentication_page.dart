@@ -113,10 +113,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
           final session =
               response.session ?? Supabase.instance.client.auth.currentSession;
-          final ensure = await ensureProfileFromCurrentUser(
-            defaultAvatarUrl: 'assets/avatar/avatar_9.png',
-            defaultBackgroundUrl: 'assets/background/default.png',
-          ).run();
+          final ensure = await ensureProfileFromCurrentUser().run();
           ensure.match(
             (e) {
               print("Errore ensure, $e");

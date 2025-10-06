@@ -2,6 +2,7 @@ import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
+import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -79,7 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
         },
         tabs: [
           PersistentTabConfig(
-            screen: const ProfilePage(), 
+            screen: const ProfileScreenState(), 
             item: ItemConfig(
                 icon: Icon(Icons.account_circle),
                 title: 'Profilo',

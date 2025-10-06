@@ -19,7 +19,7 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.bold,
           color: const Color(0xFF1B1B1B),
         );
 

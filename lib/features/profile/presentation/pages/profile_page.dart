@@ -6,20 +6,22 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({
     super.key,
-    this.username = 'mario.rossi',
-    this.friendsCount = 165,
-    this.levelLabel = 'Liv.2 Terrapiattista',
-    this.headerImage = 'assets/background/default.png',
-    this.avatarImage = 'assets/avatar/avatar_9.png',
-    this.challengeImages = const <String>[],
+    required this.username,
+    required this.friendsCount,
+    required this.levelLabel,
+    required this.headerImage,
+    required this.avatarImage,
+    required this.challengeImages, //= const <String>[],
+    required this.progress,
   });
 
-  final String? headerImage;
-  final String? avatarImage;
+  final String headerImage;
+  final String avatarImage;
   final String username;
   final int friendsCount;
   final String levelLabel;
   final List<String> challengeImages;
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class ProfilePage extends StatelessWidget {
         scrolledUnderElevation: 0,
       ),
       body: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -53,24 +56,24 @@ class ProfilePage extends StatelessWidget {
               headerImage: headerImage,
               avatarImage: avatarImage,
               shadow: shadow,
-              progress: 0.90,
+              progress: progress,
               ringColor: Theme.of(context).colorScheme.primary,
               ringThickness: 5.0,
               ringSize: 128.0,
             ),
             const SizedBox(height: 42),
-      
+
             // Username
             Text(
               username,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: textColor,
+                fontWeight: FontWeight.w600,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-      
+
             // Card "Amici"
             InfoCard(
               title: 'Amici',
@@ -79,7 +82,7 @@ class ProfilePage extends StatelessWidget {
               shadow: shadow,
             ),
             const SizedBox(height: 32),
-      
+
             // Card "Livello"
             InfoCard(
               title: 'Livello',
@@ -88,7 +91,7 @@ class ProfilePage extends StatelessWidget {
               shadow: shadow,
             ),
             const SizedBox(height: 32),
-      
+
             ChallengeGrid(images: challengeImages),
           ],
         ),

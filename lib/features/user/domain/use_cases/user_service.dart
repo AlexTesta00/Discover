@@ -1,3 +1,4 @@
+import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final SupabaseClient _supabase = Supabase.instance.client;
@@ -61,16 +62,29 @@ Future<int?> getUserBalance() async {
   return res?['balance'] as int?;
 }
 
-Future<Map<String, dynamic>?> getMyLevel() async {
+Future<Level?> getMyLevel() async {
   final uid = _supabase.auth.currentUser?.id;
   if (uid == null) return null;
 
   final res = await _supabase
       .from('user_profiles')
-      .select('level_grade, level:levels(name, xp_to_reach)')
+      .select('level_grade, level:levels(grade, name, xp_to_reach)')
       .eq('user_id', uid)
       .maybeSingle();
-  return res;
+    
+  if (res == null) return null;
+
+  final levelData = res['level'] as Map<String, dynamic>?;
+
+  if (levelData == null) {
+    return Level(
+      grade: 0,
+      name: 'Sconosciuto',
+      xpToReach: 0,
+    );
+  }
+
+  return Level.fromJson(levelData);
 }
 
 Future<int?> getXpToNextLevelGap() async {
@@ -98,6 +112,24 @@ Future<int?> getXpToNextLevelGap() async {
   if (nextXp == null) return 0;
   return (nextXp - xp).clamp(0, 1 << 31);
 }
+
+Future<Level?> getNextLevel() async {
+  final uid = _supabase.auth.currentUser?.id;
+  if (uid == null) return null;
+
+  final res = await _supabase.rpc('get_next_level', params: {
+    'p_user_id': uid,
+  });
+
+  if (res == null) return null;
+  if (res is List && res.isNotEmpty) {
+    final row = res.first as Map<String, dynamic>;
+    return Level.fromJson(row);
+  }
+
+  return null;
+}
+
 
 
 

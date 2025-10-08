@@ -1,7 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
-import 'package:discover/features/profile/presentation/pages/profile_page.dart';
+import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -18,25 +18,25 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
 
-  final List<String> _titles = [
-    'Profilo',
-  ];
+  final List<String> _titles = ['Profilo', 'Amici'];
 
   Future<void> logout() async {
     if (_loggingOut) return;
     setState(() => _loggingOut = true);
 
     try {
-      try { await GoogleSignIn().signOut(); } catch (_) {}
+      try {
+        await GoogleSignIn().signOut();
+      } catch (_) {}
 
       final result = await signOut().run();
 
       result.match(
         (error) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Logout fallito: $error')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Logout fallito: $error')));
         },
         (_) {
           if (!mounted) return;
@@ -48,9 +48,9 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore inatteso: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Errore inatteso: $e')));
     } finally {
       if (mounted) setState(() => _loggingOut = false);
     }
@@ -61,8 +61,8 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            _titles[_currentIndex], 
-            style: TextStyle(color: Colors.black),
+          _titles[_currentIndex],
+          style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -80,18 +80,25 @@ class _DashboardPageState extends State<DashboardPage> {
         },
         tabs: [
           PersistentTabConfig(
-            screen: const ProfileScreenState(), 
+            screen: const ProfileScreenState(),
             item: ItemConfig(
-                icon: Icon(Icons.account_circle),
-                title: 'Profilo',
-                activeForegroundColor: AppTheme.primaryColor
-              )
+              icon: Icon(Icons.account_circle),
+              title: 'Profilo',
+              activeForegroundColor: AppTheme.primaryColor,
             ),
-        ], 
-        navBarBuilder: (navBarConfig) => Style2BottomNavBar(
-          navBarConfig: navBarConfig
           ),
-        ),
+          PersistentTabConfig(
+            screen: const FriendshipGate(),
+            item: ItemConfig(
+              icon: Icon(Icons.group),
+              title: 'Amici',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
+          ),
+        ],
+        navBarBuilder: (navBarConfig) =>
+            Style2BottomNavBar(navBarConfig: navBarConfig),
+      ),
     );
   }
 }

@@ -16,6 +16,7 @@ class ProfileScreenState extends StatefulWidget {
 
 class _ProfileScreenStateState extends State<ProfileScreenState> {
   late Future<Either<String, User>> _userFuture;
+  late int friendsCount;
 
   @override
   void initState() {
@@ -58,6 +59,8 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         level: userLevel,
         nextLevel: nextLevel,
       );
+
+      friendsCount = await getFriendsCount();
 
       return right(user);
     } catch (e) {
@@ -103,7 +106,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
               avatarImage: user.avatarImage,
               username: user.email.split('@').first,
               levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
-              friendsCount: 0, // TODO: tech debit friends count
+              friendsCount: friendsCount,
               challengeImages: const [], // TODO: tech debit challenges
               progress: Level.progressToNextLevel(
                 user.xp,

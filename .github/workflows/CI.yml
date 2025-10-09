@@ -51,7 +51,7 @@ jobs:
 
       # Java 17 è raccomandato per i build Android moderni
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'

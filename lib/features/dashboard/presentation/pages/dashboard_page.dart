@@ -1,8 +1,11 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
-import 'package:discover/features/challenge/presentation/pages/challenge_page.dart';
-import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
+import 'package:discover/features/events/domain/use_cases/event_service.dart';
+import 'package:discover/features/events/presentation/pages/feed_gate.dart';
+import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
+import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
+import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -18,26 +21,25 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
 
-  final List<String> _titles = [
-    'Itinerario',
-    'Challenge',
-  ];
+  final List<String> _titles = ['Profilo', 'Amici', 'Feed'];
 
   Future<void> logout() async {
     if (_loggingOut) return;
     setState(() => _loggingOut = true);
 
     try {
-      try { await GoogleSignIn().signOut(); } catch (_) {}
+      try {
+        await GoogleSignIn().signOut();
+      } catch (_) {}
 
       final result = await signOut().run();
 
       result.match(
         (error) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Logout fallito: $error')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Logout fallito: $error')));
         },
         (_) {
           if (!mounted) return;
@@ -49,9 +51,9 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore inatteso: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Errore inatteso: $e')));
     } finally {
       if (mounted) setState(() => _loggingOut = false);
     }
@@ -62,8 +64,8 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            _titles[_currentIndex], 
-            style: TextStyle(color: Colors.black),
+          _titles[_currentIndex],
+          style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -81,26 +83,37 @@ class _DashboardPageState extends State<DashboardPage> {
         },
         tabs: [
           PersistentTabConfig(
-            screen: const ItineraryPage(), 
+            screen: const ProfileScreenState(),
             item: ItemConfig(
-                icon: Icon(Icons.follow_the_signs_rounded),
-                title: 'Itinerario',
-                activeForegroundColor: AppTheme.primaryColor
-              )
+              icon: Icon(Icons.account_circle),
+              title: 'Profilo',
+              activeForegroundColor: AppTheme.primaryColor,
             ),
+          ),
           PersistentTabConfig(
-            screen: const ChallengesPage(), 
+            screen: const FriendshipGate(),
             item: ItemConfig(
-              icon: Icon(Icons.emoji_events_rounded),
-              title: 'Challenge',
-              activeForegroundColor: AppTheme.primaryColor
-            )
+              icon: Icon(Icons.group),
+              title: 'Amici',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
           ),
-        ], 
-        navBarBuilder: (navBarConfig) => Style2BottomNavBar(
-          navBarConfig: navBarConfig
+          PersistentTabConfig(
+            screen: FeedGate(
+              getEventsFeed: ({limit = 50, offset = 0}) => getEventsFeed(limit: limit, offset: offset),
+              getUserByEmail: getUserByEmail,
+              pageSize: 20,
+            ),
+            item: ItemConfig(
+              icon: Icon(Icons.feed),
+              title: 'Feed',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
           ),
-        ),
+        ],
+        navBarBuilder: (navBarConfig) =>
+            Style2BottomNavBar(navBarConfig: navBarConfig),
+      ),
     );
   }
 }

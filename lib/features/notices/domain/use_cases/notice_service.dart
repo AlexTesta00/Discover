@@ -1,6 +1,6 @@
 
 import 'dart:io';
-import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
+import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as path;

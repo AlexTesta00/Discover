@@ -1,3 +1,12 @@
+## [2.1.0](https://github.com/AlexTesta00/Discover/compare/v2.0.0...v2.1.0) (2025-10-11)
+
+### Features
+
+* **feed:** added feed feature ([61bc5fa](https://github.com/AlexTesta00/Discover/commit/61bc5fa43853bc41c102d9db1464d5b054468247))
+* **friendship:** now user can add friends, remove friends and view all user profile ([f240296](https://github.com/AlexTesta00/Discover/commit/f240296063a380aacf8e27ddf6fddb78af1f0608))
+* **user:** added user service ([4619944](https://github.com/AlexTesta00/Discover/commit/4619944341e7b5669e10d596f6c7b317fb018b26))
+* **user:** load user data in profile screen ([68f7648](https://github.com/AlexTesta00/Discover/commit/68f7648cffbbedbd14bb26174f472df48cf4d5a9))
+
 ## [2.0.0](https://github.com/AlexTesta00/Discover/compare/v1.10.0...v2.0.0) (2025-10-02)
 
 ### ⚠ BREAKING CHANGES

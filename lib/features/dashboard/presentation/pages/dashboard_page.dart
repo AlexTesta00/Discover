@@ -1,8 +1,11 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
+import 'package:discover/features/events/domain/use_cases/event_service.dart';
+import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
+import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -18,7 +21,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
 
-  final List<String> _titles = ['Profilo', 'Amici'];
+  final List<String> _titles = ['Profilo', 'Amici', 'Feed'];
 
   Future<void> logout() async {
     if (_loggingOut) return;
@@ -92,6 +95,18 @@ class _DashboardPageState extends State<DashboardPage> {
             item: ItemConfig(
               icon: Icon(Icons.group),
               title: 'Amici',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
+          ),
+          PersistentTabConfig(
+            screen: FeedGate(
+              getEventsFeed: ({limit = 50, offset = 0}) => getEventsFeed(limit: limit, offset: offset),
+              getUserByEmail: getUserByEmail,
+              pageSize: 20,
+            ),
+            item: ItemConfig(
+              icon: Icon(Icons.feed),
+              title: 'Feed',
               activeForegroundColor: AppTheme.primaryColor,
             ),
           ),

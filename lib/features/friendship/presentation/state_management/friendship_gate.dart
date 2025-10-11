@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:discover/features/user/domain/entity/user.dart';
+import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:discover/features/friendship/presentation/pages/friends_page.dart';

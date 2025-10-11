@@ -1,6 +1,6 @@
 import 'package:discover/features/friendship/presentation/widgets/friends_appbar.dart';
 import 'package:discover/features/friendship/presentation/widgets/friends_body.dart';
-import 'package:discover/features/user/domain/entity/user.dart';
+import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 
 class FriendsPage extends StatelessWidget {

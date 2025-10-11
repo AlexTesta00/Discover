@@ -1,6 +1,6 @@
 import 'package:discover/features/friendship/presentation/widgets/friendship_tab.dart';
 import 'package:discover/features/friendship/presentation/widgets/invite_friends_tab.dart';
-import 'package:discover/features/user/domain/entity/user.dart';
+import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 
 class FriendsBody extends StatelessWidget {

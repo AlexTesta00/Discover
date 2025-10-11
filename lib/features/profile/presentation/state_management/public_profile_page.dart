@@ -1,4 +1,4 @@
-import 'package:discover/features/user/domain/entity/user.dart';
+import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';

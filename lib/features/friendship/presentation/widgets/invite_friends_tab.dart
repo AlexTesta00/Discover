@@ -1,5 +1,6 @@
+import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/profile/presentation/state_management/public_profile_page.dart';
-import 'package:discover/features/user/domain/entity/user.dart';
+import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
@@ -166,6 +167,7 @@ class InviteFriendsTab extends StatelessWidget {
                     Navigator.of(sheetContext).pop(); // Chiudi il bottom sheet
                     try {
                       await addFriend(user.email);
+                      await addEvent('Ha stretto amicizia con ${_usernameFromEmail(user.email)}');
                       await showSuccessModal(
                         sheetContext,
                         title: 'Congratulazioni',

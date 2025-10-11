@@ -1,6 +1,6 @@
 import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
-import '../entity/user.dart';
+import '../entities/user.dart';
 
 final SupabaseClient _supabase = Supabase.instance.client;
 const String _profilesTable = 'user_profiles';

@@ -1,6 +1,6 @@
 import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
-import 'package:discover/features/user/domain/entity/user.dart';
+import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/utils/presentation/pages/error_page.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';

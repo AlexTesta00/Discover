@@ -10,6 +10,8 @@ class MapView extends StatelessWidget {
   final MapService mapUtils;
   final LatLng initialCenter;
   final LatLng? userLatLng;
+
+  // POI + callback selezione
   final List<PredefinedPoi> pois;
   final void Function(PredefinedPoi)? onPoiTap;
 
@@ -28,22 +30,7 @@ class MapView extends StatelessWidget {
     return AnimatedBuilder(
       animation: mapUtils,
       builder: (context, _) {
-        final markers = <Marker>[
-          // POI markers
-          ...pois.map((poi) => Marker(
-                point: poi.position,
-                width: 44,
-                height: 44,
-                child: GestureDetector(
-                  onTap: () => onPoiTap?.call(poi),
-                  child: _poiMarker(context),
-                ),
-              )),
-          // Utente
-          if (userLatLng != null) userMarker(userLatLng!),
-        ];
-
-        // Coloriamo le polylines col primaryColor
+        // ricreamo le polylines applicando il colore del tema
         final themedPolylines = mapUtils.polylines
             .map((poly) => Polyline(
                   points: poly.points,
@@ -52,13 +39,28 @@ class MapView extends StatelessWidget {
                 ))
             .toList();
 
+        final markers = <Marker>[
+          // Marker dei POI con icona da imageAsset
+          ...pois.map((poi) => Marker(
+                point: poi.position,
+                width: 52,
+                height: 52,
+                child: GestureDetector(
+                  onTap: () => onPoiTap?.call(poi),
+                  child: _poiMarker(context, poi),
+                ),
+              )),
+          // Marker utente
+          if (userLatLng != null) userMarker(userLatLng!),
+        ];
+
         return FlutterMap(
           mapController: mapController,
           options: MapOptions(
             initialCenter: initialCenter,
             initialZoom: 13.0,
             interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
-            // Niente onLongPress/onTap: l’utente non crea/rimuove punti
+            // nessun onLongPress/onTap: i punti sono predefiniti
           ),
           children: [
             TileLayer(
@@ -77,16 +79,20 @@ class MapView extends StatelessWidget {
     );
   }
 
-  Widget _poiMarker(BuildContext context) {
+  Widget _poiMarker(BuildContext context, PredefinedPoi poi) {
     final primary = Theme.of(context).primaryColor;
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: primary.withOpacity(0.15),
         border: Border.all(color: primary, width: 2),
-        boxShadow: const [BoxShadow(blurRadius: 6, offset: Offset(0, 2), color: Colors.black26)],
+        boxShadow: const [
+          BoxShadow(blurRadius: 6, offset: Offset(0, 2), color: Colors.black26),
+        ],
       ),
-      child: const Center(child: Icon(Icons.place, size: 22)),
+      clipBehavior: Clip.antiAlias,
+      child: poi.imageAsset != null
+          ? Image.asset(poi.imageAsset!, fit: BoxFit.cover)
+          : Icon(Icons.place, size: 28, color: primary),
     );
   }
 }

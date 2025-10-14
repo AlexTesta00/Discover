@@ -4,7 +4,7 @@ import 'package:discover/features/authentication/presentation/state_management/a
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
-import 'package:discover/features/maps/presentation/pages/map_page.dart';
+import 'package:discover/features/maps/presentation/pages/map_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
@@ -84,9 +84,9 @@ class _DashboardPageState extends State<DashboardPage> {
         },
         tabs: [
           PersistentTabConfig(
-            screen: const MapPage(),
+            screen: const MapGate(),
             item: ItemConfig(
-              icon: Icon(Icons.map_outlined),
+              icon: Icon(Icons.map),
               title: 'Mappa',
               activeForegroundColor: AppTheme.primaryColor,
             ),

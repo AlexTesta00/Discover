@@ -1,20 +1,20 @@
-// lib/features/maps/presentation/pages/map_page.dart
 import 'dart:async';
-import 'package:discover/features/maps/domain/entities/routing_model.dart';
-import 'package:discover/features/maps/domain/use_cases/live_router.dart';
-import 'package:discover/features/maps/domain/use_cases/location_service.dart';
-import 'package:discover/features/maps/domain/use_cases/map_service.dart';
-import 'package:discover/features/maps/domain/use_cases/osrm_routing_provider.dart';
-import 'package:discover/features/maps/domain/use_cases/routing_provider.dart';
+import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
+import 'package:discover/features/maps/domain/repository/poi_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
+import '../../domain/entities/routing_model.dart';
+import '../../domain/use_cases/live_router.dart';
+import '../../domain/use_cases/location_service.dart';
+import '../../domain/use_cases/map_service.dart';
+import '../../domain/use_cases/osrm_routing_provider.dart';
+import '../../domain/use_cases/routing_provider.dart';
 import '../widgets/map_view.dart';
+import '../widgets/poi_bottom_sheet.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
-
   @override
   State<MapPage> createState() => _MapPageState();
 }
@@ -23,20 +23,20 @@ class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
   final MapService _mapUtils = MapService();
 
-  static const LatLng _rome = LatLng(41.9028, 12.4964);
+  static const LatLng _riccioneCenter = LatLng(43.9992, 12.6563);
 
   LatLng? _userLatLng;
-
-  // live position
   Stream<LatLng>? _positionStream;
   StreamSubscription<LatLng>? _positionSub;
 
-  // live routing
   LiveRouter? _liveRouter;
   final RoutingProvider _routing = OSRMRoutingProvider();
 
-  // percorso rimanente (quello che disegniamo)
   final List<LatLng> _remainingRoute = [];
+  final List<PredefinedPoi> _pois = poisRiccione;
+  PredefinedPoi? _selectedPoi;
+
+  bool _isTracking = false;
 
   @override
   void initState() {
@@ -57,7 +57,6 @@ class _MapPageState extends State<MapPage> {
       if (mounted) _showSnack('Geolocalizzazione non disponibile o permessi negati.');
       return;
     }
-
     setState(() => _userLatLng = pos);
     _mapController.move(pos, 16);
 
@@ -65,45 +64,29 @@ class _MapPageState extends State<MapPage> {
     _positionSub = _positionStream!.listen((LatLng newPos) {
       if (!mounted) return;
       setState(() => _userLatLng = newPos);
-
-      // “consuma” la rotta man mano che ti muovi
       _trimTraveledRoute(newPos);
       _updatePolyline();
-
-      // mantieni la mappa centrata sull’utente
       _mapController.move(newPos, _mapController.camera.zoom);
     });
-
-    _maybeStartOrUpdateLiveRouter(initialUser: pos);
   }
 
-  void _maybeStartOrUpdateLiveRouter({required LatLng initialUser}) {
-    final targets = _mapUtils.pointsRaw; // punti aggiunti con long-press
-    if (targets.isEmpty || _positionStream == null) {
-      _remainingRoute.clear();
-      _mapUtils.clearPaths();
-      _liveRouter?.stop();
-      _liveRouter = null;
-      return;
-    }
+  void _startLiveToSelectedPoi() {
+    if (_selectedPoi == null || _userLatLng == null || _positionStream == null) return;
 
     _liveRouter?.stop();
     _liveRouter = LiveRouter(
       provider: _routing,
-      profile: RouteProfile.foot, // o RouteProfile.bike
+      profile: RouteProfile.foot,
       positionStream: _positionStream!,
-      targets: targets,
+      targets: [_selectedPoi!.position],
       offRouteThresholdMeters: 25,
       minRerouteInterval: const Duration(seconds: 5),
     );
 
     _liveRouter!.routeStream.listen((route) {
-      // nuova rotta calcolata → rimpiazziamo il “remaining”
       _remainingRoute
         ..clear()
         ..addAll(route.geometry);
-
-      // disegna e adatta la camera
       _updatePolyline();
       if (_remainingRoute.isNotEmpty) {
         final bounds = LatLngBounds.fromPoints(_remainingRoute);
@@ -113,62 +96,52 @@ class _MapPageState extends State<MapPage> {
       }
     });
 
-    _liveRouter!.start(initialUser);
+    _liveRouter!.start(_userLatLng!);
+    setState(() => _isTracking = true);
   }
 
-  /// Calcola un percorso “vero” su strada con OSRM: [utente] + punti
-  Future<void> _buildRoutedPathFromPoints({RouteProfile profile = RouteProfile.foot}) async {
-    final pts = _mapUtils.pointsRaw;
-    final waypoints = <LatLng>[
-      if (_userLatLng != null) _userLatLng!,
-      ...pts,
-    ];
-
-    if (waypoints.length < 2) {
-      _showSnack('Aggiungi almeno 2 punti (es. tu + una destinazione).');
-      return;
-    }
-
-    try {
-      final result = await _routing.route(profile: profile, waypoints: waypoints);
-
-      _remainingRoute
-        ..clear()
-        ..addAll(result.geometry);
-
-      _updatePolyline();
-
-      if (_remainingRoute.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints(_remainingRoute);
-        _mapController.fitCamera(
-          CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(32)),
-        );
-      }
-    } catch (e) {
-      _showSnack('Routing fallito: $e');
-    }
+  void _stopTracking() {
+    _liveRouter?.stop();
+    _liveRouter = null;
+    _selectedPoi = null;
+    _remainingRoute.clear();
+    _mapUtils.clearPaths();
+    setState(() => _isTracking = false);
   }
 
-  /// Rimuove i punti della rotta già “passati” dall’utente
   void _trimTraveledRoute(LatLng userPos) {
-    if (_remainingRoute.length < 2) return;
-
+    if (_remainingRoute.length < 2 || !_isTracking) return;
     const thresholdMeters = 15.0;
     final dist = const Distance();
-
-    // Finché il primo punto della rotta è vicino all'utente → rimuovi
     while (_remainingRoute.length > 1 &&
         dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) < thresholdMeters) {
       _remainingRoute.removeAt(0);
     }
   }
 
-  /// Ridisegna la polyline in base a _remainingRoute
   void _updatePolyline() {
     _mapUtils.clearPaths();
-    if (_remainingRoute.length > 1) {
+    if (_remainingRoute.length > 1 && _isTracking) {
       _mapUtils.addPath(List<LatLng>.from(_remainingRoute));
     }
+  }
+
+  // Tap su marker POI → bottom sheet
+  void _onPoiTap(PredefinedPoi poi) {
+    _selectedPoi = poi;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => PoiBottomSheet(
+        poi: poi,
+        onStart: () {
+          Navigator.of(ctx).pop();
+          _startLiveToSelectedPoi();
+        },
+      ),
+    );
   }
 
   @override
@@ -177,48 +150,21 @@ class _MapPageState extends State<MapPage> {
       body: MapView(
         mapController: _mapController,
         mapUtils: _mapUtils,
-        initialCenter: _rome,
+        initialCenter: _riccioneCenter,
         userLatLng: _userLatLng,
-        onLongPressAddPoint: (p) {
-          _mapUtils.addPoint(p);
-          if (_userLatLng != null) {
-            _maybeStartOrUpdateLiveRouter(initialUser: _userLatLng!);
-          }
-        },
-        onTapRemoveNear: (p) {
-          final removed = _mapUtils.removePointNear(p, thresholdMeters: 30);
-          if (removed && _userLatLng != null) {
-            _maybeStartOrUpdateLiveRouter(initialUser: _userLatLng!);
-          }
-        },
+        pois: _pois,
+        onPoiTap: _onPoiTap,
       ),
 
-      // Azioni: routing su strada + pulizia
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            heroTag: 'routedPath',
-            onPressed: () => _buildRoutedPathFromPoints(profile: RouteProfile.foot),
-            icon: const Icon(Icons.directions_walk),
-            label: const Text('Percorso su strada'),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton.extended(
-            heroTag: 'clearAll',
-            onPressed: () {
-              setState(() => _userLatLng = null);
-              _remainingRoute.clear();
-              _mapUtils.clearAll();
-              _liveRouter?.stop();
-              _liveRouter = null;
-            },
-            icon: const Icon(Icons.delete_sweep),
-            label: const Text('Pulisci'),
-            backgroundColor: Colors.redAccent,
-          ),
-        ],
-      ),
+      // FAB visibile SOLO in tracking
+      floatingActionButton: _isTracking
+          ? FloatingActionButton.extended(
+              heroTag: 'stopTracking',
+              onPressed: _stopTracking,
+              icon: const Icon(Icons.stop_circle_outlined),
+              label: const Text('Stop tracking'),
+            )
+          : null,
     );
   }
 

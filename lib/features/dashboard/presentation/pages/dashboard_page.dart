@@ -4,6 +4,7 @@ import 'package:discover/features/authentication/presentation/state_management/a
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
+import 'package:discover/features/maps/presentation/pages/map_page.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
 
-  final List<String> _titles = ['Profilo', 'Amici', 'Feed'];
+  final List<String> _titles = ['Mappa', 'Profilo', 'Amici', 'Feed'];
 
   Future<void> logout() async {
     if (_loggingOut) return;
@@ -83,6 +84,14 @@ class _DashboardPageState extends State<DashboardPage> {
         },
         tabs: [
           PersistentTabConfig(
+            screen: const MapPage(),
+            item: ItemConfig(
+              icon: Icon(Icons.map_outlined),
+              title: 'Mappa',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
+          ),
+          PersistentTabConfig(
             screen: const ProfileScreenState(),
             item: ItemConfig(
               icon: Icon(Icons.account_circle),
@@ -100,7 +109,8 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           PersistentTabConfig(
             screen: FeedGate(
-              getEventsFeed: ({limit = 50, offset = 0}) => getEventsFeed(limit: limit, offset: offset),
+              getEventsFeed: ({limit = 50, offset = 0}) =>
+                  getEventsFeed(limit: limit, offset: offset),
               getUserByEmail: getUserByEmail,
               pageSize: 20,
             ),

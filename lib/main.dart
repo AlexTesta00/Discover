@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
+import 'package:discover/features/challenge/domain/entities/event.dart';
+import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,7 +22,57 @@ Future main() async {
   final hasCompleteOnBoarding =
       sharedPreferences.getBool('onBoardingComplete') ?? false;
 
+  _initEventStream();
+
   runApp(MyApp(hasCompleteOnBoarding: hasCompleteOnBoarding));
+}
+
+void _initEventStream() {
+  final bus = ChallengeEventBus.I;
+  final client = Supabase.instance.client;
+  final repo = ChallengeRepository(client);
+
+  bus.stream
+      .where((e) => e is PhotoCapturedEvent)
+      .cast<PhotoCapturedEvent>()
+      .listen((event) async {
+    try {
+      final submissionId = await repo.submitChallenge(
+        challengeId: event.challenge.id,
+        photoFile: event.file,
+        photoMeta: {
+          'source': 'camera',
+          'character_id': event.challenge.characterId,
+          'challenge_title': event.challenge.title,
+        },
+      );
+
+      // Notifica "completata"
+      bus.publish(ChallengeCompletedEvent(
+        submissionId: submissionId,
+        challenge: event.challenge,
+      ));
+    } catch (e) {
+      bus.publish(ChallengeCompletionFailedEvent(
+        challenge: event.challenge,
+        error: e,
+      ));
+    }
+  });
+
+  // === Subscriber DIALOGHI (non-foto) ===
+  bus.stream
+      .where((e) => e is DialogueChallengeTappedEvent)
+      .cast<DialogueChallengeTappedEvent>()
+      .listen((event) async {
+    // Qui metti la logica “dialogo” (es. segnare come iniziata,
+    // creare un draft, mostrare un prompt, ecc.). Per ora è uno stub.
+    // Esempio futuro:
+    // await repo.startDialogue(challengeId: event.challenge.id);
+
+    // Log/placeholder:
+    // print('DialogueChallengeTappedEvent: ${event.challenge.id}');
+  });
 }
 
 class MyApp extends StatelessWidget {

@@ -1,3 +1,4 @@
+import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 import 'package:discover/features/gamification/domain/entities/level.dart';
@@ -6,6 +7,7 @@ import 'package:discover/utils/presentation/pages/error_page.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart'
     show getFriendsCountByEmail, getUserByEmail;
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class PublicProfileScreen extends StatefulWidget {
   const PublicProfileScreen({super.key, required this.email});
@@ -19,6 +21,7 @@ class PublicProfileScreen extends StatefulWidget {
 class _PublicProfileScreenState extends State<PublicProfileScreen> {
   late Future<User?> _userFuture;
   int _friendsCount = 0;
+  List<String> _challengeImages = const [];
 
   @override
   void initState() {
@@ -30,6 +33,8 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
     try {
       final u = await getUserByEmail(widget.email);
       _friendsCount = await getFriendsCountByEmail(widget.email);
+      final repo = ChallengeRepository(Supabase.instance.client);
+      _challengeImages = await repo.getPublicPhotoUrlsByEmail(widget.email);
       return u;
     } catch (_) {
       rethrow;
@@ -67,7 +72,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
             username: user.email.split('@').first,
             levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
             friendsCount: _friendsCount,
-            challengeImages: const [], // TODO: quando avrai le challenge
+            challengeImages: _challengeImages,
             progress: Level.progressToNextLevel(
               user.xp,
               user.nextLevel.xpToReach,

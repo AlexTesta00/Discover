@@ -1,6 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
+import 'package:discover/features/challenge/presentation/pages/challenge_gate.dart';
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
@@ -22,7 +23,13 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
 
-  final List<String> _titles = ['Mappa', 'Profilo', 'Amici', 'Feed'];
+  final List<String> _titles = [
+    'Mappa',
+    'Challenge',
+    'Profilo',
+    'Amici',
+    'Feed',
+  ];
 
   Future<void> logout() async {
     if (_loggingOut) return;
@@ -88,6 +95,14 @@ class _DashboardPageState extends State<DashboardPage> {
             item: ItemConfig(
               icon: Icon(Icons.map),
               title: 'Mappa',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const ChallengeGatePage(),
+            item: ItemConfig(
+              icon: Icon(Icons.emoji_flags_outlined),
+              title: 'Challenge',
               activeForegroundColor: AppTheme.primaryColor,
             ),
           ),

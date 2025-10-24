@@ -44,3 +44,8 @@ class ChallengeCompletionFailedEvent extends ChallengeEvent {
   final Object error;
   const ChallengeCompletionFailedEvent({required this.challenge, required this.error});
 }
+
+class CharacterArrivedEvent extends ChallengeEvent {
+  final String characterId;
+  const CharacterArrivedEvent({required this.characterId});
+}

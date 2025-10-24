@@ -1,14 +1,19 @@
 import 'dart:async';
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
+import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
+import 'package:discover/features/challenge/presentation/widgets/modal_success_challenge.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,16 +67,45 @@ void _initEventStream() {
 
   // === Subscriber DIALOGHI (non-foto) ===
   bus.stream
-      .where((e) => e is DialogueChallengeTappedEvent)
-      .cast<DialogueChallengeTappedEvent>()
+      .where((e) => e is CharacterArrivedEvent)
+      .cast<CharacterArrivedEvent>()
       .listen((event) async {
-    // Qui metti la logica “dialogo” (es. segnare come iniziata,
-    // creare un draft, mostrare un prompt, ecc.). Per ora è uno stub.
-    // Esempio futuro:
-    // await repo.startDialogue(challengeId: event.challenge.id);
+    try {
+      final (submissionId, wasNew) =
+          await repo.completeTalkChallengeForCharacter(event.characterId);
 
-    // Log/placeholder:
-    // print('DialogueChallengeTappedEvent: ${event.challenge.id}');
+      if (!wasNew) return; // già completata → no doppio premio
+
+      // Recupera la challenge per mostrare il modale
+      final row = await client
+          .from('challenges')
+          .select('''
+            id, title, description, xp, fenicotteri,
+            requires_photo, is_active, character_id,
+            characters:character_id (id, name, image_asset, story, lat, lng)
+          ''')
+          .eq('character_id', event.characterId)
+          .eq('requires_photo', false)
+          .maybeSingle();
+
+      if (row == null) return;
+
+      final challenge = Challenge.fromMap(row);
+
+      // Premia utente
+      await addXpAndBalance(
+        xp: challenge.xp,
+        balance: challenge.fenicotteri,
+      );
+
+      // Mostra modale di successo
+      final ctx = navKey.currentContext;
+      if (ctx != null) {
+        await showSuccessChallengeModal(ctx, challenge: challenge);
+      }
+    } catch (e) {
+      debugPrint('Errore completamento challenge RPC: $e');
+    }
   });
 }
 
@@ -83,6 +117,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey: navKey,
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
       home: hasCompleteOnBoarding

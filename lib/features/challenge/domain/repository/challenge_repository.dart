@@ -212,4 +212,36 @@ class ChallengeRepository {
       },
     );
   }
+
+  Future<(String?, bool)> completeTalkChallengeForCharacter(
+    String characterId,
+  ) async {
+    final user = client.auth.currentUser;
+    if (user == null) throw const AuthException('Non autenticato');
+
+    final response = await client
+        .rpc(
+          'complete_challenge_for_character',
+          params: {'p_character_id': characterId},
+        )
+        .select()
+        .maybeSingle();
+
+    if (response == null) {
+      throw Exception('Nessun risultato restituito dalla RPC.');
+    }
+
+    final submissionId = response['submission_id'] as String?;
+    final wasNew = response['was_new'] as bool? ?? false;
+
+    // Se non c'è submissionId → significa che la challenge non esiste per quel personaggio
+    if (submissionId == null) {
+      print(
+        'Nessuna challenge di dialogo trovata per personaggio $characterId',
+      );
+      return (null, false);
+    }
+
+    return (submissionId, wasNew);
+  }
 }

@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:discover/features/challenge/domain/entities/event.dart';
+import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/maps/presentation/controller/tracking_controller.dart';
 import 'package:discover/features/maps/presentation/widgets/banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/point_of_interest.dart';
 import '../../domain/use_cases/map_service.dart';
 import '../../domain/use_cases/osrm_routing_provider.dart';
@@ -110,7 +113,35 @@ class _MapGateState extends State<MapGate> {
   }
 
   // Modal di ARRIVO (nome, foto, testo, bottone "Leggi la storia")
-  void _showArrivalModal(PredefinedPoi poi) {
+  void _showArrivalModal(PredefinedPoi poi) async {
+    final bus = ChallengeEventBus.I;
+    final client = Supabase.instance.client;
+    final repo = ChallengeRepository(client);
+
+    // 1️⃣ Completa la challenge "Parla con X" via RPC
+    try {
+      final (submissionId, wasNew) = await repo
+          .completeTalkChallengeForCharacter(poi.id);
+
+      // 2️⃣ Se è la prima volta → emetti l'evento ChallengeCompletedEvent
+      if (submissionId != null && wasNew) {
+        final allChallenges = await repo.fetchAllWithCharacter();
+        final challenge = allChallenges.firstWhere(
+          (c) => c.characterId == poi.id && c.requiresPhoto == false,
+        );
+
+        bus.publish(
+          ChallengeCompletedEvent(
+            submissionId: submissionId,
+            challenge: challenge,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Errore completamento challenge RPC: $e');
+    }
+
+    // 3️⃣ Mostra il modale di arrivo come prima
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,

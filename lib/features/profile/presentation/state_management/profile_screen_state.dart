@@ -1,3 +1,4 @@
+import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
 import 'package:discover/features/user/domain/entities/user.dart';
@@ -6,6 +7,7 @@ import 'package:discover/utils/presentation/pages/error_page.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' hide State;
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class ProfileScreenState extends StatefulWidget {
   const ProfileScreenState({super.key});
@@ -17,6 +19,7 @@ class ProfileScreenState extends StatefulWidget {
 class _ProfileScreenStateState extends State<ProfileScreenState> {
   late Future<Either<String, User>> _userFuture;
   late int friendsCount;
+  List<String> _challengeImages = const [];
 
   @override
   void initState() {
@@ -32,6 +35,8 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         return left('Email non trovata');
       }
 
+      final repo = ChallengeRepository(Supabase.instance.client);
+
       final result = await Future.wait([
         getUserAvatar(),
         getUserBackground(),
@@ -39,6 +44,8 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         getUserBalance(),
         getMyLevel(),
         getNextLevel(),
+        repo.getUserChallengePhotoUrls(),
+        getFriendsCount()
       ], eagerError: true);
 
       final userAvatar = (result[0] as String?) ?? 'assets/icons/error.png';
@@ -49,6 +56,8 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
           Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
       final nextLevel = (result[5] as Level?) ??
           Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
+      _challengeImages = (result[6] as List<String>);
+      friendsCount = (result[7] as int);
 
       final user = User(
         email: email,
@@ -60,7 +69,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         nextLevel: nextLevel,
       );
 
-      friendsCount = await getFriendsCount();
+      print("DEBUG: ${_challengeImages}");
 
       return right(user);
     } catch (e) {
@@ -107,7 +116,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
               username: user.email.split('@').first,
               levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
               friendsCount: friendsCount,
-              challengeImages: const [], // TODO: tech debit challenges
+              challengeImages: _challengeImages,
               progress: Level.progressToNextLevel(
                 user.xp,
                 user.nextLevel.xpToReach,

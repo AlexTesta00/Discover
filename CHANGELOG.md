@@ -1,3 +1,13 @@
+## [2.2.0](https://github.com/AlexTesta00/Discover/compare/v2.1.0...v2.2.0) (2025-10-24)
+
+### Features
+
+* **challenge:** when user talk with character, complete challenge ([6a60d9b](https://github.com/AlexTesta00/Discover/commit/6a60d9bc032dbf56032804329feb83a017b83cad))
+* **map:** added characters logic into map ([352c737](https://github.com/AlexTesta00/Discover/commit/352c737c7920a95cc1d2e362255e6addd5bc4b67))
+* **map:** added map feature ([131eec5](https://github.com/AlexTesta00/Discover/commit/131eec52c36e28e201ec3267499881b02c27638a))
+* **maps:** added possibility to have time and km in live tracking ([1400233](https://github.com/AlexTesta00/Discover/commit/1400233eca7004993417b7a0c81b1e580e932f50))
+* **photo:** added check to recognize subjects in photos ([ffdba49](https://github.com/AlexTesta00/Discover/commit/ffdba49b2b2aee4ab4a5b721eed25698204e011f))
+
 ## [2.1.0](https://github.com/AlexTesta00/Discover/compare/v2.0.0...v2.1.0) (2025-10-11)
 
 ### Features

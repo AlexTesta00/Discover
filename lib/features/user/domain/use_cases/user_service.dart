@@ -214,3 +214,10 @@ Future<int> getFriendsCountByEmail(String email) async {
   if (res is num) return res.toInt();
   return int.tryParse(res.toString()) ?? 0;
 }
+
+Future<void> setUserAvatar(String assetPath) async {
+  await _supabase.rpc('set_user_avatar', params: {'p_asset': assetPath});
+}
+Future<void> setUserBackground(String assetPath) async {
+  await _supabase.rpc('set_user_background', params: {'p_asset': assetPath});
+}

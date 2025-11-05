@@ -8,8 +8,10 @@ import 'package:discover/features/challenge/domain/use_cases/photo_label_service
 import 'package:discover/features/challenge/presentation/widgets/modal_not_completed.dart';
 import 'package:discover/features/challenge/presentation/widgets/modal_success_challenge.dart';
 import 'package:discover/features/challenge/utils/utils.dart';
+import 'package:discover/features/gamification/domain/use_cases/collectible_service.dart';
 import 'package:discover/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,7 +42,9 @@ void _initEventStream() {
   final client = Supabase.instance.client;
   final repo = ChallengeRepository(client);
   final labelService = PhotoLabelService(confidence: 0.6);
+  final collRepo = CollectiblesService(Supabase.instance.client);
 
+  // Listener per foto catturate
   bus.stream.where((e) => e is PhotoCapturedEvent).cast<PhotoCapturedEvent>().listen((
     e,
   ) async {
@@ -48,7 +52,9 @@ void _initEventStream() {
       // 1) etichetta immagine con MLKit
       final mlLabels = await labelService.labelsFor(e.file);
 
-      print('📸 [MLKit] Labels trovate per challenge "${e.challenge.title}": $mlLabels');
+      print(
+        '📸 [MLKit] Labels trovate per challenge "${e.challenge.title}": $mlLabels',
+      );
 
       // 2) confronta con labels della challenge (campo text[] nel tuo model)
       final chLabels = e.challenge.labels;
@@ -87,7 +93,7 @@ void _initEventStream() {
     }
   });
 
-  // === Subscriber DIALOGHI (non-foto) ===
+  // Listener per dialoghi con personaggi
   bus.stream
       .where((e) => e is CharacterArrivedEvent)
       .cast<CharacterArrivedEvent>()
@@ -127,6 +133,37 @@ void _initEventStream() {
           }
         } catch (e) {
           debugPrint('Errore completamento challenge RPC: $e');
+        }
+      });
+  // Listener per assegnazione collezionabili
+  bus.stream
+      .where((e) => e is ChallengeCompletedEvent)
+      .cast<ChallengeCompletedEvent>()
+      .listen((e) async {
+        try {
+          // l’evento ha già la challenge completata
+          final challenge = e.challenge;
+
+          // Prova ad assegnare il collezionabile del personaggio
+          final awarded = await collRepo.awardIfCompleted(
+            challenge.characterId,
+          );
+
+          if (awarded) {
+            // mostra modale “hai sbloccato lo sticker”
+            final ctx = navKey.currentContext;
+            if (ctx != null) {
+              await showSuccessModal(
+                ctx,
+                title: 'Nuovo collezionabile sbloccato! 🎉',
+                description:
+                    'Hai completato tutte le challenge di '
+                    '${challenge.character.name} e ottenuto lo sticker!',
+              );
+            }
+          }
+        } catch (err) {
+          debugPrint('awardIfCompleted errore: $err');
         }
       });
 }

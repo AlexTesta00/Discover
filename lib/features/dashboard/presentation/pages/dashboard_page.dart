@@ -5,8 +5,10 @@ import 'package:discover/features/challenge/presentation/pages/challenge_gate.da
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
+import 'package:discover/features/gamification/presentation/pages/collectable_gate.dart';
 import 'package:discover/features/maps/presentation/pages/map_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
+import 'package:discover/features/shop/presentation/pages/shop_gate.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -29,6 +31,8 @@ class _DashboardPageState extends State<DashboardPage> {
     'Profilo',
     'Amici',
     'Feed',
+    'Collezionabili',
+    'Negozio',
   ];
 
   Future<void> logout() async {
@@ -132,6 +136,22 @@ class _DashboardPageState extends State<DashboardPage> {
             item: ItemConfig(
               icon: Icon(Icons.feed),
               title: 'Feed',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const CollectibleGate(),
+            item: ItemConfig(
+              icon: Icon(Icons.stars_sharp),
+              title: 'Collezionabili',
+              activeForegroundColor: AppTheme.primaryColor,
+            ),
+          ),
+          PersistentTabConfig(
+            screen: const ShopGate(),
+            item: ItemConfig(
+              icon: Icon(Icons.store),
+              title: 'Negozio',
               activeForegroundColor: AppTheme.primaryColor,
             ),
           ),

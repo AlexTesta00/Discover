@@ -1,3 +1,10 @@
+## [2.3.0](https://github.com/AlexTesta00/Discover/compare/v2.2.0...v2.3.0) (2025-11-05)
+
+### Features
+
+* added collectionables reward system ([f117c0a](https://github.com/AlexTesta00/Discover/commit/f117c0a1189ed288ef8081e8c31922f747984228))
+* added shop feature ([ff5d5a3](https://github.com/AlexTesta00/Discover/commit/ff5d5a31e0e6bc8db686ab3a491ac16ca056b610))
+
 ## [2.2.0](https://github.com/AlexTesta00/Discover/compare/v2.1.0...v2.2.0) (2025-10-24)
 
 ### Features

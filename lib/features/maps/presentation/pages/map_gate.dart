@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/maps/presentation/controller/tracking_controller.dart';
+import 'package:discover/features/maps/presentation/pages/ar_character_page.dart';
 import 'package:discover/features/maps/presentation/widgets/banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -112,7 +113,11 @@ class _MapGateState extends State<MapGate> {
     );
   }
 
-  // Modal di ARRIVO (nome, foto, testo, bottone "Leggi la storia")
+  // Modal di ARRIVO:
+  // - completa la challenge "Parla con X"
+  // - mostra sheet con:
+  //   - Leggi la storia
+  //   - Vedi in AR (camera + PNG del personaggio)
   void _showArrivalModal(PredefinedPoi poi) async {
     final bus = ChallengeEventBus.I;
     final client = Supabase.instance.client;
@@ -120,8 +125,8 @@ class _MapGateState extends State<MapGate> {
 
     // 1️⃣ Completa la challenge "Parla con X" via RPC
     try {
-      final (submissionId, wasNew) = await repo
-          .completeTalkChallengeForCharacter(poi.id);
+      final (submissionId, wasNew) =
+          await repo.completeTalkChallengeForCharacter(poi.id);
 
       // 2️⃣ Se è la prima volta → emetti l'evento ChallengeCompletedEvent
       if (submissionId != null && wasNew) {
@@ -141,7 +146,7 @@ class _MapGateState extends State<MapGate> {
       debugPrint('Errore completamento challenge RPC: $e');
     }
 
-    // 3️⃣ Mostra il modale di arrivo come prima
+    // 3️⃣ Mostra il modale di arrivo
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
@@ -163,6 +168,19 @@ class _MapGateState extends State<MapGate> {
             _showSnack('Dati del personaggio non disponibili.');
           }
         },
+        onViewAr: () {
+          Navigator.of(ctx).pop();
+          final character = _charactersById[poi.id];
+          if (character != null) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ARCharacterPage(character: character),
+              ),
+            );
+          } else {
+            _showSnack('Dati del personaggio non disponibili.');
+          }
+        },
       ),
     );
   }
@@ -173,8 +191,7 @@ class _MapGateState extends State<MapGate> {
       animation: _ctrl,
       builder: (context, _) {
         final showBanner =
-            _ctrl.isTracking &&
-            (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
+            _ctrl.isTracking && (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
 
         return Scaffold(
           body: Stack(
@@ -193,7 +210,6 @@ class _MapGateState extends State<MapGate> {
                 etaSeconds: _ctrl.etaSeconds,
                 onStop: _ctrl.stopTracking,
               ),
-
               if (_loadingPois)
                 const Positioned(
                   top: 60,
@@ -229,6 +245,7 @@ class _MapGateState extends State<MapGate> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
   }
 }

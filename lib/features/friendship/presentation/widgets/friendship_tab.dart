@@ -1,40 +1,72 @@
+import 'package:discover/features/friendship/domain/entities/friend_request.dart';
+import 'package:discover/features/friendship/domain/use_cases/friend_service.dart';
 import 'package:discover/features/profile/presentation/state_management/public_profile_page.dart';
 import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:discover/features/friendship/presentation/widgets/components.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class FriendshipsTab extends StatelessWidget {
   const FriendshipsTab({
     super.key,
     required this.friends,
+    required this.incomingRequests,
+    required this.isLoadingIncoming,
     required this.onRefresh,
   });
 
   final List<User> friends;
+  final List<FriendRequest> incomingRequests;
+  final bool isLoadingIncoming;
   final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    if (friends.isEmpty) {
-      return const Center(child: Text('Nessuna amicizia'));
+    final hasFriends = friends.isNotEmpty;
+    final hasRequests = incomingRequests.isNotEmpty;
+
+    if (!hasFriends && !hasRequests && !isLoadingIncoming) {
+      return const Center(child: Text('Nessuna amicizia o richiesta'));
     }
+
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: ListView.separated(
+      child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        itemCount: friends.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (ctx, i) {
-          final u = friends[i];
-          return UserTile(
-            avatarPath: u.avatarImage,
-            title: _usernameFromEmail(u.email),
-            subtitle: 'Liv.${u.level.grade} ${u.level.name}',
-            onTap: () => _showFriendBottomSheet(ctx, u),
-          );
-        },
+        children: [
+          // richieste in arrivo
+          if (isLoadingIncoming)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (hasRequests) ...[
+            const SectionTitle('Richieste di amicizia'),
+            const SizedBox(height: 8),
+            ...incomingRequests.map((r) => _buildRequestTile(context, r)),
+            const SizedBox(height: 24),
+          ],
+
+          // lista amici
+          const SectionTitle('I tuoi amici'),
+          const SizedBox(height: 8),
+          if (!hasFriends)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text('Nessuna amicizia'),
+            )
+          else
+            ...friends.map(
+              (u) => UserTile(
+                avatarPath: u.avatarImage,
+                title: _usernameFromEmail(u.email),
+                subtitle: 'Liv.${u.level.grade} ${u.level.name}',
+                onTap: () => _showFriendBottomSheet(context, u),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -42,6 +74,66 @@ class FriendshipsTab extends StatelessWidget {
   static String _usernameFromEmail(String email) {
     final idx = email.indexOf('@');
     return idx == -1 ? email : email.substring(0, idx);
+  }
+
+  Widget _buildRequestTile(BuildContext context, FriendRequest req) {
+    final friendService = FriendService(Supabase.instance.client);
+
+    final otherEmail = req.fromEmail;
+    final avatar = req.fromAvatarUrl ?? 'assets/avatar/avatar_9.png';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: UserTile(
+        avatarPath: avatar,
+        title: _usernameFromEmail(otherEmail),
+        subtitle: 'Vuole diventare tuo amico',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: 'Rifiuta',
+              icon: const Icon(Icons.close, color: Colors.red),
+              onPressed: () async {
+                try {
+                  await friendService.rejectRequest(req.id);
+                  await onRefresh();
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Errore: $e')));
+                }
+              },
+            ),
+            IconButton(
+              tooltip: 'Accetta',
+              icon: Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () async {
+                try {
+                  final ok = await friendService.acceptRequest(req.id);
+                  if (ok) {
+                    await showSuccessModal(
+                      context,
+                      title: 'Nuova amicizia!',
+                      description:
+                          'Ora tu e ${_usernameFromEmail(otherEmail)} siete amici.',
+                    );
+                  }
+                  await onRefresh();
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Errore: $e')));
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showFriendBottomSheet(BuildContext parentContext, User user) {
@@ -61,7 +153,6 @@ class FriendshipsTab extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // maniglia
               Container(
                 width: 40,
                 height: 4,
@@ -91,7 +182,6 @@ class FriendshipsTab extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // 🔹 Visualizza Profilo (primario)
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -103,7 +193,7 @@ class FriendshipsTab extends StatelessWidget {
                     backgroundColor: primary,
                   ),
                   onPressed: () async {
-                    Navigator.of(sheetContext).pop(); // chiudi modale
+                    Navigator.of(sheetContext).pop();
                     Navigator.of(parentContext).push(
                       MaterialPageRoute(
                         builder: (_) => PublicProfileScreen(email: user.email),
@@ -127,7 +217,7 @@ class FriendshipsTab extends StatelessWidget {
                     foregroundColor: const Color(0xFFE53935),
                   ),
                   onPressed: () async {
-                    Navigator.of(sheetContext).pop(); // chiudi modale
+                    Navigator.of(sheetContext).pop();
                     final confirm = await _confirmRemoveDialog(
                       parentContext,
                       user,
@@ -142,7 +232,7 @@ class FriendshipsTab extends StatelessWidget {
                         description:
                             'Hai rimosso ${_usernameFromEmail(user.email)} dai tuoi amici.',
                       );
-                      await onRefresh(); // ricarica lista
+                      await onRefresh();
                     } catch (e) {
                       ScaffoldMessenger.of(parentContext).showSnackBar(
                         SnackBar(

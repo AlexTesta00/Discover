@@ -1,10 +1,10 @@
-import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/profile/presentation/state_management/public_profile_page.dart';
 import 'package:discover/features/user/domain/entities/user.dart';
-import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:discover/features/friendship/presentation/widgets/components.dart';
+import 'package:discover/features/friendship/domain/use_cases/friend_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class InviteFriendsTab extends StatelessWidget {
   const InviteFriendsTab({
@@ -108,6 +108,8 @@ class InviteFriendsTab extends StatelessWidget {
   }
 
   void _showInviteBottomSheet(BuildContext parentContext, User user) {
+    final friendService = FriendService(Supabase.instance.client);
+
     showModalBottomSheet(
       context: parentContext,
       isScrollControlled: false,
@@ -123,7 +125,6 @@ class InviteFriendsTab extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // “maniglia” opzionale per estetica
               Container(
                 width: 40,
                 height: 4,
@@ -152,7 +153,8 @@ class InviteFriendsTab extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              // Pulsante primario: Aggiungi amico
+
+              // 🔹 INVIA RICHIESTA
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -164,15 +166,14 @@ class InviteFriendsTab extends StatelessWidget {
                     backgroundColor: primary,
                   ),
                   onPressed: () async {
-                    Navigator.of(sheetContext).pop(); // Chiudi il bottom sheet
+                    Navigator.of(sheetContext).pop();
                     try {
-                      await addFriend(user.email);
-                      await addEvent('Ha stretto amicizia con ${_usernameFromEmail(user.email)}');
+                      await friendService.sendFriendRequest(user.email);
                       await showSuccessModal(
-                        sheetContext,
-                        title: 'Congratulazioni',
+                        parentContext,
+                        title: 'Richiesta inviata',
                         description:
-                            'Hai aggiunto ${_usernameFromEmail(user.email)} come amico!',
+                            'Hai inviato una richiesta di amicizia a ${_usernameFromEmail(user.email)}.',
                       );
                       await onRefresh();
                     } catch (e) {
@@ -183,11 +184,13 @@ class InviteFriendsTab extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text('Aggiungi come amico'),
+                  child: const Text('Invia richiesta di amicizia'),
                 ),
               ),
+
               const SizedBox(height: 12),
-              // Pulsante secondario: Visualizza profilo
+
+              // Visualizza profilo
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -203,7 +206,8 @@ class InviteFriendsTab extends StatelessWidget {
                     Navigator.of(sheetContext).pop();
                     Navigator.of(parentContext).push(
                       MaterialPageRoute(
-                        builder: (_) => PublicProfileScreen(email: user.email),
+                        builder: (_) =>
+                            PublicProfileScreen(email: user.email),
                       ),
                     );
                   },

@@ -1,3 +1,10 @@
+## [2.4.0](https://github.com/AlexTesta00/Discover/compare/v2.3.0...v2.4.0) (2025-11-19)
+
+### Features
+
+* **ar:** addedd possibility to show characters in AR mode and take picture ([5b20169](https://github.com/AlexTesta00/Discover/commit/5b201698a3adf67195cb35965966f978d0e851d1))
+* **friendship:** now user can send friend request and can accept them ([560f0b5](https://github.com/AlexTesta00/Discover/commit/560f0b582ab327cfe22ffe2b72538d4fe2504576))
+
 ## [2.3.0](https://github.com/AlexTesta00/Discover/compare/v2.2.0...v2.3.0) (2025-11-05)
 
 ### Features

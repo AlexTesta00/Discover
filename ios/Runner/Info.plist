@@ -66,5 +66,9 @@
 	<string>Questa app utilizza la tua posizione per funzionalità di navigazione.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scatta una foto per completare la challenge.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Usiamo la fotocamera per mostrare i personaggi in realtà aumentata.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Questa app vuole salvare le foto nella galleria.</string>
 </dict>
 </plist>

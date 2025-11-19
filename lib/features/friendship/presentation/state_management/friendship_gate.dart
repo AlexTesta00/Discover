@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:discover/features/user/domain/entities/user.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
-import 'package:flutter/material.dart';
+import 'package:discover/features/friendship/domain/entities/friend_request.dart';
+import 'package:discover/features/friendship/domain/use_cases/friend_service.dart';
 import 'package:discover/features/friendship/presentation/pages/friends_page.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class FriendshipGate extends StatefulWidget {
   const FriendshipGate({super.key});
@@ -27,7 +30,14 @@ class _FriendshipGateState extends State<FriendshipGate> {
   int _friendsOffset = 0;
   final List<User> _friends = [];
 
+  // richieste in arrivo
+  bool _incomingIsLoading = false;
+  final List<FriendRequest> _incomingRequests = [];
+
   Timer? _debounce;
+
+  late final FriendService _friendService =
+      FriendService(Supabase.instance.client);
 
   @override
   void initState() {
@@ -45,6 +55,7 @@ class _FriendshipGateState extends State<FriendshipGate> {
     await Future.wait([
       _loadSuggestionsFirstPage(),
       _loadFriendsFirstPage(),
+      _loadIncomingRequests(),
     ]);
   }
 
@@ -72,7 +83,6 @@ class _FriendshipGateState extends State<FriendshipGate> {
         _sugOffset = rows.length;
       });
     } catch (_) {
-      // TODO: tech debit: handle error
     } finally {
       if (mounted) setState(() => _sugIsLoading = false);
     }
@@ -132,16 +142,34 @@ class _FriendshipGateState extends State<FriendshipGate> {
     }
   }
 
+  Future<void> _loadIncomingRequests() async {
+    setState(() {
+      _incomingIsLoading = true;
+      _incomingRequests.clear();
+    });
+    try {
+      final rows = await _friendService.getIncomingRequests();
+      if (!mounted) return;
+      setState(() {
+        _incomingRequests.addAll(rows);
+      });
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _incomingIsLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return FriendsPage(
       suggestions: _suggestions,
+      friends: _friends,
+      incomingRequests: _incomingRequests,
       isLoadingSuggestions: _sugIsLoading,
       isLoadingMoreSuggestions: _sugIsLoadingMore,
+      isLoadingIncomingRequests: _incomingIsLoading,
       onSearchSuggestions: _onSuggestionsSearchChanged,
       onLoadMoreSuggestions: _loadMoreSuggestions,
-      friends: _friends,
       onRefreshAll: _onRefreshAll,
     );
   }

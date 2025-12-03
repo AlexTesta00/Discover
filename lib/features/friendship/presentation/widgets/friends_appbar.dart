@@ -14,6 +14,17 @@ class FriendsAppBar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            ),
+            const Spacer(),
             TabBar(
               labelColor: primary,
               unselectedLabelColor: const Color(0xFF1B1B1B),

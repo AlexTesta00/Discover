@@ -101,6 +101,16 @@ class _FeedGateState extends State<FeedGate> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: Colors.black,
+          onPressed:() {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: SafeArea(child: _buildBody()),
     );
   }

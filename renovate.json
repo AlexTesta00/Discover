@@ -1,11 +1,22 @@
 {
   "extends": ["config:recommended"],
   "baseBranches": ["develop"],
+
+  "automerge": true,
+  "automergeType": "pr",
+
   "packageRules": [
     {
       "matchManagers": ["pub"],
       "automerge": true,
-      "automergeType": "pr"
+      "requiredStatusChecks": ["Verify (tests + build)"]
+    },
+    {
+      "matchManagers": ["gradle"],
+      "matchPackageNames": [
+        "dev.flutter.flutter-plugin-loader:dev.flutter.flutter-plugin-loader.gradle.plugin"
+      ],
+      "enabled": false
     }
   ]
 }

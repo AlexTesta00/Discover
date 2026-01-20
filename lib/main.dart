@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:discover/config/themes/app_theme.dart';
-import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
+import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
@@ -27,6 +27,9 @@ Future main() async {
   await Supabase.initialize(
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
     url: dotenv.env['SUPABASE_URL'] ?? '',
+    authOptions: FlutterAuthClientOptions(
+      localStorage: SharedPreferencesLocalStorage(persistSessionKey: 'SUPABASE_AUTH_SESSION'),
+    )
   );
   final sharedPreferences = await SharedPreferences.getInstance();
   final hasCompleteOnBoarding =
@@ -183,7 +186,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
       home: hasCompleteOnBoarding
-          ? const AuthenticationPage()
+          ? const AuthenticationGate()
           : const OnBoardingScreen(),
     );
   }

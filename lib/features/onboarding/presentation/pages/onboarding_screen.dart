@@ -1,5 +1,4 @@
 import 'package:discover/config/themes/app_theme.dart';
-import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/onboarding/presentation/pages/finish_on_boarding.dart';
 import 'package:discover/features/onboarding/presentation/widgets/onboarding_builder.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +80,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     final preference = await SharedPreferences.getInstance();
                     await preference.setBool('onBoardingComplete', true);
                     
-                    if(!mounted) return;
+                    if(!context.mounted) return;
 
                     Navigator.pushReplacement(
                       context, 

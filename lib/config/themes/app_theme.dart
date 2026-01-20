@@ -41,7 +41,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: primaryColor.withOpacity(0.5)),
+          borderSide: BorderSide(color: primaryColor.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         border: OutlineInputBorder(

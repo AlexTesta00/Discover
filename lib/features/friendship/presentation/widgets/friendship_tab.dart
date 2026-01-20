@@ -99,6 +99,7 @@ class FriendshipsTab extends StatelessWidget {
                   await friendService.rejectRequest(req.id);
                   await onRefresh();
                 } catch (e) {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text('Errore: $e')));
@@ -115,6 +116,7 @@ class FriendshipsTab extends StatelessWidget {
                 try {
                   final ok = await friendService.acceptRequest(req.id);
                   if (ok) {
+                    if (!context.mounted) return;
                     await showSuccessModal(
                       context,
                       title: 'Nuova amicizia!',
@@ -124,6 +126,7 @@ class FriendshipsTab extends StatelessWidget {
                   }
                   await onRefresh();
                 } catch (e) {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text('Errore: $e')));
@@ -157,7 +160,7 @@ class FriendshipsTab extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -226,6 +229,7 @@ class FriendshipsTab extends StatelessWidget {
 
                     try {
                       await removeFriend(user.email);
+                      if (!parentContext.mounted) return;
                       await showSuccessModal(
                         parentContext,
                         title: 'Congratulazioni',
@@ -234,6 +238,7 @@ class FriendshipsTab extends StatelessWidget {
                       );
                       await onRefresh();
                     } catch (e) {
+                      if (!parentContext.mounted) return;
                       ScaffoldMessenger.of(parentContext).showSnackBar(
                         SnackBar(
                           content: Text('Errore durante la rimozione: $e'),

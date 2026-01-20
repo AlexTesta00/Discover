@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -51,6 +50,7 @@ class TrackingController extends ChangeNotifier {
   // trim ogni 10 m
   LatLng? _lastUserPosForTrim;
   double _metersSinceLastTrim = 0.0;
+  // ignore: constant_identifier_names
   static const double _TRIM_EVERY_METERS = 10.0;
 
   // tracking state

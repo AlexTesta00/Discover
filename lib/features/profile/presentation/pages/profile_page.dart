@@ -30,7 +30,7 @@ class ProfilePage extends StatelessWidget {
     final cardColor = Colors.white;
     final shadow = [
       BoxShadow(
-        color: Colors.black.withOpacity(0.06),
+        color: Colors.black.withValues(alpha: 0.06),
         blurRadius: 16,
         offset: const Offset(0, 8),
       ),

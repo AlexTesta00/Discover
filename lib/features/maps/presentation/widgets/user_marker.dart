@@ -14,7 +14,7 @@ Marker userMarker(LatLng p) {
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withOpacity(0.25),
+            color: Colors.blueAccent.withValues(alpha: 0.25),
             shape: BoxShape.circle,
           ),
         ),

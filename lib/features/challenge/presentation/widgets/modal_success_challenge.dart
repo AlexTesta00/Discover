@@ -7,7 +7,7 @@ Future<void> showSuccessChallengeModal(
 }) async {
   final ch = challenge.character;
 
-  ImageProvider _imageProviderFrom(String path) {
+  ImageProvider imageProviderFrom(String path) {
     if (path.startsWith('http')) return NetworkImage(path);
     return AssetImage(path);
   }
@@ -29,7 +29,7 @@ Future<void> showSuccessChallengeModal(
                 backgroundColor: const Color(0xFFF34E6C),
                 child: CircleAvatar(
                   radius: 32,
-                  backgroundImage: _imageProviderFrom(ch.imageAsset),
+                  backgroundImage: imageProviderFrom(ch.imageAsset),
                 ),
               ),
               const SizedBox(height: 12),

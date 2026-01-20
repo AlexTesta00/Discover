@@ -38,7 +38,7 @@ class FriendsPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: bg,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(64),
+          preferredSize: Size.fromHeight(110),
           child: FriendsAppBar(),
         ),
         body: FriendsBody(

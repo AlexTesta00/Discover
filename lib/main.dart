@@ -22,7 +22,7 @@ final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
   await initializeDateFormatting('it_IT', null);
   await Supabase.initialize(
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
@@ -52,18 +52,19 @@ void _initEventStream() {
       // 1) etichetta immagine con MLKit
       final mlLabels = await labelService.labelsFor(e.file);
 
-      print(
+      debugPrint(
         '📸 [MLKit] Labels trovate per challenge "${e.challenge.title}": $mlLabels',
       );
 
       // 2) confronta con labels della challenge (campo text[] nel tuo model)
       final chLabels = e.challenge.labels;
-      print('🎯 [Challenge] Labels attese: $chLabels');
+      debugPrint('🎯 [Challenge] Labels attese: $chLabels');
       final ok = anyLabelMatches(mlLabels: mlLabels, challengeLabels: chLabels);
 
       if (!ok) {
         final ctx = navKey.currentContext;
         if (ctx != null) {
+          // ignore: use_build_context_synchronously
           await showNotCompletedModal(ctx, challenge: e.challenge);
         }
         return;
@@ -129,6 +130,7 @@ void _initEventStream() {
           // Mostra modale di successo
           final ctx = navKey.currentContext;
           if (ctx != null) {
+            // ignore: use_build_context_synchronously
             await showSuccessChallengeModal(ctx, challenge: challenge);
           }
         } catch (e) {
@@ -154,6 +156,7 @@ void _initEventStream() {
             final ctx = navKey.currentContext;
             if (ctx != null) {
               await showSuccessModal(
+                // ignore: use_build_context_synchronously
                 ctx,
                 title: 'Nuovo collezionabile sbloccato! 🎉',
                 description:

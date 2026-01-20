@@ -4,20 +4,20 @@ String timeAgoShort(DateTime date, {DateTime? now}) {
   final n = now ?? DateTime.now();
   final diff = n.difference(date);
 
-  if (diff.inSeconds < 45) return "adesso";
-  if (diff.inMinutes < 60) return "${diff.inMinutes} min fa";
-  if (diff.inHours < 24) return "${diff.inHours} h fa";
-  if (diff.inDays < 7) return "${diff.inDays} g fa";
+  if (diff.inSeconds < 45) return 'adesso';
+  if (diff.inMinutes < 60) return '${diff.inMinutes} min fa';
+  if (diff.inHours < 24) return '${diff.inHours} h fa';
+  if (diff.inDays < 7) return '${diff.inDays} g fa';
 
   final weeks = (diff.inDays / 7).floor();
-  if (weeks < 5) return "$weeks sett. fa";
+  if (weeks < 5) return '$weeks sett. fa';
 
   final months = (diff.inDays / 30).floor();
-  if (months < 12) return months == 1 ? "1 mese fa" : "$months mesi fa";
+  if (months < 12) return months == 1 ? '1 mese fa' : '$months mesi fa';
 
   final years = (diff.inDays / 365).floor();
-  if (years > 5) return "tanto tempo fa";
-  return years == 1 ? "1 anno fa" : "$years anni fa";
+  if (years > 5) return 'tanto tempo fa';
+  return years == 1 ? '1 anno fa' : '$years anni fa';
 }
 
 

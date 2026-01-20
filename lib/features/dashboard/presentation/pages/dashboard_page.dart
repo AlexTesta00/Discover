@@ -24,13 +24,12 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _loggingOut = false;
+  static const int _profileTabIndex = 2;
 
   final List<String> _titles = [
     'Mappa',
     'Challenge',
     'Profilo',
-    'Amici',
-    'Feed',
     'Collezionabili',
     'Negozio',
   ];
@@ -84,6 +83,33 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          if (_currentIndex == _profileTabIndex) ...[
+            IconButton(
+              tooltip: 'Amici',
+              icon: const Icon(Icons.group_outlined),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const FriendshipGate()),
+                );
+              },
+            ),
+            IconButton(
+              tooltip: 'Feed',
+              icon: const Icon(Icons.notifications_none),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => FeedGate(
+                      getEventsFeed: ({limit = 50, offset = 0}) =>
+                          getEventsFeed(limit: limit, offset: offset),
+                      getUserByEmail: getUserByEmail,
+                      pageSize: 20,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],
       ),
@@ -115,27 +141,6 @@ class _DashboardPageState extends State<DashboardPage> {
             item: ItemConfig(
               icon: Icon(Icons.account_circle),
               title: 'Profilo',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const FriendshipGate(),
-            item: ItemConfig(
-              icon: Icon(Icons.group),
-              title: 'Amici',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-          PersistentTabConfig(
-            screen: FeedGate(
-              getEventsFeed: ({limit = 50, offset = 0}) =>
-                  getEventsFeed(limit: limit, offset: offset),
-              getUserByEmail: getUserByEmail,
-              pageSize: 20,
-            ),
-            item: ItemConfig(
-              icon: Icon(Icons.feed),
-              title: 'Feed',
               activeForegroundColor: AppTheme.primaryColor,
             ),
           ),

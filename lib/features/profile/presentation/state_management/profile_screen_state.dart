@@ -69,7 +69,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         nextLevel: nextLevel,
       );
 
-      print("DEBUG: ${_challengeImages}");
+      debugPrint('DEBUG: $_challengeImages');
 
       return right(user);
     } catch (e) {

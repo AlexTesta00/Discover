@@ -129,7 +129,7 @@ class InviteFriendsTab extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -169,6 +169,7 @@ class InviteFriendsTab extends StatelessWidget {
                     Navigator.of(sheetContext).pop();
                     try {
                       await friendService.sendFriendRequest(user.email);
+                      if (!parentContext.mounted) return;
                       await showSuccessModal(
                         parentContext,
                         title: 'Richiesta inviata',
@@ -177,6 +178,7 @@ class InviteFriendsTab extends StatelessWidget {
                       );
                       await onRefresh();
                     } catch (e) {
+                      if (!parentContext.mounted) return;
                       ScaffoldMessenger.of(parentContext).showSnackBar(
                         SnackBar(
                           content: Text('Ops.. qualcosa è andato storto: $e'),

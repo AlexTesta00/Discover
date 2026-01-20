@@ -15,12 +15,12 @@ class CharacterDetailPage extends StatelessWidget {
 
     Widget headerImage;
     final img = character.imageAsset;
-    if (img != null && img.isNotEmpty) {
+    if (img.isNotEmpty) {
       if (img.startsWith('http')) {
         headerImage = Image.network(
           img,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
+          errorBuilder: (_, _, _) => Container(
             color: Colors.black12,
             alignment: Alignment.center,
             child: Icon(Icons.image_not_supported, size: 48, color: theme.primaryColor),
@@ -64,8 +64,7 @@ class CharacterDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      character.story ??
-                          "Nessuna descrizione disponibile al momento.",
+                      character.story,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ],

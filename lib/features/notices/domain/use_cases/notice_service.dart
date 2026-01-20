@@ -39,7 +39,7 @@ Future<Either<Error, Unit>> submitNotice(String category, String description, Fi
       imageUrl = _supabase.storage.from('notices').getPublicUrl('notice/$fileName');
     }
 
-    final insertResponse = await _supabase.from('notices').insert({
+    await _supabase.from('notices').insert({
       'email': email,
       'category': category,
       'description': description,

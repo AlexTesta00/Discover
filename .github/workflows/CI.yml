@@ -1,12 +1,20 @@
 name: CI
 
 on:
-  push:
   pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  verify:
+    name: Verify (tests + build)
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,44 +31,57 @@ jobs:
           ROUTE_SERVICE=${{ secrets.ROUTE_SERVICE }}
           EOF
 
+      - name: Setup Java (Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "17"
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.32.4'
+          flutter-version: "3.32.4"
+          cache: true
 
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Static analysis
+        run: flutter analyze
+
       - name: Run Tests
         run: flutter test --coverage
 
+      - name: Build Android debug APK
+        run: flutter build apk --debug
+
   release:
-    if: github.ref == 'refs/heads/main'
+    name: Release (main only)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: test
+    needs: verify
     permissions:
       contents: write
       pull-requests: write
       issues: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Java 17 è raccomandato per i build Android moderni
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: zulu
+          java-version: "17"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22.18.0
-          check-latest: false
 
       - name: Install Node dependencies
         run: npm ci
@@ -69,11 +90,12 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.32.4'
+          flutter-version: "3.32.4"
+          cache: true
 
       - name: Install Flutter dependencies
         run: flutter pub get
-      
+
       - name: Create .env file
         run: |
           cat > .env << 'EOF'
@@ -84,15 +106,9 @@ jobs:
           ROUTE_SERVICE=${{ secrets.ROUTE_SERVICE }}
           EOF
 
-      # 👉 Build APK debug (universale)
       - name: Build Android debug APK
         run: flutter build apk --debug
 
-      # Facoltativo: verifica percorso artefatto
-      - name: List APKs
-        run: ls -lah build/app/outputs/flutter-apk/
-
-      # 👉 Release + upload asset tramite semantic-release
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

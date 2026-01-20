@@ -29,7 +29,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
     return Scaffold(
       body: ListView.separated(
         itemCount: widget.events.length,
-        separatorBuilder: (_, __) => const SizedBox.shrink(),
+        separatorBuilder: (_, _) => const SizedBox.shrink(),
         itemBuilder: (_, i) {
           final item = widget.events[i];
           return EventCard(

@@ -5,13 +5,18 @@
   "automerge": true,
   "automergeType": "pr",
 
-  "automergeStrategy": "merge-commit",
-
   "packageRules": [
     {
       "matchManagers": ["pub"],
       "automerge": true,
       "requiredStatusChecks": ["Verify (tests + build)"]
+    },
+    {
+      "matchManagers": ["gradle"],
+      "matchPackageNames": [
+        "dev.flutter.flutter-plugin-loader:dev.flutter.flutter-plugin-loader.gradle.plugin"
+      ],
+      "enabled": false
     }
   ]
 }

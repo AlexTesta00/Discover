@@ -1,3 +1,14 @@
+## [2.5.0](https://github.com/AlexTesta00/Discover/compare/v2.4.0...v2.5.0) (2026-01-20)
+
+### Features
+
+* added new characters ([9165585](https://github.com/AlexTesta00/Discover/commit/9165585420266cc4c15ecb85cc17ad2628912c64))
+
+### Bug Fixes
+
+* **dashboard:** now friends page and feed page are located on profile page ([e8a7237](https://github.com/AlexTesta00/Discover/commit/e8a723771853134acb18e7630cad6fe9fbdb01c9))
+* fix 138 issue ([9217075](https://github.com/AlexTesta00/Discover/commit/921707583b3f7528e07298471af4a278bb5a061d))
+
 ## [2.4.0](https://github.com/AlexTesta00/Discover/compare/v2.3.0...v2.4.0) (2025-11-19)
 
 ### Features

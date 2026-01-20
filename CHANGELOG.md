@@ -1,3 +1,15 @@
+## [2.6.0](https://github.com/AlexTesta00/Discover/compare/v2.5.0...v2.6.0) (2026-01-20)
+
+### Features
+
+* added persistent login ([9b2bdc9](https://github.com/AlexTesta00/Discover/commit/9b2bdc9bb469786ec723ba9ad5bdf41f0c1c2b13))
+
+### Bug Fixes
+
+* bug that prevented users from accessing the dashboard after logging in ([b8b1d2b](https://github.com/AlexTesta00/Discover/commit/b8b1d2ba0cf891711974d72832d6aabc251e1262))
+* **deps:** update dependency showcaseview to v5 ([597d036](https://github.com/AlexTesta00/Discover/commit/597d036565957e4b20d5cbe9b64a2c87167479f8))
+* renovate issue ([7983f2e](https://github.com/AlexTesta00/Discover/commit/7983f2e7346b2f312a32a3396e80caa5b176fd5d))
+
 ## [2.5.0](https://github.com/AlexTesta00/Discover/compare/v2.4.0...v2.5.0) (2026-01-20)
 
 ### Features

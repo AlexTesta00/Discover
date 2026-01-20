@@ -27,6 +27,9 @@ Future main() async {
   await Supabase.initialize(
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
     url: dotenv.env['SUPABASE_URL'] ?? '',
+    authOptions: FlutterAuthClientOptions(
+      localStorage: SharedPreferencesLocalStorage(persistSessionKey: 'SUPABASE_AUTH_SESSION'),
+    )
   );
   final sharedPreferences = await SharedPreferences.getInstance();
   final hasCompleteOnBoarding =

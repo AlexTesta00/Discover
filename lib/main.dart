@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:discover/config/themes/app_theme.dart';
-import 'package:discover/features/authentication/presentation/pages/authentication_page.dart';
+import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
@@ -183,7 +183,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
       home: hasCompleteOnBoarding
-          ? const AuthenticationPage()
+          ? const AuthenticationGate()
           : const OnBoardingScreen(),
     );
   }

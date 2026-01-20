@@ -26,7 +26,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   void login() async {
-    final email = _emailController.text;
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
@@ -42,16 +42,29 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
     result.match(
       (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error)));
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error)));
       },
       (response) {
-        if (mounted) {
+        if (!mounted) return;
+
+        final session =
+            response.session ?? Supabase.instance.client.auth.currentSession;
+
+        if (session != null) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+            (_) => false,
+          );
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login effettuato con successo')),
+            const SnackBar(
+              content: Text(
+                'Login ok, ma nessuna sessione attiva. Hai confermato l’email?',
+              ),
+            ),
           );
         }
       },

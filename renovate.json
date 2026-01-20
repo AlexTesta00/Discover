@@ -1,9 +1,15 @@
 {
-  "extends": ["config:recommended"],
-  "baseBranches": ["develop"],
+  "extends": [
+    "config:recommended"
+  ],
+  "baseBranchPatterns": [
+    "develop"
+  ],
   "packageRules": [
     {
-      "matchManagers": ["pub"],
+      "matchManagers": [
+        "pub"
+      ],
       "automerge": true,
       "automergeType": "pr"
     }

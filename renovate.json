@@ -1,11 +1,17 @@
 {
   "extends": ["config:recommended"],
   "baseBranches": ["develop"],
+
+  "automerge": true,
+  "automergeType": "pr",
+
+  "automergeStrategy": "merge-commit",
+
   "packageRules": [
     {
       "matchManagers": ["pub"],
       "automerge": true,
-      "automergeType": "pr"
+      "requiredStatusChecks": ["Verify (tests + build)"]
     }
   ]
 }

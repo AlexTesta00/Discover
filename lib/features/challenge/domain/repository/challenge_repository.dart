@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -9,25 +10,6 @@ class ChallengeRepository {
 
   ChallengeRepository(this.client);
 
-  /// Legge tutte le foto dell’utente (path nel bucket), più recenti prima.
-  Future<List<String>> _fetchUserPhotoPaths() async {
-    final user = client.auth.currentUser;
-    if (user == null) throw const AuthException('Non autenticato');
-
-    final rows = await client
-        .from('challenge_submissions')
-        .select('photo_path')
-        .eq('user_email', getUserEmail()!)
-        .not('photo_path', 'is', null)
-        .order('created_at', ascending: false);
-
-    final list = (rows as List).cast<Map<String, dynamic>>();
-    return list
-        .map((m) => m['photo_path'] as String?)
-        .where((p) => p != null && p!.isNotEmpty)
-        .cast<String>()
-        .toList();
-  }
 
   /// Recupera le foto challenge pubbliche (pubbliche nel bucket)
   Future<List<String>> getUserChallengePhotoUrls() async {
@@ -44,7 +26,7 @@ class ChallengeRepository {
     final list = (rows as List).cast<Map<String, dynamic>>();
     final paths = list
         .map((m) => m['photo_path'] as String?)
-        .where((p) => p != null && p!.isNotEmpty)
+        .where((p) => p != null && p.isNotEmpty)
         .cast<String>()
         .toList();
 
@@ -137,8 +119,8 @@ class ChallengeRepository {
     }
   }
 
-  /// Restituisce le URL PUBBLICHE di tutte le foto challenge per l'utente [email].
-  /// Scansiona: /<challengeId>/<email>/... nel bucket 'challenge-submissions'.
+  // Restituisce le URL PUBBLICHE di tutte le foto challenge per l'utente [email].
+  // Scansiona: <challengeId>/<email>/... nel bucket 'challenge-submissions'.
   Future<List<String>> getPublicPhotoUrlsByEmail(String email) async {
     final storage = client.storage.from('challenge-submissions');
 
@@ -236,7 +218,7 @@ class ChallengeRepository {
 
     // Se non c'è submissionId → significa che la challenge non esiste per quel personaggio
     if (submissionId == null) {
-      print(
+      debugPrint(
         'Nessuna challenge di dialogo trovata per personaggio $characterId',
       );
       return (null, false);

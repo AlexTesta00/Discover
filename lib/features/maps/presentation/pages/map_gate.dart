@@ -147,6 +147,7 @@ class _MapGateState extends State<MapGate> {
     }
 
     // 3️⃣ Mostra il modale di arrivo
+    if (!mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,

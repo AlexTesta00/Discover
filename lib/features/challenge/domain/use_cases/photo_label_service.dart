@@ -19,13 +19,13 @@ class PhotoLabelService {
   String _norm(String s) => s
       .toLowerCase()
       .trim()
-      .replaceAll(RegExp(r"[àáâãä]"), "a")
-      .replaceAll(RegExp(r"[èéêë]"), "e")
-      .replaceAll(RegExp(r"[ìíîï]"), "i")
-      .replaceAll(RegExp(r"[òóôõö]"), "o")
-      .replaceAll(RegExp(r"[ùúûü]"), "u")
-      .replaceAll(RegExp(r"[^a-z0-9 ]"), " ")
-      .replaceAll(RegExp(r"\s+"), " ");
+      .replaceAll(RegExp(r'[àáâãä]'), 'a')
+      .replaceAll(RegExp(r'[èéêë]'), 'e')
+      .replaceAll(RegExp(r'[ìíîï]'), 'i')
+      .replaceAll(RegExp(r'[òóôõö]'), 'o')
+      .replaceAll(RegExp(r'[ùúûü]'), 'u')
+      .replaceAll(RegExp(r'[^a-z0-9 ]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ');
 
   void dispose() => _labeler.close();
 }

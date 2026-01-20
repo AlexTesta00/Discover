@@ -106,7 +106,7 @@ class MapService extends ChangeNotifier {
       onTap: () => removeExactPoint(p),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.blue.withOpacity(0.9),
+          color: Colors.blue.withValues(alpha: 0.9),
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [

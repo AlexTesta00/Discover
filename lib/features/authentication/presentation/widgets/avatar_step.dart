@@ -80,14 +80,14 @@ class AvatarStep extends StatelessWidget {
                             boxShadow: [
                               if (isSel)
                                 BoxShadow(
-                                  color: primary.withOpacity(0.25),
+                                  color: primary.withValues(alpha: 0.25),
                                   blurRadius: 16,
                                 ),
                             ],
                           ),
                           child: CircleAvatar(
                             radius: avatarRadius,
-                            backgroundColor: primary.withOpacity(0.15),
+                            backgroundColor: primary.withValues(alpha: 0.15),
                             backgroundImage: AssetImage(path),
                           ),
                         ),

@@ -70,8 +70,8 @@ class _OnboardingRegistrationPageState
         //Modale di congratulazioni e reindirizzamento all auth gate
         await showSuccessModal(
           context,
-          title: "Congratulazioni!",
-          description: "Hai creato il tuo account con successo",
+          title: 'Congratulazioni!',
+          description: 'Hai creato il tuo account con successo',
         );
 
         if (!mounted) return;
@@ -152,7 +152,6 @@ class _OnboardingRegistrationPageState
                 height: 50,
                 child: OutlinedButton(
                   onPressed: step == 0 ? null : _back,
-                  child: const Text('Torna indietro'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: step == 0
                         ? Colors.grey
@@ -161,6 +160,7 @@ class _OnboardingRegistrationPageState
                         ? BorderSide(color: Colors.grey)
                         : BorderSide(color: AppTheme.primaryColor),
                   ),
+                  child: const Text('Torna indietro'),
                 ),
               ),
               const SizedBox(height: 16),

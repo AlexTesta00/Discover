@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:math' as _math;
+import 'dart:math' as math;
 import 'package:discover/features/maps/domain/entities/routing_model.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:flutter/foundation.dart';
-import 'package:latlong2/latlong.dart' show Distance;
 import 'routing_provider.dart';
 
 typedef RouteUpdate = void Function(RouteResult route);
@@ -26,7 +24,6 @@ class LiveRouter {
 
   StreamSubscription<LatLng>? _sub;
   RouteResult? _currentRoute;
-  LatLng? _lastUser;
   DateTime _lastReroute = DateTime.fromMillisecondsSinceEpoch(0);
 
   final _ctrl = StreamController<RouteResult>.broadcast();
@@ -42,7 +39,6 @@ class LiveRouter {
   });
 
   Future<void> start(LatLng initialUser) async {
-    _lastUser = initialUser;
     await _rebuildRoute(initialUser);
     _sub = positionStream.listen(_onPos);
   }
@@ -53,7 +49,6 @@ class LiveRouter {
   }
 
   Future<void> _onPos(LatLng p) async {
-    _lastUser = p;
     if (_currentRoute == null) return;
 
     // fuori rotta?
@@ -126,7 +121,9 @@ class LiveRouter {
   }
 }
 
+// ignore: non_constant_identifier_names
 double MathCos(double v) => (v).cos();
+// ignore: non_constant_identifier_names
 double MathSqrt(double v) => (v).sqrt();
 
 extension _NumMath on double {
@@ -139,5 +136,5 @@ extension _NumMath on double {
 }
 
 
-double _mathCos(double v) => _math.cos(v);
-double _mathSqrt(double v) => _math.sqrt(v);
+double _mathCos(double v) => math.cos(v);
+double _mathSqrt(double v) => math.sqrt(v);

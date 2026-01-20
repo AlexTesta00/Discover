@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +137,7 @@ class _ARCharacterPageState extends State<ARCharacterPage> {
 
       final result = await ImageGallerySaverPlus.saveImage(
         pngBytes,
-        name: "discover_${DateTime.now().millisecondsSinceEpoch}",
+        name: 'discover_${DateTime.now().millisecondsSinceEpoch}',
       );
 
       debugPrint('Risultato salvataggio immagine: $result');
@@ -200,7 +199,7 @@ class _ARCharacterPageState extends State<ARCharacterPage> {
                     CameraPreview(_controller!),
 
                     // Leggera ombra per far risaltare lo sticker
-                    Container(color: Colors.black.withOpacity(0.08)),
+                    Container(color: Colors.black.withValues(alpha: 0.08)),
 
                     // Personaggio ridimensionabile e trascinabile
                     Positioned.fill(

@@ -198,11 +198,11 @@ class _InitialSkeleton extends StatelessWidget {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      itemBuilder: (_, __) => Row(
+      itemBuilder: (_, _) => Row(
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -218,7 +218,7 @@ class _InitialSkeleton extends StatelessWidget {
           )
         ],
       ),
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemCount: 6,
     );
   }

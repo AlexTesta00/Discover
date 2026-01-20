@@ -89,25 +89,25 @@ class _NoticesPageState extends State<NoticesPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Categoria", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              Text('Categoria', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               SizedBox(height: 16),
               Wrap(
                 spacing: 10,
                 children: _categories.map(_buildCategoriaButton).toList(),
               ),
               SizedBox(height: 32),
-              Text("Descrizione", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              Text('Descrizione', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               SizedBox(height: 16),
               TextField(
                 controller: _descriptionController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: "Descrivi brevemente il problema...",
+                  hintText: 'Descrivi brevemente il problema...',
                   border: OutlineInputBorder(),
                 ),
               ),
               SizedBox(height: 32),
-              Text("Foto (opzionale)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              Text('Foto (opzionale)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               SizedBox(height: 16),
               GestureDetector(
                 onTap: _selectImage,
@@ -120,7 +120,7 @@ class _NoticesPageState extends State<NoticesPage> {
                   ),
                   clipBehavior: Clip.hardEdge, // ✅ taglia immagine dentro i bordi
                   child: _image == null
-                      ? Center(child: Text("Seleziona l'immagine dalla galleria"))
+                      ? Center(child: Text('Seleziona l\'immagine dalla galleria'))
                       : Image.file(_image!, fit: BoxFit.cover, width: double.infinity, height: 180),
                 ),
               ),
@@ -131,7 +131,7 @@ class _NoticesPageState extends State<NoticesPage> {
                   backgroundColor: AppTheme.primaryColor,
                   minimumSize: Size(double.infinity, 50),
                 ),
-                child: Text("Invia Segnalazione"),
+                child: Text('Invia Segnalazione'),
               ),
             ],
           ),

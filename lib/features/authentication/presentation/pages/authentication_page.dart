@@ -116,18 +116,20 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           final ensure = await ensureProfileFromCurrentUser().run();
           ensure.match(
             (e) {
-              print("Errore ensure, $e");
+              debugPrint('Errore ensure, $e');
             },
             (_) {
-              print("Ensure completed");
+              debugPrint('Ensure completed');
             },
-          ); //TODO: Tech debit, ensure user creation in table profile
+          );
           if (session != null) {
+            if (!mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const DashboardPage()),
               (_) => false,
             );
           } else {
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(

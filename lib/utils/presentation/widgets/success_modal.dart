@@ -22,7 +22,7 @@ class SuccessModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final surface = theme.colorScheme.surface;
-    final textColor = theme.colorScheme.onSurface.withOpacity(0.85);
+    final textColor = theme.colorScheme.onSurface.withValues(alpha: 0.85);
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 32),
@@ -61,7 +61,7 @@ class SuccessModal extends StatelessWidget {
               description,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 22),

@@ -29,7 +29,7 @@ class PoiArrivalSheet extends StatelessWidget {
             width: 96,
             height: 96,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(
+            errorBuilder: (_, _, _) => Icon(
               Icons.image_not_supported,
               size: 48,
               color: theme.primaryColor,
@@ -71,7 +71,7 @@ class PoiArrivalSheet extends StatelessWidget {
 
             // Piccola descrizione
             Text(
-              "Devi completare tutte le mie challenge se vuoi ricevere il mio trofeo",
+              'Devi completare tutte le mie challenge se vuoi ricevere il mio trofeo',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium,
             ),
@@ -106,7 +106,7 @@ class PoiArrivalSheet extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                   ),
                   label: Text(
-                    "Vedi in AR",
+                    'Vedi in AR',
                     style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                   style: OutlinedButton.styleFrom(

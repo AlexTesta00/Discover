@@ -24,7 +24,9 @@ class _FriendshipGateState extends State<FriendshipGate> {
   final List<User> _suggestions = [];
 
   final int _friendsPageSize = 50;
+  // ignore: unused_field
   bool _friendsIsLoading = false;
+  // ignore: unused_field
   bool _friendsHasMore = true;
   String? _friendsSearch;
   int _friendsOffset = 0;

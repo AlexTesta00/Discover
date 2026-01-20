@@ -69,19 +69,21 @@ class ShopTile extends StatelessWidget {
             try {
               if (item.category == ShopCategory.avatar) {
                 await setUserAvatar(item.asset);
+                if (!context.mounted) return;
                 await showSuccessModal(
                   context,
-                  title: "Nuovo avatar impostato 🎉",
+                  title: 'Nuovo avatar impostato 🎉',
                   description:
-                      "Hai selezionato ${item.name} come tuo avatar. Controlla il profilo per vederlo!",
+                      'Hai selezionato ${item.name} come tuo avatar. Controlla il profilo per vederlo!',
                 );
               } else {
                 await setUserBackground(item.asset);
+                if (!context.mounted) return;
                 await showSuccessModal(
                   context,
-                  title: "Nuovo sfondo impostato 🌿",
+                  title: 'Nuovo sfondo impostato 🌿',
                   description:
-                      "Hai selezionato ${item.name} come tuo sfondo. Controlla il profilo per vederlo!",
+                      'Hai selezionato ${item.name} come tuo sfondo. Controlla il profilo per vederlo!',
                 );
               }
               if (context.mounted) {
@@ -182,7 +184,7 @@ class _OwnedBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: ShapeDecoration(
-        color: Colors.black.withOpacity(0.75),
+        color: Colors.black.withValues(alpha: 0.75),
         shape: const StadiumBorder(),
       ),
       child: const Text(

@@ -62,7 +62,7 @@ class Header extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(
                         width: ringThickness,
-                        color: effectiveColor.withOpacity(0.18),
+                        color: effectiveColor.withValues(alpha: 0.18),
                       ),
                     ),
                   ),

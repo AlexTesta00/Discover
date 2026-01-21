@@ -37,7 +37,7 @@ dependencies:
   google_mlkit_image_labeling: ^0.14.1
   connectivity_plus: ^6.1.5
   internet_connection_checker: ^3.0.1
-  showcaseview: ^4.0.1
+  showcaseview: 5.0.1
   camera: ^0.11.2+1
   image_gallery_saver_plus: ^4.0.1
   uuid: ^4.0.0

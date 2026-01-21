@@ -27,7 +27,7 @@ class CharacterDetailPage extends StatelessWidget {
           ),
         );
       } else {
-        headerImage = Image.asset(img, fit: BoxFit.cover);
+        headerImage = Image.asset(img, fit: BoxFit.contain);
       }
     } else {
       headerImage = Container(

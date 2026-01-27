@@ -23,6 +23,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
+  final _controller = PersistentTabController(initialIndex: 0);
   bool _loggingOut = false;
   static const int _profileTabIndex = 2;
 
@@ -33,6 +34,7 @@ class _DashboardPageState extends State<DashboardPage> {
     'Collezionabili',
     'Negozio',
   ];
+
 
   Future<void> logout() async {
     if (_loggingOut) return;
@@ -72,101 +74,107 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _titles[_currentIndex],
-          style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        forceMaterialTransparency: true,
-        actions: [
-          if (_currentIndex == _profileTabIndex) ...[
-            IconButton(
-              tooltip: 'Amici',
-              icon: const Icon(Icons.group_outlined),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const FriendshipGate()),
-                );
-              },
-            ),
-            IconButton(
-              tooltip: 'Feed',
-              icon: const Icon(Icons.notifications_none),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => FeedGate(
-                      getEventsFeed: ({limit = 50, offset = 0}) =>
-                          getEventsFeed(limit: limit, offset: offset),
-                      getUserByEmail: getUserByEmail,
-                      pageSize: 20,
+    return PopScope(
+      canPop: _controller.index == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_controller.index != 0) {
+          _controller.jumpToTab(0);
+          setState(() => _currentIndex = 0);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            _titles[_currentIndex],
+            style: TextStyle(color: Colors.black),
+          ),
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.black),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          forceMaterialTransparency: true,
+          actions: [
+            if (_currentIndex == _profileTabIndex) ...[
+              IconButton(
+                tooltip: 'Amici',
+                icon: const Icon(Icons.group_outlined),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FriendshipGate()),
+                  );
+                },
+              ),
+              IconButton(
+                tooltip: 'Feed',
+                icon: const Icon(Icons.notifications_none),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => FeedGate(
+                        getEventsFeed: ({limit = 50, offset = 0}) =>
+                            getEventsFeed(limit: limit, offset: offset),
+                        getUserByEmail: getUserByEmail,
+                        pageSize: 20,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
+            ],
+            IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
+          ],
+        ),
+        body: PersistentTabView(
+          onTabChanged: (index) => setState(() => _currentIndex = index),
+          tabs: [
+            PersistentTabConfig(
+              screen: const MapGate(),
+              item: ItemConfig(
+                icon: Icon(Icons.map),
+                title: 'Mappa',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const ChallengeGatePage(),
+              item: ItemConfig(
+                icon: Icon(Icons.emoji_flags_outlined),
+                title: 'Challenge',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const ProfileScreenState(),
+              item: ItemConfig(
+                icon: Icon(Icons.account_circle),
+                title: 'Profilo',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const CollectibleGate(),
+              item: ItemConfig(
+                icon: Icon(Icons.stars_sharp),
+                title: 'Collezionabili',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const ShopGate(),
+              item: ItemConfig(
+                icon: Icon(Icons.store),
+                title: 'Negozio',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
             ),
           ],
-          IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
-        ],
-      ),
-      body: PersistentTabView(
-        onTabChanged: (index) async {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        tabs: [
-          PersistentTabConfig(
-            screen: const MapGate(),
-            item: ItemConfig(
-              icon: Icon(Icons.map),
-              title: 'Mappa',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const ChallengeGatePage(),
-            item: ItemConfig(
-              icon: Icon(Icons.emoji_flags_outlined),
-              title: 'Challenge',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const ProfileScreenState(),
-            item: ItemConfig(
-              icon: Icon(Icons.account_circle),
-              title: 'Profilo',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const CollectibleGate(),
-            item: ItemConfig(
-              icon: Icon(Icons.stars_sharp),
-              title: 'Collezionabili',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-          PersistentTabConfig(
-            screen: const ShopGate(),
-            item: ItemConfig(
-              icon: Icon(Icons.store),
-              title: 'Negozio',
-              activeForegroundColor: AppTheme.primaryColor,
-            ),
-          ),
-        ],
-        navBarBuilder: (navBarConfig) =>
-            Style2BottomNavBar(navBarConfig: navBarConfig),
+          navBarBuilder: (navBarConfig) =>
+              Style2BottomNavBar(navBarConfig: navBarConfig),
+        ),
       ),
     );
   }

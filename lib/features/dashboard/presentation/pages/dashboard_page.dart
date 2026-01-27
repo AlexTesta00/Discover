@@ -82,6 +82,10 @@ class _DashboardPageState extends State<DashboardPage> {
         iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        forceMaterialTransparency: true,
         actions: [
           if (_currentIndex == _profileTabIndex) ...[
             IconButton(

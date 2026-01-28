@@ -9,8 +9,10 @@ class EmailStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
-    
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$',
+    );
+
     return StepScaffold(
       title: 'Qual è la tua email?',
       child: Form(
@@ -18,7 +20,10 @@ class EmailStep extends StatelessWidget {
         child: TextFormField(
           controller: controller,
           keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
           autofillHints: const [AutofillHints.email],
+          autocorrect: false,
+          enableSuggestions: false,
           decoration: AppTheme.inputDecoration('mario.rossi@example.com'),
           validator: (value) {
             final v = value?.trim() ?? '';

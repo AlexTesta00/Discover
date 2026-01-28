@@ -212,7 +212,16 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             obscureText: true,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(onPressed: login, child: const Text('Login')),
+          ElevatedButton(
+            onPressed: login,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Login', style: TextStyle(fontSize: 16)),
+          ),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -243,7 +252,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               style: const TextStyle(color: Colors.black),
             ),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               side: const BorderSide(color: Colors.grey),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

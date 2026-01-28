@@ -181,7 +181,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             height: 100,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/icons/logo.png'),
+                image: AssetImage('assets/icons/foreground.png'),
                 fit: BoxFit.contain,
               ),
             ),
@@ -234,7 +234,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : Image.asset(
-                    'assets/icons/google_logo.png',
+                    'assets/icons/google_logo.webp',
                     height: 24,
                     width: 24,
                   ),
@@ -266,7 +266,28 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               ),
             ),
           ),
+          const SizedBox(height: 60),
         ],
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(bottom: 30, top: 12),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: Colors.black12)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Powered by',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              height: 16,
+              child: Image.asset('assets/icons/logo.webp', fit: BoxFit.contain),
+            ),
+          ],
+        ),
       ),
     );
   }

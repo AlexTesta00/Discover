@@ -51,6 +51,7 @@ class _MapGateState extends State<MapGate> {
     super.initState();
     _loadPois();
     _ctrl.startLocation();
+    _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
   }
 
   @override

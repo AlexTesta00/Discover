@@ -9,6 +9,20 @@ class MapService extends ChangeNotifier {
   final List<LatLng> _points = [];
   final List<List<LatLng>> _paths = [];
 
+  //Poligoni del parco
+  final deltaDelPoPolygon = Polygon(
+    points: const [
+      LatLng(44.70947164927037, 12.072101290849702),
+      LatLng(44.3764207482383, 12.072101290849702),
+      LatLng(44.3764207482383, 12.325010817774569),
+      LatLng(44.70947164927037, 12.325010817774569),
+      LatLng(44.70947164927037, 12.072101290849702),
+    ],
+    color: Colors.green.withValues(alpha: 0.18), // riempimento
+    borderColor: Colors.green.withValues(alpha: 0.75), // bordo
+    borderStrokeWidth: 2,
+  );
+
   // ---- GETTER PUBBLICI ----
 
   /// Punti "grezzi" aggiunti dall'utente (serve alla MapPage per il routing)
@@ -17,21 +31,14 @@ class MapService extends ChangeNotifier {
   /// Markers costruiti dai punti (per il MarkerLayer)
   List<Marker> get markers => _points
       .map(
-        (p) => Marker(
-          point: p,
-          width: 28,
-          height: 28,
-          child: _removableMarker(p),
-        ),
+        (p) =>
+            Marker(point: p, width: 28, height: 28, child: _removableMarker(p)),
       )
       .toList();
 
   /// Polilinee da disegnare (percorsi manuali + live routing)
-  List<Polyline> get polylines => _paths
-      .map(
-        (path) => Polyline(points: path, strokeWidth: 4),
-      )
-      .toList();
+  List<Polyline> get polylines =>
+      _paths.map((path) => Polyline(points: path, strokeWidth: 4)).toList();
 
   // ---- API PUNTI ----
 
@@ -100,6 +107,22 @@ class MapService extends ChangeNotifier {
     notifyListeners();
   }
 
+  //Gestione dei poligoni per evidenziare aree specifiche (il parco)
+  final List<Polygon> _polygons = [];
+  List<Polygon> get polygons => List.unmodifiable(_polygons);
+
+  void setPolygons(List<Polygon> polys) {
+    _polygons
+      ..clear()
+      ..addAll(polys);
+    notifyListeners();
+  }
+
+  void clearPolygons() {
+    _polygons.clear();
+    notifyListeners();
+  }
+
   // ---- Marker tappabile per rimozione precisa ----
   Widget _removableMarker(LatLng p) {
     return GestureDetector(
@@ -110,7 +133,11 @@ class MapService extends ChangeNotifier {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
-            BoxShadow(blurRadius: 6, offset: Offset(0, 2), color: Colors.black26),
+            BoxShadow(
+              blurRadius: 6,
+              offset: Offset(0, 2),
+              color: Colors.black26,
+            ),
           ],
         ),
         child: const Center(

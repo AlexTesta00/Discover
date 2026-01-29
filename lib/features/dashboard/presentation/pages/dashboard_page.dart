@@ -29,7 +29,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   final List<String> _titles = [
     'Mappa',
-    'Challenge',
+    'Sfide',
     'Profilo',
     'Collezionabili',
     'Negozio',
@@ -143,7 +143,7 @@ class _DashboardPageState extends State<DashboardPage> {
               screen: const ChallengeGatePage(),
               item: ItemConfig(
                 icon: Icon(Icons.emoji_flags_outlined),
-                title: 'Challenge',
+                title: 'Sfide',
                 activeForegroundColor: AppTheme.primaryColor,
               ),
             ),

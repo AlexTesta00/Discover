@@ -48,7 +48,7 @@ class PoiBottomSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: const Text('Raggiungi'),
+                child: const Text('Avvia navigazione'),
               ),
             ),
           ],

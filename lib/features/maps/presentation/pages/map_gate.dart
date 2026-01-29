@@ -125,8 +125,8 @@ class _MapGateState extends State<MapGate> {
 
     // 1️⃣ Completa la challenge "Parla con X" via RPC
     try {
-      final (submissionId, wasNew) =
-          await repo.completeTalkChallengeForCharacter(poi.id);
+      final (submissionId, wasNew) = await repo
+          .completeTalkChallengeForCharacter(poi.id);
 
       // 2️⃣ Se è la prima volta → emetti l'evento ChallengeCompletedEvent
       if (submissionId != null && wasNew) {
@@ -192,7 +192,8 @@ class _MapGateState extends State<MapGate> {
       animation: _ctrl,
       builder: (context, _) {
         final showBanner =
-            _ctrl.isTracking && (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
+            _ctrl.isTracking &&
+            (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
 
         return Scaffold(
           body: Stack(
@@ -210,6 +211,35 @@ class _MapGateState extends State<MapGate> {
                 remainMeters: _ctrl.remainMeters,
                 etaSeconds: _ctrl.etaSeconds,
                 onStop: _ctrl.stopTracking,
+              ),
+              Positioned(
+                right: 12,
+                bottom: 24,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    //Centra su utente
+                    FloatingActionButton.small(
+                      heroTag: 'center_user',
+                      onPressed: _ctrl.centerOnUser,
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 4,
+                      child: const Icon(Icons.my_location),
+                    ),
+                    const SizedBox(height: 12),
+
+                    //Reset rotazione
+                    FloatingActionButton.small(
+                      heroTag: 'reset_north',
+                      onPressed: _ctrl.resetRotationNorth,
+                      backgroundColor: Colors.white, 
+                      foregroundColor: Colors.black, 
+                      elevation: 4,
+                      child: const Icon(Icons.explore),
+                    ),
+                  ],
+                ),
               ),
               if (_loadingPois)
                 const Positioned(
@@ -246,7 +276,6 @@ class _MapGateState extends State<MapGate> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }

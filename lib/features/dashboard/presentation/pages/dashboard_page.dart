@@ -5,6 +5,7 @@ import 'package:discover/features/authentication/domain/use_cases/authentication
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_gate.dart';
+import 'package:discover/features/dashboard/presentation/widgets/balance_pill.dart';
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
@@ -13,6 +14,7 @@ import 'package:discover/features/maps/presentation/pages/map_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:discover/features/shop/presentation/pages/shop_gate.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -43,10 +45,16 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
 
-    _busSub = ChallengeEventBus.I.stream.listen((e) {
+    BalanceNotifier.I.refresh();
+
+    _busSub = ChallengeEventBus.I.stream.listen((e) async {
       if (e is GoToMapForCharacterEvent) {
         _controller.jumpToTab(0);
         setState(() => _currentIndex = 0);
+      }
+
+      if (e is ChallengeCompletedEvent) {
+        await BalanceNotifier.I.refresh();
       }
     });
   }
@@ -106,10 +114,7 @@ class _DashboardPageState extends State<DashboardPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            _titles[_currentIndex],
-            style: TextStyle(color: Colors.black),
-          ),
+          titleSpacing: 0,
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: Colors.transparent,
@@ -118,7 +123,26 @@ class _DashboardPageState extends State<DashboardPage> {
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
           forceMaterialTransparency: true,
+
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _titles[_currentIndex],
+                style: const TextStyle(color: Colors.black),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+
           actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: ValueListenableBuilder<int>(
+                valueListenable: BalanceNotifier.I.balance,
+                builder: (_, value, _) => BalancePill(balance: value),
+              ),
+            ),
             if (_currentIndex == _profileTabIndex) ...[
               IconButton(
                 tooltip: 'Amici',
@@ -147,6 +171,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ],
             IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
+            const SizedBox(width: 6),
           ],
         ),
         body: PersistentTabView(

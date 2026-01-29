@@ -2,6 +2,7 @@ import 'package:discover/features/shop/domain/repository/shop_data.dart';
 import 'package:discover/features/shop/domain/use_cases/shop_service.dart';
 import 'package:discover/features/shop/presentation/widgets/shop_section.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -30,26 +31,24 @@ class _ShopGateState extends State<ShopGate> {
     final purchased = await repo.getMyPurchasedItems();
     final purchasedIds = purchased.map((e) => e.id).toSet();
 
-    final me = Supabase.instance.client.auth.currentUser;
-    int balance = 0;
+    final me = Supabase.instance.client.auth.currentUser;   
     if (me != null) {
-      final row = await Supabase.instance.client
+      await Supabase.instance.client
           .from('user_profiles')
           .select('balance')
           .eq('email', getUserEmail()!)
           .maybeSingle();
-      balance = (row?['balance'] as num?)?.toInt() ?? 0;
     }
 
     return ShopData(
       avatars: avatars,
       backgrounds: backgrounds,
       purchasedIds: purchasedIds,
-      balance: balance,
     );
   }
 
   Future<void> _refresh() async {
+    await BalanceNotifier.I.refresh();
     setState(() {
       _future = _loadAll();
     });
@@ -117,18 +116,6 @@ class _ShopGateState extends State<ShopGate> {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
-              ),
-            ),
-          ),
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Saldo: ${data.balance} fenicotteri',
-                textAlign: TextAlign.right,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ),

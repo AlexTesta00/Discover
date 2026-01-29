@@ -2,6 +2,7 @@ import 'package:discover/features/shop/domain/entities/shop_category.dart';
 import 'package:discover/features/shop/domain/entities/shop_item.dart';
 import 'package:discover/features/shop/domain/use_cases/shop_service.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -38,6 +39,7 @@ class ShopTile extends StatelessWidget {
           if (confirmed == true) {
             try {
               await repo.buyItem(item.id);
+              await BalanceNotifier.I.refresh();
               if (context.mounted) {
                 await showSuccessModal(
                   context,

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
+import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_gate.dart';
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
@@ -26,6 +29,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final _controller = PersistentTabController(initialIndex: 0);
   bool _loggingOut = false;
   static const int _profileTabIndex = 2;
+  StreamSubscription? _busSub;
 
   final List<String> _titles = [
     'Mappa',
@@ -35,6 +39,23 @@ class _DashboardPageState extends State<DashboardPage> {
     'Negozio',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+
+    _busSub = ChallengeEventBus.I.stream.listen((e) {
+      if (e is GoToMapForCharacterEvent) {
+        _controller.jumpToTab(0);
+        setState(() => _currentIndex = 0);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _busSub?.cancel();
+    super.dispose();
+  }
 
   Future<void> logout() async {
     if (_loggingOut) return;
@@ -129,6 +150,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
         body: PersistentTabView(
+          controller: _controller,
           onTabChanged: (index) => setState(() => _currentIndex = index),
           tabs: [
             PersistentTabConfig(

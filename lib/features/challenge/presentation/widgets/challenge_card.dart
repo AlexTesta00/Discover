@@ -1,4 +1,5 @@
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
+import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/challenge/domain/use_cases/photo_capture_service.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,9 @@ class _ChallengeCardState extends State<ChallengeCard> {
     final bool isDisabled = widget.completed || _busy;
 
     return MouseRegion(
-      cursor: isDisabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+      cursor: isDisabled
+          ? SystemMouseCursors.forbidden
+          : SystemMouseCursors.click,
       child: IgnorePointer(
         ignoring: isDisabled,
         child: GestureDetector(
@@ -45,7 +48,7 @@ class _ChallengeCardState extends State<ChallengeCard> {
                     color: Color(0x11000000),
                     offset: Offset(0, 4),
                     blurRadius: 12,
-                  )
+                  ),
                 ],
               ),
               padding: const EdgeInsets.all(14),
@@ -84,6 +87,12 @@ class _ChallengeCardState extends State<ChallengeCard> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  if (widget.challenge.requiresPhoto && !widget.completed)
+                    IconButton(
+                      tooltip: 'Scatta foto',
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      onPressed: _capturePhotoOnly,
+                    ),
                   if (widget.completed)
                     Container(
                       decoration: BoxDecoration(
@@ -91,7 +100,11 @@ class _ChallengeCardState extends State<ChallengeCard> {
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(8),
-                      child: const Icon(Icons.check, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                 ],
               ),
@@ -107,27 +120,55 @@ class _ChallengeCardState extends State<ChallengeCard> {
     return AssetImage(path);
   }
 
+  //Future<void> _onTap() async {
+  //final challenge = widget.challenge;
+
+  // se non richiede foto, niente azione (puoi aprire dettaglio se vuoi)
+  //if (!challenge.requiresPhoto) {
+  //return;
+  //}
+
+  //setState(() => _busy = true);
+  //try {
+  //final client = Supabase.instance.client;
+  //final repo = ChallengeRepository(client);
+  //final captureService = PhotoCaptureService(repo);
+
+  //await captureService.captureForChallenge(challenge);
+  //if (!mounted) return;
+  //} catch (e) {
+  //if (!mounted) return;
+  //ScaffoldMessenger.of(
+  //context,
+  //).showSnackBar(SnackBar(content: Text('Errore: $e')));
+  //} finally {
+  //if (mounted) setState(() => _busy = false);
+  //}
+  //}
+
   Future<void> _onTap() async {
     final challenge = widget.challenge;
 
-    // se non richiede foto, niente azione (puoi aprire dettaglio se vuoi)
-    if (!challenge.requiresPhoto) {
-      return;
-    }
+    // Tap = vai alla mappa e highlight del personaggio
+    ChallengeEventBus.I.publish(
+      GoToMapForCharacterEvent(characterId: challenge.characterId),
+    );
+  }
+
+  Future<void> _capturePhotoOnly() async {
+    final challenge = widget.challenge;
 
     setState(() => _busy = true);
     try {
       final client = Supabase.instance.client;
       final repo = ChallengeRepository(client);
       final captureService = PhotoCaptureService(repo);
-
       await captureService.captureForChallenge(challenge);
-      if (!mounted) return;
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Errore: $e')));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

@@ -29,6 +29,10 @@ class MapGate extends StatefulWidget {
 class _MapGateState extends State<MapGate> {
   static const LatLng _riccioneCenter = LatLng(43.9992, 12.6563);
 
+  StreamSubscription? _busSub;
+  // ignore: unused_field
+  String? _highlightPoiId;
+
   // Map & services
   final MapController _mapController = MapController();
   final MapService _mapUtils = MapService();
@@ -52,13 +56,36 @@ class _MapGateState extends State<MapGate> {
     _loadPois();
     _ctrl.startLocation();
     _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
+
+    _busSub = ChallengeEventBus.I.stream.listen((e) {
+      if (e is GoToMapForCharacterEvent) {
+        _focusPoiByCharacterId(e.characterId);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _busSub?.cancel();
     _ctrl.disposeAll();
     _ctrl.dispose();
     super.dispose();
+  }
+
+  void _focusPoiByCharacterId(String characterId) {
+    if (_pois.isEmpty) return;
+
+    final poi = _pois
+        .where((p) => p.id == characterId)
+        .cast<PredefinedPoi?>()
+        .firstOrNull;
+    if (poi == null) return;
+
+    setState(() => _highlightPoiId = poi.id);
+
+    _mapController.move(poi.position, 16);
+
+    _onPoiTap(poi);
   }
 
   Future<void> _loadPois() async {
@@ -124,12 +151,12 @@ class _MapGateState extends State<MapGate> {
     final client = Supabase.instance.client;
     final repo = ChallengeRepository(client);
 
-    // 1️⃣ Completa la challenge "Parla con X" via RPC
+    //Completa la challenge "Parla con X" via RPC
     try {
       final (submissionId, wasNew) = await repo
           .completeTalkChallengeForCharacter(poi.id);
 
-      // 2️⃣ Se è la prima volta → emetti l'evento ChallengeCompletedEvent
+      //Se è la prima volta → emetti l'evento ChallengeCompletedEvent
       if (submissionId != null && wasNew) {
         final allChallenges = await repo.fetchAllWithCharacter();
         final challenge = allChallenges.firstWhere(
@@ -147,7 +174,7 @@ class _MapGateState extends State<MapGate> {
       debugPrint('Errore completamento challenge RPC: $e');
     }
 
-    // 3️⃣ Mostra il modale di arrivo
+    //Mostra il modale di arrivo
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
@@ -234,8 +261,8 @@ class _MapGateState extends State<MapGate> {
                     FloatingActionButton.small(
                       heroTag: 'reset_north',
                       onPressed: _ctrl.resetRotationNorth,
-                      backgroundColor: Colors.white, 
-                      foregroundColor: Colors.black, 
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
                       elevation: 4,
                       child: const Icon(Icons.explore),
                     ),

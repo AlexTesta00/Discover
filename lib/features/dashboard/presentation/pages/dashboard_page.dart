@@ -6,14 +6,10 @@ import 'package:discover/features/authentication/presentation/state_management/a
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_gate.dart';
 import 'package:discover/features/dashboard/presentation/widgets/balance_pill.dart';
-import 'package:discover/features/events/domain/use_cases/event_service.dart';
-import 'package:discover/features/events/presentation/pages/feed_gate.dart';
-import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
 import 'package:discover/features/gamification/presentation/pages/collectable_gate.dart';
 import 'package:discover/features/maps/presentation/pages/map_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:discover/features/shop/presentation/pages/shop_gate.dart';
-import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -143,34 +139,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 builder: (_, value, _) => BalancePill(balance: value),
               ),
             ),
-            if (_currentIndex == _profileTabIndex) ...[
-              IconButton(
-                tooltip: 'Amici',
-                icon: const Icon(Icons.group_outlined),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FriendshipGate()),
-                  );
-                },
-              ),
-              IconButton(
-                tooltip: 'Feed',
-                icon: const Icon(Icons.notifications_none),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => FeedGate(
-                        getEventsFeed: ({limit = 50, offset = 0}) =>
-                            getEventsFeed(limit: limit, offset: offset),
-                        getUserByEmail: getUserByEmail,
-                        pageSize: 20,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-            IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
+            if(_currentIndex == _profileTabIndex)
+              IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
             const SizedBox(width: 6),
           ],
         ),

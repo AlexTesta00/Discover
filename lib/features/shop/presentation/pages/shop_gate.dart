@@ -1,6 +1,6 @@
 import 'package:discover/features/shop/domain/repository/shop_data.dart';
 import 'package:discover/features/shop/domain/use_cases/shop_service.dart';
-import 'package:discover/features/shop/presentation/widgets/shop_section.dart';
+import 'package:discover/features/shop/presentation/widgets/shop_tile.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
@@ -31,7 +31,7 @@ class _ShopGateState extends State<ShopGate> {
     final purchased = await repo.getMyPurchasedItems();
     final purchasedIds = purchased.map((e) => e.id).toSet();
 
-    final me = Supabase.instance.client.auth.currentUser;   
+    final me = Supabase.instance.client.auth.currentUser;
     if (me != null) {
       await Supabase.instance.client
           .from('user_profiles')
@@ -75,45 +75,36 @@ class _ShopGateState extends State<ShopGate> {
               child: CustomScrollView(
                 slivers: [
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    sliver: SliverToBoxAdapter(
-                      child: Text(
-                        'Avatar',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w700),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.85, // unico valore per tutti
+                          ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final allItems = [
+                            ...data.avatars,
+                            ...data.backgrounds,
+                          ];
+
+                          final item = allItems[index];
+                          final owned = data.purchasedIds.contains(item.id);
+
+                          return ShopTile(
+                            item: item,
+                            owned: owned,
+                            onRefresh: _refresh,
+                          );
+                        },
+                        childCount:
+                            data.avatars.length + data.backgrounds.length,
                       ),
                     ),
                   ),
-                  SliverToBoxAdapter(
-                    child: ShopSection(
-                      items: data.avatars,
-                      purchasedIds: data.purchasedIds,
-                      onRefresh: _refresh,
-                      height: 160,
-                      itemWidth: 140,
-                    ),
-                  ),
-
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    sliver: SliverToBoxAdapter(
-                      child: Text(
-                        'Sfondi',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: ShopSection(
-                      items: data.backgrounds,
-                      purchasedIds: data.purchasedIds,
-                      onRefresh: _refresh,
-                      height: 180,
-                      itemWidth: 220,
-                    ),
-                  ),
-
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               ),

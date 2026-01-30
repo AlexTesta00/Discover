@@ -18,8 +18,8 @@ class BalancePill extends StatelessWidget {
         children: [
           Image.asset(
             'assets/icons/foreground.png',
-            width: 18,
-            height: 18,
+            width: 12,
+            height: 12,
           ),
           const SizedBox(width: 6),
           Text(
@@ -27,6 +27,7 @@ class BalancePill extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w800,
               color: Colors.black87,
+              fontSize: 12,
             ),
           ),
         ],

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
@@ -10,6 +9,7 @@ import 'package:discover/features/gamification/presentation/pages/collectable_ga
 import 'package:discover/features/maps/presentation/pages/map_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:discover/features/shop/presentation/pages/shop_gate.dart';
+import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -28,6 +28,9 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _loggingOut = false;
   static const int _profileTabIndex = 2;
   StreamSubscription? _busSub;
+  String? _levelShort;
+  final GlobalKey _rightKey = GlobalKey();
+  double _sideWidth = 0;
 
   final List<String> _titles = [
     'Mappa',
@@ -42,16 +45,41 @@ class _DashboardPageState extends State<DashboardPage> {
     super.initState();
 
     BalanceNotifier.I.refresh();
+    _loadLevel();
 
     _busSub = ChallengeEventBus.I.stream.listen((e) async {
       if (e is GoToMapForCharacterEvent) {
         _controller.jumpToTab(0);
-        setState(() => _currentIndex = 0);
+        if (mounted) setState(() => _currentIndex = 0);
       }
 
       if (e is ChallengeCompletedEvent) {
         await BalanceNotifier.I.refresh();
+        _loadLevel();
       }
+    });
+  }
+
+  Future<void> _loadLevel() async {
+    try {
+      final level = await getMyLevel();
+      if (!mounted) return;
+      setState(() {
+        _levelShort = 'Liv.${level?.grade ?? 0}';
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossibile caricare il livello')),
+      );
+    }
+  }
+
+  void _measureRight() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final w = _rightKey.currentContext?.size?.width ?? 0;
+      if (!mounted) return;
+      if (w != _sideWidth) setState(() => _sideWidth = w);
     });
   }
 
@@ -75,9 +103,9 @@ class _DashboardPageState extends State<DashboardPage> {
       result.match(
         (error) {
           if (!mounted) return;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Logout fallito: $error')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Logout fallito: $error')),
+          );
         },
         (_) {
           if (!mounted) return;
@@ -89,9 +117,9 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Errore inatteso: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Errore inatteso: $e')),
+      );
     } finally {
       if (mounted) setState(() => _loggingOut = false);
     }
@@ -99,6 +127,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    _measureRight();
+
     return PopScope(
       canPop: _controller.index == 0,
       onPopInvokedWithResult: (didPop, result) {
@@ -110,9 +140,8 @@ class _DashboardPageState extends State<DashboardPage> {
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           titleSpacing: 0,
-          centerTitle: true,
-          iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
@@ -121,28 +150,70 @@ class _DashboardPageState extends State<DashboardPage> {
           forceMaterialTransparency: true,
 
           title: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                _titles[_currentIndex],
-                style: const TextStyle(color: Colors.black),
+              SizedBox(
+                width: _sideWidth,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: (_levelShort != null &&
+                            _currentIndex != _profileTabIndex)
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.06),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _levelShort!,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ),
               ),
-              const SizedBox(width: 10),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    _titles[_currentIndex],
+                    style: const TextStyle(color: Colors.black),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              IntrinsicWidth(
+                child: Container(
+                  key: _rightKey,
+                  padding: const EdgeInsets.only(right: 6),
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ValueListenableBuilder<int>(
+                        valueListenable: BalanceNotifier.I.balance,
+                        builder: (_, value, _) => BalancePill(balance: value),
+                      ),
+                      if (_currentIndex == _profileTabIndex)
+                        IconButton(
+                          onPressed: logout,
+                          icon: const Icon(Icons.logout, color: Colors.black),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
-
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: ValueListenableBuilder<int>(
-                valueListenable: BalanceNotifier.I.balance,
-                builder: (_, value, _) => BalancePill(balance: value),
-              ),
-            ),
-            if(_currentIndex == _profileTabIndex)
-              IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
-            const SizedBox(width: 6),
-          ],
         ),
         body: PersistentTabView(
           controller: _controller,
@@ -151,7 +222,7 @@ class _DashboardPageState extends State<DashboardPage> {
             PersistentTabConfig(
               screen: const MapGate(),
               item: ItemConfig(
-                icon: Icon(Icons.map),
+                icon: const Icon(Icons.map),
                 title: 'Mappa',
                 activeForegroundColor: AppTheme.primaryColor,
               ),
@@ -159,7 +230,7 @@ class _DashboardPageState extends State<DashboardPage> {
             PersistentTabConfig(
               screen: const ChallengeGatePage(),
               item: ItemConfig(
-                icon: Icon(Icons.emoji_flags_outlined),
+                icon: const Icon(Icons.emoji_flags_outlined),
                 title: 'Sfide',
                 activeForegroundColor: AppTheme.primaryColor,
               ),
@@ -167,7 +238,7 @@ class _DashboardPageState extends State<DashboardPage> {
             PersistentTabConfig(
               screen: const ProfileScreenState(),
               item: ItemConfig(
-                icon: Icon(Icons.account_circle),
+                icon: const Icon(Icons.account_circle),
                 title: 'Profilo',
                 activeForegroundColor: AppTheme.primaryColor,
               ),
@@ -175,7 +246,7 @@ class _DashboardPageState extends State<DashboardPage> {
             PersistentTabConfig(
               screen: const CollectibleGate(),
               item: ItemConfig(
-                icon: Icon(Icons.stars_sharp),
+                icon: const Icon(Icons.stars_sharp),
                 title: 'Collezionabili',
                 activeForegroundColor: AppTheme.primaryColor,
               ),
@@ -183,7 +254,7 @@ class _DashboardPageState extends State<DashboardPage> {
             PersistentTabConfig(
               screen: const ShopGate(),
               item: ItemConfig(
-                icon: Icon(Icons.store),
+                icon: const Icon(Icons.store),
                 title: 'Negozio',
                 activeForegroundColor: AppTheme.primaryColor,
               ),

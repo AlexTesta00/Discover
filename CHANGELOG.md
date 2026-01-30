@@ -1,3 +1,29 @@
+## [2.7.0](https://github.com/AlexTesta00/Discover/compare/v2.6.0...v2.7.0) (2026-01-30)
+
+### Features
+
+* added balance on appbar ([b87ee9c](https://github.com/AlexTesta00/Discover/commit/b87ee9cda0f9325e85b07a6f3d11ab68c9dd8db2))
+* added level to app bar in dashboard ([b9df931](https://github.com/AlexTesta00/Discover/commit/b9df9317999184bee393ddd4c8621171b5cb65f6))
+* added to challenge possibility to show characters in map ([905831d](https://github.com/AlexTesta00/Discover/commit/905831dbcf0afa8b59f4b6216c3697cba18b47fd))
+* added to map a polygon to highlight the park ([6f1515e](https://github.com/AlexTesta00/Discover/commit/6f1515e914266298a5d0a9bc81409a15998a8948))
+* in collezzionabili, can tap to card and view 3D ([267aa4f](https://github.com/AlexTesta00/Discover/commit/267aa4f404b52c14cbf2ac490181751782f86739))
+* maps, added button for center position and center to nord ([f1d3667](https://github.com/AlexTesta00/Discover/commit/f1d3667b7c9877b6d160f44d389b04470f48d192))
+* now user can logout only from profile page and now in profile page app bar actions are change with two floating action button ([10fe677](https://github.com/AlexTesta00/Discover/commit/10fe677914cc6eb8adfb06c45ba10abb254f9020))
+
+### Bug Fixes
+
+* android icon launcher recents ([8d7af51](https://github.com/AlexTesta00/Discover/commit/8d7af51c8ccfc0f0544498813a453c71268013a0))
+* AppBar scroll color problem ([eef7423](https://github.com/AlexTesta00/Discover/commit/eef742371ef10e333354b0725b7bbda19a595312))
+* change challenge into sfide ([5903493](https://github.com/AlexTesta00/Discover/commit/590349376646e172c1220b8a1dd37a9317afdfb1))
+* **deps:** update dependency showcaseview to v5 ([4ce013a](https://github.com/AlexTesta00/Discover/commit/4ce013a22ab5dd749bf885e9c5e90ae90975f134))
+* fix all inconsistency of authentication and login widget ([a2a7b25](https://github.com/AlexTesta00/Discover/commit/a2a7b25f276ab7d9f6b06b9afcea30ff872bebde))
+* fix shop layout in 4x4 grid view ([8eb34bd](https://github.com/AlexTesta00/Discover/commit/8eb34bd7228d6d3f603be538fe2825e87e825452))
+* fixed login logo in authentication page ([a45fc31](https://github.com/AlexTesta00/Discover/commit/a45fc319ae7df6245ced327b13171923ae935271))
+* fixed size and weight of Skip, Next, Done in onboarding screen ([70cd247](https://github.com/AlexTesta00/Discover/commit/70cd247cce9b7c455a8b8627706670c807f47ff4))
+* fixed version for ios runner ([731f84d](https://github.com/AlexTesta00/Discover/commit/731f84d8bbbb590cc3b59810cb9dc1b24646b21e))
+* map button, change Raggiungi in Avvia Navigazione ([d6bd957](https://github.com/AlexTesta00/Discover/commit/d6bd957cabd9c3ee691c21a2b671755984c8e8e4))
+* pop state navigation in dashboard ([8fd38aa](https://github.com/AlexTesta00/Discover/commit/8fd38aacc0ecf2584f9a14ab9e585cab710ac494))
+
 ## [2.6.0](https://github.com/AlexTesta00/Discover/compare/v2.5.0...v2.6.0) (2026-01-20)
 
 ### Features

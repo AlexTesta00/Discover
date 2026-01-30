@@ -1,6 +1,7 @@
 import 'package:discover/config/themes/app_theme.dart';
 import 'package:discover/features/authentication/domain/entities/registration_data.dart';
 import 'package:discover/features/authentication/domain/use_cases/authentication_service.dart';
+import 'package:discover/features/authentication/presentation/pages/welcome_registration.dart';
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/authentication/presentation/widgets/avatar_step.dart';
 import 'package:discover/features/authentication/presentation/widgets/email_step.dart';
@@ -17,8 +18,7 @@ class OnboardingRegistrationPage extends StatefulWidget {
       _OnboardingRegistrationPageState();
 }
 
-class _OnboardingRegistrationPageState
-    extends State<OnboardingRegistrationPage> {
+class _OnboardingRegistrationPageState extends State<OnboardingRegistrationPage> {
   final _pageController = PageController();
   final _emailKey = GlobalKey<FormState>();
   final _pwdKey = GlobalKey<FormState>();
@@ -40,7 +40,21 @@ class _OnboardingRegistrationPageState
     super.dispose();
   }
 
+  void _snack(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
+  void _goToStep(int newStep) {
+    setState(() => step = newStep);
+    _pageController.animateToPage(
+      step,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOut,
+    );
+  }
+
   Future<void> _next() async {
+    if (loading) return;
+
     if (step == 0) {
       if (_emailKey.currentState?.validate() != true) return;
       data.email = _emailCtrl.text.trim();
@@ -64,107 +78,129 @@ class _OnboardingRegistrationPageState
       if (!mounted) return;
       setState(() => loading = false);
 
-      result.match((err) => _snack('Errore durante la registrazione: $err'), (
-        _,
-      ) async {
-        //Modale di congratulazioni e reindirizzamento all auth gate
-        await showSuccessModal(
-          context,
-          title: 'Congratulazioni!',
-          description: 'Hai creato il tuo account con successo',
-        );
+      await result.match(
+        (err) async {
+          _snack('Errore durante la registrazione: $err');
+        },
+        (_) async {
+          await showSuccessModal(
+            context,
+            title: 'Congratulazioni!',
+            description: 'Hai creato il tuo account con successo',
+          );
 
-        if (!mounted) return;
+          if (!mounted) return;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AuthenticationGate()),
-        );
-      });
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AuthenticationGate()),
+          );
+        },
+      );
 
       return;
     }
-    setState(() => step += 1);
-    _pageController.animateToPage(
-      step,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOut,
-    );
+
+    _goToStep(step + 1);
   }
 
   void _back() {
     if (step == 0) return;
-    setState(() => step -= 1);
-    _pageController.animateToPage(
-      step,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOut,
-    );
+    _goToStep(step - 1);
   }
 
-  void _snack(String msg) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  void _handleBack() {
+    if (step == 0) {
+      // Torna alla pagina WelcomeRegistration (quella che mi hai incollato)
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WelcomeRegistration()),
+      );
+    } else {
+      _back();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isLast = step == 2;
     final nextLabel = isLast ? 'Crea account' : 'Prossimo step';
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ProgressPills(total: 3, current: step),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    EmailStep(formKey: _emailKey, controller: _emailCtrl),
-                    PasswordStep(
-                      formKey: _pwdKey,
-                      pwdCtrl: _pwdCtrl,
-                      pwd2Ctrl: _pwd2Ctrl,
-                    ),
-                    AvatarStep(
-                      selectedKey: data.avatarKey,
-                      onSelect: (k) => setState(() => data.avatarKey = k),
-                    ),
-                  ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBack();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _handleBack,
+          ),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ProgressPills(total: 3, current: step),
                 ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(onPressed: _next, child: Text(nextLabel)),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton(
-                  onPressed: step == 0 ? null : _back,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: step == 0
-                        ? Colors.grey
-                        : AppTheme.primaryColor,
-                    side: step == 0
-                        ? BorderSide(color: Colors.grey)
-                        : BorderSide(color: AppTheme.primaryColor),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      EmailStep(formKey: _emailKey, controller: _emailCtrl),
+                      PasswordStep(
+                        formKey: _pwdKey,
+                        pwdCtrl: _pwdCtrl,
+                        pwd2Ctrl: _pwd2Ctrl,
+                      ),
+                      AvatarStep(
+                        selectedKey: data.avatarKey,
+                        onSelect: (k) => setState(() => data.avatarKey = k),
+                      ),
+                    ],
                   ),
-                  child: const Text('Torna indietro'),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: loading ? null : _next,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(loading ? 'Caricamento...' : nextLabel),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _handleBack,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      foregroundColor: step == 0
+                          ? AppTheme.primaryColor
+                          : AppTheme.primaryColor,
+                      side: BorderSide(color: AppTheme.primaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(step == 0 ? 'Torna alla welcome' : 'Torna indietro'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),

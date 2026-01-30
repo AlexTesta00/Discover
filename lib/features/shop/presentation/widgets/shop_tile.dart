@@ -2,6 +2,7 @@ import 'package:discover/features/shop/domain/entities/shop_category.dart';
 import 'package:discover/features/shop/domain/entities/shop_item.dart';
 import 'package:discover/features/shop/domain/use_cases/shop_service.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
+import 'package:discover/features/user/presentation/widgets/balance_notifier.dart';
 import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,6 +24,45 @@ class ShopTile extends StatelessWidget {
     final borderRadius = BorderRadius.circular(16);
     final repo = ShopService(Supabase.instance.client);
 
+    bool isInsufficientBalanceError(Object e) {
+      if (e is PostgrestException) {
+        final msg = (e.message).toLowerCase();
+        final details = (e.details ?? '').toString().toLowerCase();
+
+        return msg.contains('insufficient') ||
+            msg.contains('saldo') ||
+            details.contains('insufficient') ||
+            details.contains('saldo') ||
+            msg.contains('balance') ||
+            details.contains('balance');
+      }
+
+      final s = e.toString().toLowerCase();
+      return s.contains('insufficient') ||
+          s.contains('saldo') ||
+          s.contains('balance');
+    }
+
+    Future<void> showErrorModal(
+      BuildContext context, {
+      required String title,
+      required String message,
+    }) {
+      return showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+
     return InkWell(
       borderRadius: borderRadius,
       onTap: () async {
@@ -38,6 +78,7 @@ class ShopTile extends StatelessWidget {
           if (confirmed == true) {
             try {
               await repo.buyItem(item.id);
+              await BalanceNotifier.I.refresh();
               if (context.mounted) {
                 await showSuccessModal(
                   context,
@@ -48,10 +89,24 @@ class ShopTile extends StatelessWidget {
                 onRefresh();
               }
             } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(
+              if (!context.mounted) return;
+
+              final isInsufficientBalance = isInsufficientBalanceError(e);
+
+              if (isInsufficientBalance) {
+                await showErrorModal(
                   context,
-                ).showSnackBar(SnackBar(content: Text('Errore: $e')));
+                  title: 'Saldo insufficiente',
+                  message:
+                      'Non hai abbastanza fenicotteri per acquistare questo oggetto.',
+                );
+              } else {
+                await showErrorModal(
+                  context,
+                  title: 'Errore',
+                  message:
+                      'Si è verificato un errore durante l’acquisto. Riprova.',
+                );
               }
             }
           }

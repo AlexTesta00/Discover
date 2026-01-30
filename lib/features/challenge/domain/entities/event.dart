@@ -49,3 +49,8 @@ class CharacterArrivedEvent extends ChallengeEvent {
   final String characterId;
   const CharacterArrivedEvent({required this.characterId});
 }
+
+class GoToMapForCharacterEvent extends ChallengeEvent {
+  final String characterId;
+  const GoToMapForCharacterEvent({required this.characterId});
+}

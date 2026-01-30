@@ -1,4 +1,7 @@
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
+import 'package:discover/features/events/domain/use_cases/event_service.dart';
+import 'package:discover/features/events/presentation/pages/feed_gate.dart';
+import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
 import 'package:discover/features/gamification/domain/entities/level.dart';
 import 'package:discover/features/profile/presentation/pages/profile_page.dart';
 import 'package:discover/features/user/domain/entities/user.dart';
@@ -45,16 +48,19 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         getMyLevel(),
         getNextLevel(),
         repo.getUserChallengePhotoUrls(),
-        getFriendsCount()
+        getFriendsCount(),
       ], eagerError: true);
 
       final userAvatar = (result[0] as String?) ?? 'assets/icons/error.png';
-      final userBackground = (result[1] as String?) ?? 'assets/background/error.png';
+      final userBackground =
+          (result[1] as String?) ?? 'assets/background/error.png';
       final userXp = (result[2] as int?) ?? 0;
       final userBalance = (result[3] as int?) ?? 0;
-      final userLevel = (result[4] as Level?) ??
+      final userLevel =
+          (result[4] as Level?) ??
           Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
-      final nextLevel = (result[5] as Level?) ??
+      final nextLevel =
+          (result[5] as Level?) ??
           Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
       _challengeImages = (result[6] as List<String>);
       friendsCount = (result[7] as int);
@@ -121,6 +127,23 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
                 user.xp,
                 user.nextLevel.xpToReach,
               ),
+              onOpenFriends: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const FriendshipGate()),
+                );
+              },
+              onOpenFeed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => FeedGate(
+                      getEventsFeed: ({limit = 50, offset = 0}) =>
+                          getEventsFeed(limit: limit, offset: offset),
+                      getUserByEmail: getUserByEmail,
+                      pageSize: 20,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         );

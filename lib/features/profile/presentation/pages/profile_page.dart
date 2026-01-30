@@ -4,6 +4,9 @@ import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
+  final VoidCallback? onOpenFriends;
+  final VoidCallback? onOpenFeed;
+
   const ProfilePage({
     super.key,
     required this.username,
@@ -11,8 +14,10 @@ class ProfilePage extends StatelessWidget {
     required this.levelLabel,
     required this.headerImage,
     required this.avatarImage,
-    required this.challengeImages, //= const <String>[],
+    required this.challengeImages,
     required this.progress,
+    this.onOpenFriends,
+    this.onOpenFeed,
   });
 
   final String headerImage;
@@ -45,6 +50,37 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: (onOpenFriends == null && onOpenFeed == null)
+          ? null
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (onOpenFeed != null)
+                  FloatingActionButton.small(
+                    heroTag: 'profile_feed_fab',
+                    onPressed: onOpenFeed,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: const CircleBorder(),
+                    elevation: 6,
+                    child: const Icon(Icons.notifications_none),
+                  ),
+                if (onOpenFeed != null && onOpenFriends != null)
+                  const SizedBox(height: 12),
+                if (onOpenFriends != null)
+                  FloatingActionButton.small(
+                    heroTag: 'profile_friends_fab',
+                    onPressed: onOpenFriends,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: const CircleBorder(),
+                    elevation: 6,
+                    child: const Icon(Icons.group_outlined),
+                  ),
+              ],
+            ),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),

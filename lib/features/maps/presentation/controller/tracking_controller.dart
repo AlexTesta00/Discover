@@ -14,9 +14,9 @@ class TrackingController extends ChangeNotifier {
     required MapController mapController,
     required MapService mapService,
     required RoutingProvider routingProvider,
-  })  : _mapController = mapController,
-        _mapUtils = mapService,
-        _routing = routingProvider;
+  }) : _mapController = mapController,
+       _mapUtils = mapService,
+       _routing = routingProvider;
 
   // deps
   final MapController _mapController;
@@ -63,6 +63,9 @@ class TrackingController extends ChangeNotifier {
   PredefinedPoi? _selectedPoi;
   PredefinedPoi? get selectedPoi => _selectedPoi;
 
+  //Zoom
+  static const double _followZoom = 17.0;
+
   // callback esterno per aprire il modal di arrivo
   void Function(PredefinedPoi poi)? onArrived;
 
@@ -88,9 +91,20 @@ class TrackingController extends ChangeNotifier {
 
   // --- ACTIONS ---------------------------------------------------------------
 
+  void centerOnUser() {
+    if (_userLatLng == null) return;
+
+    _mapController.move(_userLatLng!, _followZoom);
+  }
+
+  void resetRotationNorth() {
+    _mapController.rotate(0);
+  }
+
   bool isNearPoi(PredefinedPoi poi, {double toleranceMeters = 20}) {
     if (_userLatLng == null) return false;
-    return _dist.as(LengthUnit.Meter, _userLatLng!, poi.position) <= toleranceMeters;
+    return _dist.as(LengthUnit.Meter, _userLatLng!, poi.position) <=
+        toleranceMeters;
   }
 
   void selectPoi(PredefinedPoi poi) {
@@ -99,7 +113,9 @@ class TrackingController extends ChangeNotifier {
   }
 
   void startLiveToSelectedPoi() {
-    if (_selectedPoi == null || _userLatLng == null || _positionStream == null) return;
+    if (_selectedPoi == null || _userLatLng == null || _positionStream == null) {
+      return;
+    }
 
     _arrivalShown = false;
     _routeSub?.cancel();
@@ -107,7 +123,7 @@ class TrackingController extends ChangeNotifier {
 
     _liveRouter = LiveRouter(
       provider: _routing,
-      profile: RouteProfile.foot, // o RouteProfile.bike
+      profile: RouteProfile.foot,
       positionStream: _positionStream!,
       targets: [_selectedPoi!.position],
       offRouteThresholdMeters: 25,
@@ -163,7 +179,11 @@ class TrackingController extends ChangeNotifier {
 
     // trim ogni 10 m
     if (_lastUserPosForTrim != null) {
-      _metersSinceLastTrim += _dist.as(LengthUnit.Meter, _lastUserPosForTrim!, newPos);
+      _metersSinceLastTrim += _dist.as(
+        LengthUnit.Meter,
+        _lastUserPosForTrim!,
+        newPos,
+      );
     }
     _lastUserPosForTrim = newPos;
 
@@ -174,7 +194,9 @@ class TrackingController extends ChangeNotifier {
 
     _recomputeProgress(newPos);
     _updatePolyline();
-    _mapController.move(newPos, _mapController.camera.zoom);
+    if (_isTracking) {
+      _mapController.move(newPos, _followZoom);
+    }
 
     notifyListeners();
   }
@@ -186,14 +208,16 @@ class TrackingController extends ChangeNotifier {
     const arriveMeters = 20.0;
 
     while (_remainingRoute.length > 1 &&
-        _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) < thresholdMeters) {
+        _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) <
+            thresholdMeters) {
       _remainingRoute.removeAt(0);
     }
 
     // arrivo automatico (una volta sola)
     if (!_arrivalShown &&
         (_remainingRoute.length <= 1 ||
-            _dist.as(LengthUnit.Meter, userPos, _remainingRoute.last) <= arriveMeters)) {
+            _dist.as(LengthUnit.Meter, userPos, _remainingRoute.last) <=
+                arriveMeters)) {
       _arrivalShown = true;
       final poi = _selectedPoi;
       stopTracking();
@@ -212,7 +236,11 @@ class TrackingController extends ChangeNotifier {
 
     double left = _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first);
     for (int i = 0; i < _remainingRoute.length - 1; i++) {
-      left += _dist.as(LengthUnit.Meter, _remainingRoute[i], _remainingRoute[i + 1]);
+      left += _dist.as(
+        LengthUnit.Meter,
+        _remainingRoute[i],
+        _remainingRoute[i + 1],
+      );
     }
 
     _remainMeters = left.clamp(0, double.infinity);

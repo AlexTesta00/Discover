@@ -71,6 +71,7 @@ class MapView extends StatelessWidget {
               ),
               userAgentPackageName: 'it.discover.discover',
             ),
+            PolygonLayer(polygons: mapUtils.polygons),
             PolylineLayer(polylines: themedPolylines),
             MarkerLayer(markers: markers),
           ],

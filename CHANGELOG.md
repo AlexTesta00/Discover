@@ -1,3 +1,9 @@
+## [2.7.1](https://github.com/AlexTesta00/Discover/compare/v2.7.0...v2.7.1) (2026-01-31)
+
+### Bug Fixes
+
+* optimize app assets ([e763da9](https://github.com/AlexTesta00/Discover/commit/e763da9b2f3ebf4d84f33a3ff87e15434103873f))
+
 ## [2.7.0](https://github.com/AlexTesta00/Discover/compare/v2.6.0...v2.7.0) (2026-01-30)
 
 ### Features

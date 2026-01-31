@@ -21,18 +21,18 @@ class AvatarStep extends StatelessWidget {
     });
 
     final avatars = <String>[
-      'assets/avatar/avatar_1.png',
-      'assets/avatar/avatar_2.png',
-      'assets/avatar/avatar_3.png',
-      'assets/avatar/avatar_4.png',
-      'assets/avatar/avatar_5.png',
-      'assets/avatar/avatar_6.png',
-      'assets/avatar/avatar_7.png',
-      'assets/avatar/avatar_8.png',
-      'assets/avatar/avatar_9.png',
-      'assets/avatar/avatar_10.png',
-      'assets/avatar/avatar_11.png',
-      'assets/avatar/avatar_12.png',
+      'assets/avatar/avatar_1.webp',
+      'assets/avatar/avatar_2.webp',
+      'assets/avatar/avatar_3.webp',
+      'assets/avatar/avatar_4.webp',
+      'assets/avatar/avatar_5.webp',
+      'assets/avatar/avatar_6.webp',
+      'assets/avatar/avatar_7.webp',
+      'assets/avatar/avatar_8.webp',
+      'assets/avatar/avatar_9.webp',
+      'assets/avatar/avatar_10.webp',
+      'assets/avatar/avatar_11.webp',
+      'assets/avatar/avatar_12.webp',
     ];
 
     final primary = AppTheme.primaryColor;

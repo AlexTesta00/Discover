@@ -52,7 +52,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/data/
     - assets/avatar/
     - assets/shop/
     - assets/background/

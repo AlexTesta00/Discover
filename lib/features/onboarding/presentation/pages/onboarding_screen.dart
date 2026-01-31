@@ -40,17 +40,17 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               OnboardingBuilder(
                 title: 'Il\nProgetto\nDiscover',
                 description: 'Il progetto Discover nasce dall\'idea di creare un\'applicazione che permetta agli utenti di scoprire e condividere luoghi interessanti.',
-                imagePath: 'assets/images/fenicottero_3d.png',
+                imagePath: 'assets/images/fenicottero_3d.webp',
               ),
               OnboardingBuilder(
                 title: 'Ricerca\nSviluppo\nSostenibilità',
                 description: 'Il progetto discover nasce dall’esigenza di fare qualcosa, in modo carino e confortevole senza che nessun animale venga maltrattato, sopratutto quei fenicotteri che sembrano sensibili a qualsiasi cosa, e sembra che sappiano cosa sono delle telecamere e vivono costantemente in un truman show',
-                imagePath: 'assets/images/ricerca_3d.png',
+                imagePath: 'assets/images/ricerca_3d.webp',
               ),
               OnboardingBuilder(
                 title: 'Citizen\nAnd\nScience',
                 description: 'Il progetto discover nasce dall’esigenza di fare qualcosa, in modo carino e confortevole senza che nessun animale venga maltrattato, sopratutto quei fenicotteri che sembrano sensibili a qualsiasi cosa, e sembra che sappiano cosa sono delle telecamere e vivono costantemente in un truman show',
-                imagePath: 'assets/images/citizen_3d.png',
+                imagePath: 'assets/images/citizen_3d.webp',
               ),
               
             ],

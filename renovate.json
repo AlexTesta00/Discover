@@ -2,8 +2,13 @@
   "extends": ["config:recommended"],
   "baseBranches": ["develop"],
 
+  "prCreation": "immediate",
+  "rebaseWhen": "behind-base-branch",
+
   "automerge": true,
   "automergeType": "pr",
+  "platformAutomerge": true,
+  "automergeStrategy": "squash",
 
   "packageRules": [
     {

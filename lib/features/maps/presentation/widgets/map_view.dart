@@ -15,6 +15,8 @@ class MapView extends StatelessWidget {
   final List<PredefinedPoi> pois;
   final void Function(PredefinedPoi)? onPoiTap;
 
+  final void Function(LatLng)? onLongPressMap;
+
   const MapView({
     super.key,
     required this.mapController,
@@ -23,6 +25,7 @@ class MapView extends StatelessWidget {
     required this.pois,
     this.userLatLng,
     this.onPoiTap,
+    this.onLongPressMap,
   });
 
   @override
@@ -60,6 +63,7 @@ class MapView extends StatelessWidget {
             initialCenter: initialCenter,
             initialZoom: 13.0,
             interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
+            onLongPress: (tapPos, latLng) => onLongPressMap?.call(latLng),
             // nessun onLongPress/onTap: i punti sono predefiniti
           ),
           children: [

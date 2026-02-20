@@ -6,7 +6,8 @@ import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_gate.dart';
 import 'package:discover/features/dashboard/presentation/widgets/balance_pill.dart';
 import 'package:discover/features/gamification/presentation/pages/collectable_gate.dart';
-import 'package:discover/features/maps/presentation/pages/map_gate.dart';
+import 'package:discover/features/maps/presentation/controller/demo_tracking_controller.dart';
+//import 'package:discover/features/maps/presentation/pages/map_gate.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
 import 'package:discover/features/shop/presentation/pages/shop_gate.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
@@ -220,7 +221,7 @@ class _DashboardPageState extends State<DashboardPage> {
           onTabChanged: (index) => setState(() => _currentIndex = index),
           tabs: [
             PersistentTabConfig(
-              screen: const MapGate(),
+              screen: const MapDemoGate(),
               item: ItemConfig(
                 icon: const Icon(Icons.map),
                 title: 'Mappa',

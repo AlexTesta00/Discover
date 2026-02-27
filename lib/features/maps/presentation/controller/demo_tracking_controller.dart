@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:discover/features/challenge/domain/entities/event.dart';
+import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/entities/point_of_interest.dart';
 import '../../domain/entities/routing_model.dart';
@@ -26,9 +29,9 @@ class DemoTrackingController extends ChangeNotifier {
     required MapController mapController,
     required MapService mapService,
     required RoutingProvider routingProvider,
-  })  : _mapController = mapController,
-        _mapUtils = mapService,
-        _routing = routingProvider;
+  }) : _mapController = mapController,
+       _mapUtils = mapService,
+       _routing = routingProvider;
 
   final MapController _mapController;
   final MapService _mapUtils;
@@ -39,7 +42,8 @@ class DemoTrackingController extends ChangeNotifier {
   LatLng? _userLatLng;
   LatLng? get userLatLng => _userLatLng;
 
-  final StreamController<LatLng> _posCtrl = StreamController<LatLng>.broadcast();
+  final StreamController<LatLng> _posCtrl =
+      StreamController<LatLng>.broadcast();
   Stream<LatLng> get positionStream => _posCtrl.stream;
 
   LiveRouter? _liveRouter;
@@ -125,7 +129,8 @@ class DemoTrackingController extends ChangeNotifier {
 
   bool isNearPoi(PredefinedPoi poi, {double toleranceMeters = 20}) {
     if (_userLatLng == null) return false;
-    return _dist.as(LengthUnit.Meter, _userLatLng!, poi.position) <= toleranceMeters;
+    return _dist.as(LengthUnit.Meter, _userLatLng!, poi.position) <=
+        toleranceMeters;
   }
 
   void selectPoi(PredefinedPoi poi) {
@@ -232,13 +237,15 @@ class DemoTrackingController extends ChangeNotifier {
     const arriveMeters = 20.0;
 
     while (_remainingRoute.length > 1 &&
-        _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) < thresholdMeters) {
+        _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) <
+            thresholdMeters) {
       _remainingRoute.removeAt(0);
     }
 
     if (!_arrivalShown &&
         (_remainingRoute.length <= 1 ||
-            _dist.as(LengthUnit.Meter, userPos, _remainingRoute.last) <= arriveMeters)) {
+            _dist.as(LengthUnit.Meter, userPos, _remainingRoute.last) <=
+                arriveMeters)) {
       _arrivalShown = true;
       final poi = _selectedPoi;
       stopTracking();
@@ -370,8 +377,38 @@ class _MapDemoGateState extends State<MapDemoGate> {
     );
   }
 
-  void _showArrivalModal(PredefinedPoi poi) {
+  void _showArrivalModal(PredefinedPoi poi) async {
     if (!mounted) return;
+
+    Future<void> completeTalkChallengeIfNeeded() async {
+      final bus = ChallengeEventBus.I;
+      final client = Supabase.instance.client;
+      final repo = ChallengeRepository(client);
+
+      try {
+        final (submissionId, wasNew) = await repo
+            .completeTalkChallengeForCharacter(poi.id);
+
+        if (submissionId != null && wasNew) {
+          final allChallenges = await repo.fetchAllWithCharacter();
+          final challenge = allChallenges.firstWhere(
+            (c) => c.characterId == poi.id && c.requiresPhoto == false,
+          );
+
+          bus.publish(
+            ChallengeCompletedEvent(
+              submissionId: submissionId,
+              challenge: challenge,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Errore completamento challenge RPC: $e');
+        if (mounted) {
+          _showSnack('Impossibile completare la challenge: $e');
+        }
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -381,8 +418,12 @@ class _MapDemoGateState extends State<MapDemoGate> {
       ),
       builder: (ctx) => PoiArrivalSheet(
         poi: poi,
-        onReadStory: () {
+        onReadStory: () async {
           Navigator.of(ctx).pop();
+          await completeTalkChallengeIfNeeded();
+
+          if (!mounted) return;
+
           final character = _charactersById[poi.id];
           if (character != null) {
             Navigator.of(context).push(
@@ -421,7 +462,8 @@ class _MapDemoGateState extends State<MapDemoGate> {
       animation: _ctrl,
       builder: (context, _) {
         final showBanner =
-            _ctrl.isTracking && (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
+            _ctrl.isTracking &&
+            (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
 
         return Scaffold(
           body: Stack(
@@ -487,7 +529,10 @@ class _MapDemoGateState extends State<MapDemoGate> {
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Text(
                         'Errore: $_poisError',
                         style: const TextStyle(color: Colors.white),

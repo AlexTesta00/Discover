@@ -1,4 +1,5 @@
 import 'package:discover/features/character/domain/entities/character.dart';
+import 'package:discover/features/chat/presentation/pages/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class CharacterDetailPage extends StatelessWidget {
@@ -75,10 +76,26 @@ class CharacterDetailPage extends StatelessWidget {
         ),
       ),
 
-      // FAB indietro (come nello screenshot)
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).maybePop(),
-        child: const Icon(Icons.arrow_back),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'chat_fab',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ChatPage(character: character),
+              ),
+            ),
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: Text('Parla con ${character.name}'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.small(
+            heroTag: 'back_fab',
+            onPressed: () => Navigator.of(context).maybePop(),
+            child: const Icon(Icons.arrow_back),
+          ),
+        ],
       ),
     );
   }

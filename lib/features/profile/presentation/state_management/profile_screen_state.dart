@@ -128,12 +128,12 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
                 user.nextLevel.xpToReach,
               ),
               onOpenFriends: () {
-                Navigator.of(context).push(
+                Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(builder: (_) => const FriendshipGate()),
                 );
               },
               onOpenFeed: () {
-                Navigator.of(context).push(
+                Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
                     builder: (_) => FeedGate(
                       getEventsFeed: ({limit = 50, offset = 0}) =>

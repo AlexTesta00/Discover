@@ -39,63 +39,63 @@ class CharacterDetailPage extends StatelessWidget {
     }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          color: const Color(0xFFEF4565),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // HEADER IMAGE 16:9 circa
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: headerImage,
-            ),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // HEADER IMAGE 16:9 circa
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: headerImage,
+          ),
 
-            // CONTENUTO
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      character.name,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+          // CONTENUTO
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    character.name,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      character.story,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    character.story,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
+        ],
         ),
       ),
 
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            heroTag: 'chat_fab',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ChatPage(character: character),
-              ),
-            ),
-            icon: const Icon(Icons.chat_bubble_outline),
-            label: Text('Parla con ${character.name}'),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'chat_fab',
+        onPressed: () => Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(
+            builder: (_) => ChatPage(character: character),
           ),
-          const SizedBox(height: 12),
-          FloatingActionButton.small(
-            heroTag: 'back_fab',
-            onPressed: () => Navigator.of(context).maybePop(),
-            child: const Icon(Icons.arrow_back),
-          ),
-        ],
+        ),
+        icon: const Icon(Icons.chat_bubble_outline),
+        label: Text('Parla con ${character.name}'),
       ),
     );
   }

@@ -426,7 +426,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context).push(
+            Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => CharacterDetailPage(character: character),
               ),
@@ -439,7 +439,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
           Navigator.of(ctx).pop();
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context).push(
+            Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => ARCharacterPage(character: character),
               ),

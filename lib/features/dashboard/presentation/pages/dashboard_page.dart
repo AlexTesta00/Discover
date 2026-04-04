@@ -34,13 +34,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final GlobalKey _rightKey = GlobalKey();
   double _sideWidth = 0;
 
-  final List<String> _titles = [
-    'Mappa',
-    'Sfide',
-    'Profilo',
-    'Collezionabili',
-    'Negozio',
-  ];
+  final List<String> _titles = ['Mappa', 'Sfide', 'Profilo', 'Collezionabili', 'Negozio'];
 
   @override
   void initState() {
@@ -98,10 +92,7 @@ class _DashboardPageState extends State<DashboardPage> {
       return Offset(left, navTop);
     }
 
-    Size tabSize(int i) => Size(
-      i == 0 ? activeWFrac * screenWidth : inactiveWFrac * screenWidth,
-      navBarHeight,
-    );
+    Size tabSize(int i) => Size(i == 0 ? activeWFrac * screenWidth : inactiveWFrac * screenWidth, navBarHeight);
 
     TargetFocus buildTarget({
       required String id,
@@ -123,9 +114,7 @@ class _DashboardPageState extends State<DashboardPage> {
               title: title,
               description: description,
               isLast: isLast(index),
-              onNext: () => isLast(index)
-                  ? _tutorial?.finish()
-                  : _tutorial?.next(),
+              onNext: () => isLast(index) ? _tutorial?.finish() : _tutorial?.next(),
               onSkip: () => _tutorial?.skip(),
             ),
           ),
@@ -173,8 +162,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
     _tutorial = TutorialCoachMark(
       targets: targets,
-      colorShadow: Colors.black,
-      opacityShadow: 0.85,
+      colorShadow: const Color(0xFFEF4565),
+      opacityShadow: 0.75,
       paddingFocus: 8,
       skipWidget: const SizedBox.shrink(),
       onFinish: _saveTutorialShown,
@@ -199,9 +188,7 @@ class _DashboardPageState extends State<DashboardPage> {
       });
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossibile caricare il livello')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Impossibile caricare il livello')));
     }
   }
 
@@ -233,23 +220,16 @@ class _DashboardPageState extends State<DashboardPage> {
       result.match(
         (error) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Logout fallito: $error')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Logout fallito: $error')));
         },
         (_) {
           if (!mounted) return;
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const AuthenticationGate()),
-            (_) => false,
-          );
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const AuthenticationGate()), (_) => false);
         },
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore inatteso: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Errore inatteso: $e')));
     } finally {
       if (mounted) setState(() => _loggingOut = false);
     }
@@ -279,24 +259,13 @@ class _DashboardPageState extends State<DashboardPage> {
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 10),
-                    child: (_levelShort != null &&
-                            _currentIndex != _profileTabIndex)
+                    child: (_levelShort != null && _currentIndex != _profileTabIndex)
                         ? Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(20)),
                             child: Text(
                               _levelShort!,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
+                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 12),
                             ),
                           )
                         : const SizedBox.shrink(),
@@ -344,47 +313,26 @@ class _DashboardPageState extends State<DashboardPage> {
           tabs: [
             PersistentTabConfig(
               screen: const MapDemoGate(),
-              item: ItemConfig(
-                icon: const Icon(Icons.map),
-                title: 'Mappa',
-                activeForegroundColor: AppTheme.primaryColor,
-              ),
+              item: ItemConfig(icon: const Icon(Icons.map), title: 'Mappa', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
               screen: const ChallengeGatePage(),
-              item: ItemConfig(
-                icon: const Icon(Icons.emoji_flags_outlined),
-                title: 'Sfide',
-                activeForegroundColor: AppTheme.primaryColor,
-              ),
+              item: ItemConfig(icon: const Icon(Icons.emoji_flags_outlined), title: 'Sfide', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
               screen: const ProfileScreenState(),
-              item: ItemConfig(
-                icon: const Icon(Icons.account_circle),
-                title: 'Profilo',
-                activeForegroundColor: AppTheme.primaryColor,
-              ),
+              item: ItemConfig(icon: const Icon(Icons.account_circle), title: 'Profilo', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
               screen: const CollectibleGate(),
-              item: ItemConfig(
-                icon: const Icon(Icons.stars_sharp),
-                title: 'Collezionabili',
-                activeForegroundColor: AppTheme.primaryColor,
-              ),
+              item: ItemConfig(icon: const Icon(Icons.stars_sharp), title: 'Collezionabili', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
               screen: const ShopGate(),
-              item: ItemConfig(
-                icon: const Icon(Icons.store),
-                title: 'Negozio',
-                activeForegroundColor: AppTheme.primaryColor,
-              ),
+              item: ItemConfig(icon: const Icon(Icons.store), title: 'Negozio', activeForegroundColor: AppTheme.primaryColor),
             ),
           ],
-          navBarBuilder: (navBarConfig) =>
-              Style2BottomNavBar(navBarConfig: navBarConfig),
+          navBarBuilder: (navBarConfig) => Style2BottomNavBar(navBarConfig: navBarConfig),
         ),
       ),
     );
@@ -420,34 +368,27 @@ class _TutorialContent extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        Text(
-          description,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            height: 1.4,
-          ),
-        ),
+        Text(description, style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4)),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (!isLast)
-              TextButton(
+              ElevatedButton(
                 onPressed: onSkip,
-                child: const Text(
-                  'Salta',
-                  style: TextStyle(color: Colors.white60, fontSize: 14),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.25),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                 ),
+                child: const Text('Salta', style: TextStyle(fontWeight: FontWeight.w700)),
               )
             else
               const SizedBox.shrink(),
@@ -456,15 +397,10 @@ class _TutorialContent extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: AppTheme.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               ),
-              child: Text(
-                isLast ? 'Inizia!' : 'Avanti',
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
+              child: Text(isLast ? 'Inizia!' : 'Avanti', style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ],
         ),

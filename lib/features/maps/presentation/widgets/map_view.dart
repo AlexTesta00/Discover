@@ -1,6 +1,7 @@
 import 'package:discover/features/maps/domain/entities/point_of_interest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import '../../domain/use_cases/map_service.dart';
 import 'user_marker.dart';
@@ -42,20 +43,15 @@ class MapView extends StatelessWidget {
                 ))
             .toList();
 
-        final markers = <Marker>[
-          // Marker dei POI con icona da imageAsset
-          ...pois.map((poi) => Marker(
-                point: poi.position,
-                width: 52,
-                height: 52,
-                child: GestureDetector(
-                  onTap: () => onPoiTap?.call(poi),
-                  child: _poiMarker(context, poi),
-                ),
-              )),
-          // Marker utente
-          if (userLatLng != null) userMarker(userLatLng!),
-        ];
+        final poiMarkers = pois.map((poi) => Marker(
+              point: poi.position,
+              width: 52,
+              height: 52,
+              child: GestureDetector(
+                onTap: () => onPoiTap?.call(poi),
+                child: _poiMarker(context, poi),
+              ),
+            )).toList();
 
         return FlutterMap(
           mapController: mapController,
@@ -64,12 +60,10 @@ class MapView extends StatelessWidget {
             initialZoom: 13.0,
             interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
             onLongPress: (tapPos, latLng) => onLongPressMap?.call(latLng),
-            // nessun onLongPress/onTap: i punti sono predefiniti
           ),
           children: [
             TileLayer(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               tileProvider: NetworkTileProvider(
                 cachingProvider: const DisabledMapCachingProvider()
               ),
@@ -77,7 +71,36 @@ class MapView extends StatelessWidget {
             ),
             PolygonLayer(polygons: mapUtils.polygons),
             PolylineLayer(polylines: themedPolylines),
-            MarkerLayer(markers: markers),
+            MarkerClusterLayerWidget(
+              options: MarkerClusterLayerOptions(
+                maxClusterRadius: 80,
+                size: const Size(48, 48),
+                markers: poiMarkers,
+                builder: (context, clusterMarkers) {
+                  final primary = Theme.of(context).primaryColor;
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: primary,
+                      shape: BoxShape.circle,
+                      boxShadow: const [
+                        BoxShadow(blurRadius: 6, offset: Offset(0, 2), color: Colors.black26),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${clusterMarkers.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (userLatLng != null) MarkerLayer(markers: [userMarker(userLatLng!)]),
           ],
         );
       },

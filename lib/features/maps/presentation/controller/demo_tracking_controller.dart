@@ -16,6 +16,7 @@ import '../../domain/use_cases/routing_provider.dart';
 
 import '../widgets/map_view.dart';
 import '../widgets/banner.dart';
+import '../widgets/off_screen_indicators.dart';
 import '../widgets/poi_arrival_sheet.dart';
 import '../widgets/poi_bottom_sheet.dart';
 
@@ -477,6 +478,14 @@ class _MapDemoGateState extends State<MapDemoGate> {
                 onPoiTap: _onPoiTap,
                 onLongPressMap: _onLongPressTeleport,
               ),
+
+              if (_pois.isNotEmpty)
+                OffScreenPoiIndicators(
+                  mapController: _mapController,
+                  pois: _pois,
+                  userLatLng: _ctrl.userLatLng,
+                  onTap: _onPoiTap,
+                ),
 
               EtaBanner(
                 visible: showBanner,

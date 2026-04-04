@@ -131,14 +131,7 @@ class _DashboardPageState extends State<DashboardPage> {
     _measureRight();
 
     return PopScope(
-      canPop: _controller.index == 0,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        if (_controller.index != 0) {
-          _controller.jumpToTab(0);
-          setState(() => _currentIndex = 0);
-        }
-      },
+      canPop: true,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -219,6 +212,7 @@ class _DashboardPageState extends State<DashboardPage> {
         body: PersistentTabView(
           controller: _controller,
           onTabChanged: (index) => setState(() => _currentIndex = index),
+          handleAndroidBackButtonPress: false,
           tabs: [
             PersistentTabConfig(
               screen: const MapDemoGate(),

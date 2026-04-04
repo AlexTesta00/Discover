@@ -331,6 +331,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
   Future<void> _loadPois() async {
     try {
       final characters = await CharactersApi().getAllCharacters();
+      if (!mounted) return;
       _charactersById = {for (final c in characters) c.id: c};
 
       setState(() {
@@ -347,6 +348,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
         _loadingPois = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _poisError = e.toString();
         _loadingPois = false;

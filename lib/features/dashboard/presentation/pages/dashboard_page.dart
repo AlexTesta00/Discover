@@ -34,13 +34,6 @@ class _DashboardPageState extends State<DashboardPage> {
   final GlobalKey _rightKey = GlobalKey();
   double _sideWidth = 0;
 
-  // GlobalKey per ogni tab — puntano ai widget trasparenti sovrapposti alla nav bar
-  final GlobalKey _tab0Key = GlobalKey();
-  final GlobalKey _tab1Key = GlobalKey();
-  final GlobalKey _tab2Key = GlobalKey();
-  final GlobalKey _tab3Key = GlobalKey();
-  final GlobalKey _tab4Key = GlobalKey();
-
   final List<String> _titles = [
     'Mappa',
     'Sfide',
@@ -83,11 +76,32 @@ class _DashboardPageState extends State<DashboardPage> {
   void _showTutorial() {
     bool isLast(int index) => index == 4;
 
-    final screenSize = MediaQuery.of(context).size;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-    const navBarHeight = 60.0;
-    final tabWidth = screenSize.width / 5;
-    final navBarTop = screenSize.height - navBarHeight - bottomPadding;
+    final mq = MediaQuery.of(context);
+    final screenWidth = mq.size.width;
+    final screenHeight = mq.size.height;
+    // viewPadding gives the real system bottom inset regardless of Scaffold
+    final bottomInset = mq.viewPadding.bottom;
+    const navBarHeight = 56.0;
+    final navTop = screenHeight - navBarHeight - bottomInset;
+
+    // Style2BottomNavBar: active item = 29% of screen width, inactive = 12%
+    // Layout: MainAxisAlignment.spaceAround with 5 items (tab 0 active at tutorial start)
+    const double activeWFrac = 0.29;
+    const double inactiveWFrac = 0.12;
+    const int tabCount = 5;
+    final double totalItemW = (activeWFrac + (tabCount - 1) * inactiveWFrac) * screenWidth;
+    final double gap = (screenWidth - totalItemW) / tabCount; // spaceAround spacing
+
+    Offset tabOffset(int i) {
+      if (i == 0) return Offset(gap / 2, navTop);
+      final left = gap / 2 + activeWFrac * screenWidth + i * gap + (i - 1) * inactiveWFrac * screenWidth;
+      return Offset(left, navTop);
+    }
+
+    Size tabSize(int i) => Size(
+      i == 0 ? activeWFrac * screenWidth : inactiveWFrac * screenWidth,
+      navBarHeight,
+    );
 
     TargetFocus buildTarget({
       required String id,
@@ -98,10 +112,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }) {
       return TargetFocus(
         identify: id,
-        targetPosition: TargetPosition(
-          Size(tabWidth, navBarHeight),
-          Offset(tabWidth * index, navBarTop),
-        ),
+        targetPosition: TargetPosition(tabSize(index), tabOffset(index)),
         shape: ShapeLightFocus.RRect,
         radius: 12,
         contents: [
@@ -326,75 +337,54 @@ class _DashboardPageState extends State<DashboardPage> {
             ],
           ),
         ),
-        body: Stack(
-          children: [
-            PersistentTabView(
-              controller: _controller,
-              onTabChanged: (index) => setState(() => _currentIndex = index),
-              handleAndroidBackButtonPress: false,
-              tabs: [
-                PersistentTabConfig(
-                  screen: const MapDemoGate(),
-                  item: ItemConfig(
-                    icon: const Icon(Icons.map),
-                    title: 'Mappa',
-                    activeForegroundColor: AppTheme.primaryColor,
-                  ),
-                ),
-                PersistentTabConfig(
-                  screen: const ChallengeGatePage(),
-                  item: ItemConfig(
-                    icon: const Icon(Icons.emoji_flags_outlined),
-                    title: 'Sfide',
-                    activeForegroundColor: AppTheme.primaryColor,
-                  ),
-                ),
-                PersistentTabConfig(
-                  screen: const ProfileScreenState(),
-                  item: ItemConfig(
-                    icon: const Icon(Icons.account_circle),
-                    title: 'Profilo',
-                    activeForegroundColor: AppTheme.primaryColor,
-                  ),
-                ),
-                PersistentTabConfig(
-                  screen: const CollectibleGate(),
-                  item: ItemConfig(
-                    icon: const Icon(Icons.stars_sharp),
-                    title: 'Collezionabili',
-                    activeForegroundColor: AppTheme.primaryColor,
-                  ),
-                ),
-                PersistentTabConfig(
-                  screen: const ShopGate(),
-                  item: ItemConfig(
-                    icon: const Icon(Icons.store),
-                    title: 'Negozio',
-                    activeForegroundColor: AppTheme.primaryColor,
-                  ),
-                ),
-              ],
-              navBarBuilder: (navBarConfig) =>
-                  Style2BottomNavBar(navBarConfig: navBarConfig),
+        body: PersistentTabView(
+          controller: _controller,
+          onTabChanged: (index) => setState(() => _currentIndex = index),
+          handleAndroidBackButtonPress: false,
+          tabs: [
+            PersistentTabConfig(
+              screen: const MapDemoGate(),
+              item: ItemConfig(
+                icon: const Icon(Icons.map),
+                title: 'Mappa',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
             ),
-
-            // Widget trasparenti sovrapposti alla bottom nav bar per il tutorial
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 65 + MediaQuery.of(context).padding.bottom,
-              child: Row(
-                children: [
-                  Expanded(child: SizedBox.expand(key: _tab0Key)),
-                  Expanded(child: SizedBox.expand(key: _tab1Key)),
-                  Expanded(child: SizedBox.expand(key: _tab2Key)),
-                  Expanded(child: SizedBox.expand(key: _tab3Key)),
-                  Expanded(child: SizedBox.expand(key: _tab4Key)),
-                ],
+            PersistentTabConfig(
+              screen: const ChallengeGatePage(),
+              item: ItemConfig(
+                icon: const Icon(Icons.emoji_flags_outlined),
+                title: 'Sfide',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const ProfileScreenState(),
+              item: ItemConfig(
+                icon: const Icon(Icons.account_circle),
+                title: 'Profilo',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const CollectibleGate(),
+              item: ItemConfig(
+                icon: const Icon(Icons.stars_sharp),
+                title: 'Collezionabili',
+                activeForegroundColor: AppTheme.primaryColor,
+              ),
+            ),
+            PersistentTabConfig(
+              screen: const ShopGate(),
+              item: ItemConfig(
+                icon: const Icon(Icons.store),
+                title: 'Negozio',
+                activeForegroundColor: AppTheme.primaryColor,
               ),
             ),
           ],
+          navBarBuilder: (navBarConfig) =>
+              Style2BottomNavBar(navBarConfig: navBarConfig),
         ),
       ),
     );

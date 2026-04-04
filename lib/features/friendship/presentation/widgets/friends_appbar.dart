@@ -23,7 +23,11 @@ class FriendsAppBar extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                )
+                ),
+                Text(
+                  'Amici',
+                  style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                ),
               ],
             ),
             const Spacer(),

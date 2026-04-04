@@ -58,6 +58,14 @@ class MapView extends StatelessWidget {
           options: MapOptions(
             initialCenter: initialCenter,
             initialZoom: 13.0,
+            minZoom: 6.0,
+            maxZoom: 18.0,
+            cameraConstraint: CameraConstraint.containCenter(
+              bounds: LatLngBounds(
+                const LatLng(35.5, 6.6),  // sud-ovest (Sicilia)
+                const LatLng(47.1, 18.5), // nord-est (Alpi/Trieste)
+              ),
+            ),
             interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
             onLongPress: (tapPos, latLng) => onLongPressMap?.call(latLng),
           ),

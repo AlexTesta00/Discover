@@ -28,13 +28,12 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   final _controller = PersistentTabController(initialIndex: 0);
   bool _loggingOut = false;
-  static const int _profileTabIndex = 2;
   StreamSubscription? _busSub;
   String? _levelShort;
   final GlobalKey _rightKey = GlobalKey();
   double _sideWidth = 0;
 
-  final List<String> _titles = ['Mappa', 'Sfide', 'Profilo', 'Collezionabili', 'Negozio'];
+  final List<String> _titles = ['Mappa', 'Sfide', 'Profilo', 'Album', 'Negozio'];
 
   @override
   void initState() {
@@ -145,10 +144,10 @@ class _DashboardPageState extends State<DashboardPage> {
         description: 'Guarda il tuo livello, i tuoi progressi e le foto delle sfide completate. Puoi anche aggiungere amici.',
       ),
       buildTarget(
-        id: 'tab_collezionabili',
+        id: 'tab_album',
         index: 3,
         icon: Icons.stars_sharp,
-        title: 'Collezionabili',
+        title: 'Album',
         description: 'Sblocca sticker unici completando tutte le sfide di un personaggio. Collezionali tutti!',
       ),
       buildTarget(
@@ -259,13 +258,13 @@ class _DashboardPageState extends State<DashboardPage> {
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 10),
-                    child: (_levelShort != null && _currentIndex != _profileTabIndex)
+                    child: _levelShort != null
                         ? Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(20)),
                             child: Text(
                               _levelShort!,
-                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 12),
+                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 15),
                             ),
                           )
                         : const SizedBox.shrink(),
@@ -294,11 +293,6 @@ class _DashboardPageState extends State<DashboardPage> {
                         valueListenable: BalanceNotifier.I.balance,
                         builder: (_, value, _) => BalancePill(balance: value),
                       ),
-                      if (_currentIndex == _profileTabIndex)
-                        IconButton(
-                          onPressed: logout,
-                          icon: const Icon(Icons.logout, color: Colors.black),
-                        ),
                     ],
                   ),
                 ),
@@ -320,12 +314,12 @@ class _DashboardPageState extends State<DashboardPage> {
               item: ItemConfig(icon: const Icon(Icons.emoji_flags_outlined), title: 'Sfide', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
-              screen: const ProfileScreenState(),
+              screen: ProfileScreenState(onLogout: logout),
               item: ItemConfig(icon: const Icon(Icons.account_circle), title: 'Profilo', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
               screen: const CollectibleGate(),
-              item: ItemConfig(icon: const Icon(Icons.stars_sharp), title: 'Collezionabili', activeForegroundColor: AppTheme.primaryColor),
+              item: ItemConfig(icon: const Icon(Icons.stars_sharp), title: 'Album', activeForegroundColor: AppTheme.primaryColor),
             ),
             PersistentTabConfig(
               screen: const ShopGate(),

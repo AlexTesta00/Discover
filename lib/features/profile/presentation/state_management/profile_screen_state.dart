@@ -13,7 +13,8 @@ import 'package:fpdart/fpdart.dart' hide State;
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class ProfileScreenState extends StatefulWidget {
-  const ProfileScreenState({super.key});
+  final VoidCallback? onLogout;
+  const ProfileScreenState({super.key, this.onLogout});
 
   @override
   State<ProfileScreenState> createState() => _ProfileScreenStateState();
@@ -127,6 +128,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
                 user.xp,
                 user.nextLevel.xpToReach,
               ),
+              onLogout: widget.onLogout,
               onOpenFriends: () {
                 Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(builder: (_) => const FriendshipGate()),

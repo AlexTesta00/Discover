@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   final VoidCallback? onOpenFriends;
   final VoidCallback? onOpenFeed;
+  final VoidCallback? onLogout;
 
   const ProfilePage({
     super.key,
     required this.username,
+    this.onLogout,
     required this.friendsCount,
     required this.levelLabel,
     required this.headerImage,
@@ -129,6 +131,31 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 32),
 
             ChallengeGrid(images: challengeImages),
+            const SizedBox(height: 32),
+            if (onLogout != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onLogout,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4565),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.logout),
+                    label: const Text(
+                      'Logout',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 32),
           ],
         ),
       ),

@@ -13,6 +13,7 @@ import '../../domain/use_cases/map_service.dart';
 import '../../domain/use_cases/osrm_routing_provider.dart';
 import '../../domain/use_cases/routing_provider.dart';
 import '../widgets/map_view.dart';
+import '../widgets/off_screen_indicators.dart';
 import '../widgets/poi_bottom_sheet.dart';
 import '../widgets/poi_arrival_sheet.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
@@ -234,6 +235,13 @@ class _MapGateState extends State<MapGate> {
                 pois: _pois,
                 onPoiTap: _onPoiTap,
               ),
+              if (_pois.isNotEmpty)
+                OffScreenPoiIndicators(
+                  mapController: _mapController,
+                  pois: _pois,
+                  userLatLng: _ctrl.userLatLng,
+                  onTap: _onPoiTap,
+                ),
               EtaBanner(
                 visible: showBanner,
                 remainMeters: _ctrl.remainMeters,

@@ -82,6 +82,74 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
     }
   }
 
+  Future<void> _showEditUsernameDialog(String currentUsername) async {
+    final controller = TextEditingController(text: currentUsername);
+
+    // 1. Dialog di input — usiamo this.context (sempre valido finché mounted)
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Modifica username'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 30,
+          decoration: const InputDecoration(hintText: 'Nuovo username'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annulla'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Salva'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    final newUsername = controller.text.trim();
+    if (newUsername.isEmpty || newUsername == currentUsername) return;
+    if (!mounted) return;
+
+    // 2. Salva riferimenti prima degli await
+    final nav = Navigator.of(context, rootNavigator: true);
+    final messenger = ScaffoldMessenger.of(context);
+
+    // 3. Loading dialog bloccante durante la chiamata
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const PopScope(
+        canPop: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    );
+
+    Object? callError;
+    try {
+      await updateUsername(newUsername);
+    } catch (e) {
+      callError = e;
+    }
+
+    // 4. Chiude sempre il loading, indipendentemente dall'esito
+    nav.pop();
+
+    if (!mounted) return;
+
+    if (callError != null) {
+      messenger.showSnackBar(SnackBar(
+        content: Text('Errore: $callError'),
+        backgroundColor: Colors.red,
+      ));
+    } else {
+      setState(() { _userFuture = _load(); });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Either<String, User>>(
@@ -121,6 +189,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
               challengeImages: _challengeImages,
               progress: Level.progressToNextLevel(user.xp, user.nextLevel.xpToReach),
               onLogout: widget.onLogout,
+              onEditUsername: () => _showEditUsernameDialog(user.username),
               onOpenFriends: () {
                 Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const FriendshipGate()));
               },

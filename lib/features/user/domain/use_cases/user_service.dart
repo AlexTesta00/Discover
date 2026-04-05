@@ -230,6 +230,16 @@ Future<int> getFriendsCountByEmail(String email) async {
 Future<void> setUserAvatar(String assetPath) async {
   await _supabase.rpc('set_user_avatar', params: {'p_asset': assetPath});
 }
+
+Future<void> updateUsername(String newUsername) async {
+  final user = _supabase.auth.currentUser;
+  if (user == null) throw Exception('Non autenticato');
+
+  await _supabase
+      .from(_profilesTable)
+      .update({'username': newUsername})
+      .eq('user_id', user.id);
+}
 Future<void> setUserBackground(String assetPath) async {
   await _supabase.rpc('set_user_background', params: {'p_asset': assetPath});
 }

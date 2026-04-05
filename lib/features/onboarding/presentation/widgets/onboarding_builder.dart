@@ -13,8 +13,9 @@ class OnboardingBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
+      child: SafeArea(
+        child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,6 +38,7 @@ class OnboardingBuilder extends StatelessWidget {
             Text(description, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.left),
           ],
         ),
+      ),
       ),
     );
   }

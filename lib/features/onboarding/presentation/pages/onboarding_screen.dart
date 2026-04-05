@@ -13,7 +13,6 @@ class OnBoardingScreen extends StatefulWidget {
 }
 
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
-
   final PageController _controller = PageController();
   static const _numberOfPages = 3;
   bool _onLastPage = false;
@@ -34,25 +33,27 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             onPageChanged: (index) => {
               setState(() {
                 _onLastPage = (index == _numberOfPages - 1);
-              })
+              }),
             },
             children: [
               OnboardingBuilder(
-                title: "Il\nProgetto\nDiscover",
-                description: "Discover è un'app per esplorare il Parco del Delta del Po: uno degli ecosistemi più ricchi d'Europa. Incontra i suoi abitanti, scopri la biodiversità del territorio e vivi il parco in modo nuovo.",
+                title: 'Il\nProgetto\nDiscover',
+                description:
+                    "Discover è un'app per esplorare il Parco del Delta del Po: uno degli ecosistemi più ricchi d'Europa. Incontra i suoi abitanti, scopri la biodiversità del territorio e vivi il parco in modo nuovo.",
                 imagePath: 'assets/images/fenicottero_3d.webp',
               ),
               OnboardingBuilder(
-                title: "Citizen\nScience",
-                description: "Ogni foto che scatti e ogni sfida che completi contribuisce attivamente alla ricerca scientifica. Le tue osservazioni diventano dati reali per monitorare la salute dell'ecosistema del Delta del Po.",
+                title: 'Citizen\nScience',
+                description:
+                    "Ogni foto che scatti e ogni sfida che completi contribuisce attivamente alla ricerca scientifica. Le tue osservazioni diventano dati reali per monitorare la salute dell'ecosistema del Delta del Po.",
                 imagePath: 'assets/images/ricerca_3d.webp',
               ),
               OnboardingBuilder(
-                title: "Il Tuo\nObiettivo",
-                description: "Raggiungi i personaggi sulla mappa, completa le sfide fotografiche e guadagna fenicotteri. Sali di livello, sblocca sticker nell'Album e conosci da vicino gli animali del parco.",
+                title: 'Il Tuo\nObiettivo',
+                description:
+                    "Raggiungi i personaggi sulla mappa, completa le sfide fotografiche e guadagna fenicotteri. Sali di livello, sblocca sticker nell'Album e conosci da vicino gli animali del parco.",
                 imagePath: 'assets/images/citizen_3d.webp',
               ),
-              
             ],
           ),
 
@@ -64,43 +65,35 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               children: [
                 GestureDetector(
                   onTap: () => _controller.jumpToPage(2),
-                  child: Text('Skip', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),),
+                  child: Text('Skip', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                 ),
                 SmoothPageIndicator(
-                  controller: _controller, 
+                  controller: _controller,
                   count: _numberOfPages,
-                  effect: const ExpandingDotsEffect(
-                      dotColor: Colors.black38,
-                      activeDotColor: AppTheme.primaryColor,
-                  ),
+                  effect: const ExpandingDotsEffect(dotColor: Colors.black38, activeDotColor: AppTheme.primaryColor),
                 ),
-                _onLastPage ?
-                GestureDetector(
-                  onTap: () async {
-                    final preference = await SharedPreferences.getInstance();
-                    await preference.setBool('onBoardingComplete', true);
-                    
-                    if(!context.mounted) return;
+                _onLastPage
+                    ? GestureDetector(
+                        onTap: () async {
+                          final preference = await SharedPreferences.getInstance();
+                          await preference.setBool('onBoardingComplete', true);
 
-                    Navigator.pushReplacement(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (context) => const FinishOnBoarding()
+                          if (!context.mounted) return;
+
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const FinishOnBoarding()));
+                        },
+                        child: Text(
+                          'Done',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () => _controller.nextPage(duration: Duration(milliseconds: 500), curve: Curves.easeIn),
+                        child: Text('Next', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                       ),
-                    );
-                  },
-                  child: Text('Done', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.primaryColor)),
-                ) :
-                GestureDetector(
-                  onTap: () => _controller.nextPage(
-                      duration: Duration(milliseconds: 500), 
-                      curve: Curves.easeIn
-                    ),
-                  child: Text('Next', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                ),
               ],
-            )
-          )
+            ),
+          ),
         ],
       ),
     );

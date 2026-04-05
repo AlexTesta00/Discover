@@ -37,6 +37,18 @@ String? getUserEmail() {
   return session?.user.email;
 }
 
+Future<String?> getUserUsername() async {
+  final user = _supabase.auth.currentUser;
+  if (user == null) return null;
+
+  final res = await _supabase
+      .from(_profilesTable)
+      .select('username')
+      .eq('user_id', user.id)
+      .maybeSingle();
+  return res?['username'] as String?;
+}
+
 Future<int?> getUserXp() async {
   final user = _supabase.auth.currentUser;
   if (user == null) return null;
@@ -217,6 +229,16 @@ Future<int> getFriendsCountByEmail(String email) async {
 
 Future<void> setUserAvatar(String assetPath) async {
   await _supabase.rpc('set_user_avatar', params: {'p_asset': assetPath});
+}
+
+Future<void> updateUsername(String newUsername) async {
+  final user = _supabase.auth.currentUser;
+  if (user == null) throw Exception('Non autenticato');
+
+  await _supabase
+      .from(_profilesTable)
+      .update({'username': newUsername})
+      .eq('user_id', user.id);
 }
 Future<void> setUserBackground(String assetPath) async {
   await _supabase.rpc('set_user_background', params: {'p_asset': assetPath});

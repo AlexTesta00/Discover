@@ -7,11 +7,13 @@ class ProfilePage extends StatelessWidget {
   final VoidCallback? onOpenFriends;
   final VoidCallback? onOpenFeed;
   final VoidCallback? onLogout;
+  final VoidCallback? onEditUsername;
 
   const ProfilePage({
     super.key,
     required this.username,
     this.onLogout,
+    this.onEditUsername,
     required this.friendsCount,
     required this.levelLabel,
     required this.headerImage,
@@ -102,13 +104,26 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 42),
 
             // Username
-            Text(
-              username,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  username,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (onEditUsername != null)
+                  IconButton(
+                    onPressed: onEditUsername,
+                    icon: const Icon(Icons.edit_rounded, size: 18),
+                    color: Colors.black45,
+                    padding: const EdgeInsets.only(left: 4),
+                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
             ),
             const SizedBox(height: 32),
 

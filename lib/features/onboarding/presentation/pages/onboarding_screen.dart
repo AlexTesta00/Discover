@@ -65,7 +65,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               children: [
                 GestureDetector(
                   onTap: () => _controller.jumpToPage(2),
-                  child: Text('Skip', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  child: Text('Salta', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                 ),
                 SmoothPageIndicator(
                   controller: _controller,
@@ -83,13 +83,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const FinishOnBoarding()));
                         },
                         child: Text(
-                          'Done',
+                          'Inizia!',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
                         ),
                       )
                     : GestureDetector(
                         onTap: () => _controller.nextPage(duration: Duration(milliseconds: 500), curve: Curves.easeIn),
-                        child: Text('Next', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                        child: Text('Avanti', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                       ),
               ],
             ),

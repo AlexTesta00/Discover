@@ -37,6 +37,18 @@ String? getUserEmail() {
   return session?.user.email;
 }
 
+Future<String?> getUserUsername() async {
+  final user = _supabase.auth.currentUser;
+  if (user == null) return null;
+
+  final res = await _supabase
+      .from(_profilesTable)
+      .select('username')
+      .eq('user_id', user.id)
+      .maybeSingle();
+  return res?['username'] as String?;
+}
+
 Future<int?> getUserXp() async {
   final user = _supabase.auth.currentUser;
   if (user == null) return null;

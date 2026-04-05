@@ -69,7 +69,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
           child: ProfilePage(
             headerImage: user.backgroundImage,
             avatarImage: user.avatarImage,
-            username: user.email.split('@').first,
+            username: user.username,
             levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
             friendsCount: _friendsCount,
             challengeImages: _challengeImages,

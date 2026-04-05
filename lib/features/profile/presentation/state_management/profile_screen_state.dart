@@ -50,24 +50,22 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         getNextLevel(),
         repo.getUserChallengePhotoUrls(),
         getFriendsCount(),
+        getUserUsername(),
       ], eagerError: true);
 
       final userAvatar = (result[0] as String?) ?? 'assets/icons/error.png';
-      final userBackground =
-          (result[1] as String?) ?? 'assets/background/error.png';
+      final userBackground = (result[1] as String?) ?? 'assets/background/error.png';
       final userXp = (result[2] as int?) ?? 0;
       final userBalance = (result[3] as int?) ?? 0;
-      final userLevel =
-          (result[4] as Level?) ??
-          Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
-      final nextLevel =
-          (result[5] as Level?) ??
-          Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
+      final userLevel = (result[4] as Level?) ?? Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
+      final nextLevel = (result[5] as Level?) ?? Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
       _challengeImages = (result[6] as List<String>);
       friendsCount = (result[7] as int);
+      final username = (result[8] as String?) ?? email.split('@').first;
 
       final user = User(
         email: email,
+        username: username,
         avatarImage: userAvatar,
         backgroundImage: userBackground,
         xp: userXp,
@@ -103,10 +101,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
 
         return snap.data!.match(
           (err) => Center(
-            child: Text(
-              'Errore: $err',
-              style: const TextStyle(color: Colors.red),
-            ),
+            child: Text('Errore: $err', style: const TextStyle(color: Colors.red)),
           ),
           (user) => RefreshIndicator(
             displacement: 56,
@@ -120,26 +115,20 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
             child: ProfilePage(
               headerImage: user.backgroundImage,
               avatarImage: user.avatarImage,
-              username: user.email.split('@').first,
+              username: user.username,
               levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
               friendsCount: friendsCount,
               challengeImages: _challengeImages,
-              progress: Level.progressToNextLevel(
-                user.xp,
-                user.nextLevel.xpToReach,
-              ),
+              progress: Level.progressToNextLevel(user.xp, user.nextLevel.xpToReach),
               onLogout: widget.onLogout,
               onOpenFriends: () {
-                Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(builder: (_) => const FriendshipGate()),
-                );
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const FriendshipGate()));
               },
               onOpenFeed: () {
                 Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
                     builder: (_) => FeedGate(
-                      getEventsFeed: ({limit = 50, offset = 0}) =>
-                          getEventsFeed(limit: limit, offset: offset),
+                      getEventsFeed: ({limit = 50, offset = 0}) => getEventsFeed(limit: limit, offset: offset),
                       getUserByEmail: getUserByEmail,
                       pageSize: 20,
                     ),

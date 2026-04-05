@@ -38,18 +38,18 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             },
             children: [
               OnboardingBuilder(
-                title: 'Il\nProgetto\nDiscover',
-                description: 'Il progetto Discover nasce dall\'idea di creare un\'applicazione che permetta agli utenti di scoprire e condividere luoghi interessanti.',
+                title: "Il\nProgetto\nDiscover",
+                description: "Discover è un'app per esplorare il Parco del Delta del Po: uno degli ecosistemi più ricchi d'Europa. Incontra i suoi abitanti, scopri la biodiversità del territorio e vivi il parco in modo nuovo.",
                 imagePath: 'assets/images/fenicottero_3d.webp',
               ),
               OnboardingBuilder(
-                title: 'Ricerca\nSviluppo\nSostenibilità',
-                description: 'Il progetto discover nasce dall’esigenza di fare qualcosa, in modo carino e confortevole senza che nessun animale venga maltrattato, sopratutto quei fenicotteri che sembrano sensibili a qualsiasi cosa, e sembra che sappiano cosa sono delle telecamere e vivono costantemente in un truman show',
+                title: "Citizen\nScience",
+                description: "Ogni foto che scatti e ogni sfida che completi contribuisce attivamente alla ricerca scientifica. Le tue osservazioni diventano dati reali per monitorare la salute dell'ecosistema del Delta del Po.",
                 imagePath: 'assets/images/ricerca_3d.webp',
               ),
               OnboardingBuilder(
-                title: 'Citizen\nAnd\nScience',
-                description: 'Il progetto discover nasce dall’esigenza di fare qualcosa, in modo carino e confortevole senza che nessun animale venga maltrattato, sopratutto quei fenicotteri che sembrano sensibili a qualsiasi cosa, e sembra che sappiano cosa sono delle telecamere e vivono costantemente in un truman show',
+                title: "Il Tuo\nObiettivo",
+                description: "Raggiungi i personaggi sulla mappa, completa le sfide fotografiche e guadagna fenicotteri. Sali di livello, sblocca sticker nell'Album e conosci da vicino gli animali del parco.",
                 imagePath: 'assets/images/citizen_3d.webp',
               ),
               

@@ -309,6 +309,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
   Map<String, Character> _charactersById = {};
   bool _loadingPois = true;
   String? _poisError;
+  StreamSubscription? _busSub;
 
   @override
   void initState() {
@@ -319,13 +320,37 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
     _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
     _loadPois();
+
+    _busSub = ChallengeEventBus.I.stream.listen((e) {
+      if (e is GoToMapForCharacterEvent) {
+        _focusPoiByCharacterId(e.characterId);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _busSub?.cancel();
     _ctrl.disposeAll();
     _ctrl.dispose();
     super.dispose();
+  }
+
+  void _focusPoiByCharacterId(String characterId) {
+    if (_pois.isEmpty) return;
+
+    final poi = _pois
+        .where((p) => p.id == characterId)
+        .cast<PredefinedPoi?>()
+        .firstOrNull;
+    if (poi == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _mapController.move(poi.position, 16);
+    });
+
+    _onPoiTap(poi);
   }
 
   Future<void> _loadPois() async {

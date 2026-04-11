@@ -66,7 +66,11 @@ class MapView extends StatelessWidget {
                 const LatLng(47.1, 18.5), // nord-est (Alpi/Trieste)
               ),
             ),
-            interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.all,
+              rotationThreshold: 10.0,
+              enableMultiFingerGestureRace: true,
+            ),
             onLongPress: (tapPos, latLng) => onLongPressMap?.call(latLng),
           ),
           children: [

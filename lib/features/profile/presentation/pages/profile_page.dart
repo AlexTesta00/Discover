@@ -1,4 +1,3 @@
-import 'package:discover/features/profile/presentation/widgets/challenge_grid.dart';
 import 'package:discover/features/profile/presentation/widgets/header.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ class ProfilePage extends StatelessWidget {
   final VoidCallback? onOpenFeed;
   final VoidCallback? onLogout;
   final VoidCallback? onEditUsername;
+  final VoidCallback? onOpenChallenges;
 
   const ProfilePage({
     super.key,
@@ -18,10 +18,10 @@ class ProfilePage extends StatelessWidget {
     required this.levelLabel,
     required this.headerImage,
     required this.avatarImage,
-    required this.challengeImages,
     required this.progress,
     this.onOpenFriends,
     this.onOpenFeed,
+    this.onOpenChallenges,
   });
 
   final String headerImage;
@@ -29,7 +29,6 @@ class ProfilePage extends StatelessWidget {
   final String username;
   final int friendsCount;
   final String levelLabel;
-  final List<String> challengeImages;
   final double progress;
 
   @override
@@ -37,6 +36,7 @@ class ProfilePage extends StatelessWidget {
     const bg = Color(0xFFF9F7F3);
     final textColor = const Color(0xFF1B1B1B);
     final cardColor = Colors.white;
+    const primary = Color(0xFFEF4565);
     final shadow = [
       BoxShadow(
         color: Colors.black.withValues(alpha: 0.06),
@@ -145,8 +145,35 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            ChallengeGrid(images: challengeImages),
-            const SizedBox(height: 32),
+            // Bottone "Challenge"
+            if (onOpenChallenges != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onOpenChallenges,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: primary, width: 1.5),
+                      ),
+                    ),
+                    icon: const Icon(Icons.emoji_flags_outlined),
+                    label: const Text(
+                      'Challenge',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+
+            // Bottone "Logout"
             if (onLogout != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -155,7 +182,7 @@ class ProfilePage extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onLogout,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4565),
+                      backgroundColor: primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

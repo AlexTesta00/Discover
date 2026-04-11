@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
+import 'package:discover/features/challenge/domain/entities/challenge_submission_item.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -193,6 +194,33 @@ class ChallengeRepository {
         'challenge_title': challenge.title,
       },
     );
+  }
+
+  Future<List<ChallengeSubmissionItem>> getSubmissionsForEmail(
+    String email,
+  ) async {
+    final rows = await client
+        .from('challenge_submissions')
+        .select('created_at, photo_path, challenge:challenges(title)')
+        .eq('user_email', email)
+        .order('created_at', ascending: false);
+
+    final bucket = client.storage.from('challenge-submissions');
+    final list = (rows as List).cast<Map<String, dynamic>>();
+
+    return list.map((m) {
+      final challengeMap = m['challenge'] as Map<String, dynamic>?;
+      final title = challengeMap?['title'] as String? ?? 'Sfida sconosciuta';
+      final photoPath = m['photo_path'] as String?;
+      final photoUrl = (photoPath != null && photoPath.isNotEmpty)
+          ? bucket.getPublicUrl(photoPath)
+          : null;
+      return ChallengeSubmissionItem(
+        completedAt: DateTime.parse(m['created_at'] as String).toLocal(),
+        challengeTitle: title,
+        photoUrl: photoUrl,
+      );
+    }).toList();
   }
 
   Future<(String?, bool)> completeTalkChallengeForCharacter(

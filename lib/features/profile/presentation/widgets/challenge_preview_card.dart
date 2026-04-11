@@ -75,13 +75,16 @@ class _ChallengePreviewCardState extends State<ChallengePreviewCard> {
                   ),
                 );
               }
-              return Row(
-                children: items
-                    .map((item) => Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: _ChallengeThumb(item: item),
-                        ))
-                    .toList(),
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: items
+                      .map((item) => Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: _ChallengeThumb(item: item),
+                          ))
+                      .toList(),
+                ),
               );
             },
           ),
@@ -149,8 +152,8 @@ class _ChallengeThumb extends StatelessWidget {
               : null,
         ),
         Positioned(
-          top: -6,
-          right: -6,
+          top: 4,
+          right: 4,
           child: Container(
             width: badgeSize,
             height: badgeSize,

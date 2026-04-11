@@ -201,7 +201,10 @@ class ChallengeRepository {
   ) async {
     final rows = await client
         .from('challenge_submissions')
-        .select('created_at, photo_path, challenge:challenges(title)')
+        .select(
+          'created_at, photo_path, '
+          'challenge:challenges(title, requires_photo, character:characters(image_asset))',
+        )
         .eq('user_email', email)
         .order('created_at', ascending: false);
 
@@ -211,6 +214,9 @@ class ChallengeRepository {
     return list.map((m) {
       final challengeMap = m['challenge'] as Map<String, dynamic>?;
       final title = challengeMap?['title'] as String? ?? 'Sfida sconosciuta';
+      final requiresPhoto = challengeMap?['requires_photo'] as bool? ?? false;
+      final characterMap = challengeMap?['character'] as Map<String, dynamic>?;
+      final imageAsset = characterMap?['image_asset'] as String? ?? '';
       final photoPath = m['photo_path'] as String?;
       final photoUrl = (photoPath != null && photoPath.isNotEmpty)
           ? bucket.getPublicUrl(photoPath)
@@ -218,6 +224,8 @@ class ChallengeRepository {
       return ChallengeSubmissionItem(
         completedAt: DateTime.parse(m['created_at'] as String).toLocal(),
         challengeTitle: title,
+        requiresPhoto: requiresPhoto,
+        characterImageAsset: imageAsset,
         photoUrl: photoUrl,
       );
     }).toList();

@@ -1,3 +1,4 @@
+import 'package:discover/features/profile/presentation/widgets/challenge_preview_card.dart';
 import 'package:discover/features/profile/presentation/widgets/header.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class ProfilePage extends StatelessWidget {
 
   const ProfilePage({
     super.key,
+    required this.email,
     required this.username,
     this.onLogout,
     this.onEditUsername,
@@ -24,6 +26,7 @@ class ProfilePage extends StatelessWidget {
     this.onOpenChallenges,
   });
 
+  final String email;
   final String headerImage;
   final String avatarImage;
   final String username;
@@ -145,33 +148,13 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // Bottone "Challenge"
-            if (onOpenChallenges != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: onOpenChallenges,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: primary, width: 1.5),
-                      ),
-                    ),
-                    icon: const Icon(Icons.emoji_flags_outlined),
-                    label: const Text(
-                      'Challenge',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 16),
+            // Card "Challenge"
+            ChallengePreviewCard(
+              email: email,
+              onOpenChallenges: onOpenChallenges ?? () {},
+              shadow: shadow,
+            ),
+            const SizedBox(height: 32),
 
             // Bottone "Logout"
             if (onLogout != null)

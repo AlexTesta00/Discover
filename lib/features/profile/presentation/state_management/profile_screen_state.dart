@@ -168,6 +168,7 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
               await _userFuture;
             },
             child: ProfilePage(
+              email: user.email,
               headerImage: user.backgroundImage,
               avatarImage: user.avatarImage,
               username: user.username,

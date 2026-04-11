@@ -63,6 +63,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
             await _userFuture;
           },
           child: ProfilePage(
+            email: widget.email,
             headerImage: user.backgroundImage,
             avatarImage: user.avatarImage,
             username: user.username,

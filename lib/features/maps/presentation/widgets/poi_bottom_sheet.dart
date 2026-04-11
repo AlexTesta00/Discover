@@ -13,47 +13,190 @@ class PoiBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    const primary = Color(0xFFEF4565);
+    const avatarSize = 88.0;
+    const avatarOverlap = avatarSize / 2;
+
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+      child: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Avatar/immagine
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.secondaryContainer,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Header: immagine luogo + avatar personaggio ──
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.bottomCenter,
+            children: [
+              _LocationHeader(poi: poi),
+              Positioned(
+                bottom: -avatarOverlap,
+                child: _CharacterAvatar(poi: poi, size: avatarSize),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: poi.imageAsset != null
-                  ? Image.asset(poi.imageAsset!, fit: BoxFit.cover)
-                  : Icon(Icons.place, size: 36, color: theme.colorScheme.primary),
+            ],
+          ),
+
+          // spazio per l'avatar che sporge
+          const SizedBox(height: avatarOverlap + 16),
+
+          // ── Testo ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                Text(
+                  'Parla con ${poi.name}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1B1B1B),
+                  ),
+                ),
+                if (poi.subtitle != null && poi.subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    poi.subtitle!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              poi.name,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
+          ),
+
+          const SizedBox(height: 24),
+
+          // ── Bottone ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: onStart,
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: primary,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-                child: const Text('Avvia navigazione'),
+                child: const Text(
+                  'Avvia navigazione',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-          ],
+          ),
+
+          const SizedBox(height: 24),
+        ],
+      ),
+      ),
+    );
+  }
+}
+
+// ── Immagine di sfondo del luogo ────────────────────────────────────────────
+
+class _LocationHeader extends StatelessWidget {
+  final PredefinedPoi poi;
+  const _LocationHeader({required this.poi});
+
+  @override
+  Widget build(BuildContext context) {
+    const height = 180.0;
+    final img = poi.locationImage;
+
+    Widget imageWidget;
+    if (img != null && img.isNotEmpty) {
+      imageWidget = img.startsWith('http')
+          ? Image.network(img, width: double.infinity, height: height, fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => _gradientPlaceholder(height))
+          : Image.asset(img, width: double.infinity, height: height, fit: BoxFit.cover);
+    } else {
+      imageWidget = _gradientPlaceholder(height);
+    }
+
+    return Stack(
+      children: [
+        imageWidget,
+        // gradiente in basso per leggibilità
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Colors.black.withValues(alpha: 0.35)],
+                stops: const [0.5, 1.0],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _gradientPlaceholder(double height) {
+    return Container(
+      width: double.infinity,
+      height: height,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFEF4565), Color(0xFFFF8FA3)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
     );
   }
+}
+
+// ── Avatar circolare del personaggio ────────────────────────────────────────
+
+class _CharacterAvatar extends StatelessWidget {
+  final PredefinedPoi poi;
+  final double size;
+  const _CharacterAvatar({required this.poi, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final img = poi.imageAsset;
+
+    Widget inner;
+    if (img != null && img.isNotEmpty) {
+      inner = img.startsWith('http')
+          ? Image.network(img, fit: BoxFit.cover, errorBuilder: (_, _, _) => _placeholder())
+          : Image.asset(img, fit: BoxFit.cover);
+    } else {
+      inner = _placeholder();
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: inner,
+    );
+  }
+
+  Widget _placeholder() => const ColoredBox(
+        color: Color(0xFFF2F2F2),
+        child: Center(child: Icon(Icons.person, size: 36, color: Colors.black26)),
+      );
 }

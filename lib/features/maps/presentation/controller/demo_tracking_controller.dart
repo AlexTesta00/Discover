@@ -392,6 +392,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
     showModalBottomSheet(
       context: context,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -440,7 +441,8 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
     showModalBottomSheet(
       context: context,
-      isScrollControlled: false,
+      isScrollControlled: true,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

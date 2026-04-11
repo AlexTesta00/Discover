@@ -129,6 +129,7 @@ class _MapGateState extends State<MapGate> {
 
     showModalBottomSheet(
       context: context,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -179,7 +180,8 @@ class _MapGateState extends State<MapGate> {
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
-      isScrollControlled: false,
+      isScrollControlled: true,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

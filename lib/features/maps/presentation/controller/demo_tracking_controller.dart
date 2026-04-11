@@ -361,14 +361,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
       setState(() {
         _pois = characters
-            .map(
-              (c) => PredefinedPoi(
-                id: c.id,
-                name: c.name,
-                position: LatLng(c.lat, c.lng),
-                imageAsset: c.imageAsset,
-              ),
-            )
+            .map((c) => c.toPoi())
             .toList();
         _loadingPois = false;
       });

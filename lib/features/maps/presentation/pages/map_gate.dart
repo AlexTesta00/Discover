@@ -96,14 +96,7 @@ class _MapGateState extends State<MapGate> {
 
       setState(() {
         _pois = characters
-            .map(
-              (c) => PredefinedPoi(
-                id: c.id,
-                name: c.name,
-                position: LatLng(c.lat, c.lng),
-                imageAsset: c.imageAsset,
-              ),
-            )
+            .map((c) => c.toPoi())
             .toList();
         _loadingPois = false;
       });

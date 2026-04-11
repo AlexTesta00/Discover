@@ -52,17 +52,6 @@ class PoiBottomSheet extends StatelessWidget {
                     color: Color(0xFF1B1B1B),
                   ),
                 ),
-                if (poi.subtitle != null && poi.subtitle!.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    poi.subtitle!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -124,7 +113,7 @@ class _LocationHeader extends StatelessWidget {
     return Stack(
       children: [
         imageWidget,
-        // gradiente in basso per leggibilità
+        // gradiente in basso per l'avatar
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -137,6 +126,36 @@ class _LocationHeader extends StatelessWidget {
             ),
           ),
         ),
+        // gradiente in alto per il testo
+        if (poi.subtitle != null && poi.subtitle!.isNotEmpty)
+          Positioned(
+            top: 0, left: 0, right: 0,
+            child: Container(
+              height: 72,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.black.withValues(alpha: 0.45), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+        // nome del luogo
+        if (poi.subtitle != null && poi.subtitle!.isNotEmpty)
+          Positioned(
+            top: 16, left: 16, right: 16,
+            child: Text(
+              poi.subtitle!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+              ),
+            ),
+          ),
       ],
     );
   }

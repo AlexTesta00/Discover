@@ -112,14 +112,17 @@ class _ChallengeGatePageState extends State<ChallengeGatePage> {
       return c.isActive && started && notEnded;
     }
 
+    List<Challenge> result;
     switch (filter) {
       case ChallengeFilter.all:
-        return all;
+        result = List.of(all);
       case ChallengeFilter.todo:
-        return all.where((c) => isOpen(c) && !doneIds.contains(c.id)).toList();
+        result = all.where((c) => isOpen(c) && !doneIds.contains(c.id)).toList();
       case ChallengeFilter.done:
-        return all.where((c) => doneIds.contains(c.id)).toList();
+        result = all.where((c) => doneIds.contains(c.id)).toList();
     }
+    result.sort((a, b) => a.character.name.compareTo(b.character.name));
+    return result;
   }
 
   @override

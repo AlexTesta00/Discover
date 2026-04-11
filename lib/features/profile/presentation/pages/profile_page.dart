@@ -1,4 +1,4 @@
-import 'package:discover/features/profile/presentation/widgets/challenge_grid.dart';
+import 'package:discover/features/profile/presentation/widgets/challenge_preview_card.dart';
 import 'package:discover/features/profile/presentation/widgets/header.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +8,11 @@ class ProfilePage extends StatelessWidget {
   final VoidCallback? onOpenFeed;
   final VoidCallback? onLogout;
   final VoidCallback? onEditUsername;
+  final VoidCallback? onOpenChallenges;
 
   const ProfilePage({
     super.key,
+    required this.email,
     required this.username,
     this.onLogout,
     this.onEditUsername,
@@ -18,18 +20,18 @@ class ProfilePage extends StatelessWidget {
     required this.levelLabel,
     required this.headerImage,
     required this.avatarImage,
-    required this.challengeImages,
     required this.progress,
     this.onOpenFriends,
     this.onOpenFeed,
+    this.onOpenChallenges,
   });
 
+  final String email;
   final String headerImage;
   final String avatarImage;
   final String username;
   final int friendsCount;
   final String levelLabel;
-  final List<String> challengeImages;
   final double progress;
 
   @override
@@ -37,6 +39,7 @@ class ProfilePage extends StatelessWidget {
     const bg = Color(0xFFF9F7F3);
     final textColor = const Color(0xFF1B1B1B);
     final cardColor = Colors.white;
+    const primary = Color(0xFFEF4565);
     final shadow = [
       BoxShadow(
         color: Colors.black.withValues(alpha: 0.06),
@@ -145,8 +148,15 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            ChallengeGrid(images: challengeImages),
+            // Card "Challenge"
+            ChallengePreviewCard(
+              email: email,
+              onOpenChallenges: onOpenChallenges ?? () {},
+              shadow: shadow,
+            ),
             const SizedBox(height: 32),
+
+            // Bottone "Logout"
             if (onLogout != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -155,7 +165,7 @@ class ProfilePage extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onLogout,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4565),
+                      backgroundColor: primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

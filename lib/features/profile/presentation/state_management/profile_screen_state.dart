@@ -1,4 +1,4 @@
-import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
+import 'package:discover/features/challenge/presentation/pages/challenge_history_page.dart';
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
 import 'package:discover/features/friendship/presentation/state_management/friendship_gate.dart';
@@ -10,7 +10,6 @@ import 'package:discover/utils/presentation/pages/error_page.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' hide State;
-import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class ProfileScreenState extends StatefulWidget {
   final VoidCallback? onLogout;
@@ -23,7 +22,6 @@ class ProfileScreenState extends StatefulWidget {
 class _ProfileScreenStateState extends State<ProfileScreenState> {
   late Future<Either<String, User>> _userFuture;
   late int friendsCount;
-  List<String> _challengeImages = const [];
 
   @override
   void initState() {
@@ -31,15 +29,12 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
     super.initState();
   }
 
-  // --- versione con Either<String, User> ---
   Future<Either<String, User>> _load() async {
     try {
       final email = getUserEmail();
       if (email == null) {
         return left('Email non trovata');
       }
-
-      final repo = ChallengeRepository(Supabase.instance.client);
 
       final result = await Future.wait([
         getUserAvatar(),
@@ -48,7 +43,6 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         getUserBalance(),
         getMyLevel(),
         getNextLevel(),
-        repo.getUserChallengePhotoUrls(),
         getFriendsCount(),
         getUserUsername(),
       ], eagerError: true);
@@ -59,9 +53,8 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
       final userBalance = (result[3] as int?) ?? 0;
       final userLevel = (result[4] as Level?) ?? Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
       final nextLevel = (result[5] as Level?) ?? Level(grade: 0, name: 'Sconosciuto', xpToReach: 0);
-      _challengeImages = (result[6] as List<String>);
-      friendsCount = (result[7] as int);
-      final username = (result[8] as String?) ?? email.split('@').first;
+      friendsCount = (result[6] as int);
+      final username = (result[7] as String?) ?? email.split('@').first;
 
       final user = User(
         email: email,
@@ -74,8 +67,6 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
         nextLevel: nextLevel,
       );
 
-      debugPrint('DEBUG: $_challengeImages');
-
       return right(user);
     } catch (e) {
       return left('Errore durante il caricamento utente: $e');
@@ -85,7 +76,6 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
   Future<void> _showEditUsernameDialog(String currentUsername) async {
     final controller = TextEditingController(text: currentUsername);
 
-    // 1. Dialog di input — usiamo this.context (sempre valido finché mounted)
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -114,11 +104,9 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
     if (newUsername.isEmpty || newUsername == currentUsername) return;
     if (!mounted) return;
 
-    // 2. Salva riferimenti prima degli await
     final nav = Navigator.of(context, rootNavigator: true);
     final messenger = ScaffoldMessenger.of(context);
 
-    // 3. Loading dialog bloccante durante la chiamata
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -135,7 +123,6 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
       callError = e;
     }
 
-    // 4. Chiude sempre il loading, indipendentemente dall'esito
     nav.pop();
 
     if (!mounted) return;
@@ -181,17 +168,30 @@ class _ProfileScreenStateState extends State<ProfileScreenState> {
               await _userFuture;
             },
             child: ProfilePage(
+              email: user.email,
               headerImage: user.backgroundImage,
               avatarImage: user.avatarImage,
               username: user.username,
               levelLabel: 'Liv.${user.level.grade} - ${user.level.name}',
               friendsCount: friendsCount,
-              challengeImages: _challengeImages,
               progress: Level.progressToNextLevel(user.xp, user.nextLevel.xpToReach),
               onLogout: widget.onLogout,
               onEditUsername: () => _showEditUsernameDialog(user.username),
+              onOpenChallenges: () {
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (_) => ChallengeHistoryPage(
+                      email: user.email,
+                      isOwnProfile: true,
+                      username: user.username,
+                    ),
+                  ),
+                );
+              },
               onOpenFriends: () {
-                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const FriendshipGate()));
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(builder: (_) => const FriendshipGate()),
+                );
               },
               onOpenFeed: () {
                 Navigator.of(context, rootNavigator: true).push(

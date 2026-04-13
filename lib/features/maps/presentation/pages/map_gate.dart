@@ -91,15 +91,8 @@ class _MapGateState extends State<MapGate> {
   }
 
   Future<void> _loadParks() async {
-    final veneto = await loadGeoJsonPolygons(
-      'assets/geo/delta_po_veneto.geojson',
-      fillColor: const Color(0x2E4CAF50),
-      borderColor: const Color(0xBF4CAF50),
-    );
-    final emiliaRomagna = await loadGeoJsonPolygons(
-      'assets/geo/delta_po.geojson',
-    );
-    if (mounted) _mapUtils.setPolygons([...veneto, ...emiliaRomagna]);
+    final polys = await loadGeoJsonPolygons('assets/geo/delta_po.geojson');
+    if (mounted) _mapUtils.setPolygons(polys);
   }
 
   Future<void> _loadPois() async {

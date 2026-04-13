@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/point_of_interest.dart';
 import '../../domain/use_cases/map_service.dart';
+import '../../domain/use_cases/parks/geo_json_loader.dart';
 import '../../domain/use_cases/osrm_routing_provider.dart';
 import '../../domain/use_cases/routing_provider.dart';
 import '../widgets/map_view.dart';
@@ -56,7 +57,7 @@ class _MapGateState extends State<MapGate> {
     super.initState();
     _loadPois();
     _ctrl.startLocation();
-    _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
+    _loadParks();
 
     _busSub = ChallengeEventBus.I.stream.listen((e) {
       if (e is GoToMapForCharacterEvent) {
@@ -87,6 +88,18 @@ class _MapGateState extends State<MapGate> {
     _mapController.move(poi.position, 16);
 
     _onPoiTap(poi);
+  }
+
+  Future<void> _loadParks() async {
+    final veneto = await loadGeoJsonPolygons(
+      'assets/geo/delta_po_veneto.geojson',
+      fillColor: const Color(0x2E4CAF50),
+      borderColor: const Color(0xBF4CAF50),
+    );
+    final emiliaRomagna = await loadGeoJsonPolygons(
+      'assets/geo/delta_po.geojson',
+    );
+    if (mounted) _mapUtils.setPolygons([...veneto, ...emiliaRomagna]);
   }
 
   Future<void> _loadPois() async {

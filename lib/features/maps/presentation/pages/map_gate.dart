@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/point_of_interest.dart';
 import '../../domain/use_cases/map_service.dart';
+import '../../domain/use_cases/parks/geo_json_loader.dart';
 import '../../domain/use_cases/osrm_routing_provider.dart';
 import '../../domain/use_cases/routing_provider.dart';
 import '../widgets/map_view.dart';
@@ -56,7 +57,7 @@ class _MapGateState extends State<MapGate> {
     super.initState();
     _loadPois();
     _ctrl.startLocation();
-    _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
+    _loadParks();
 
     _busSub = ChallengeEventBus.I.stream.listen((e) {
       if (e is GoToMapForCharacterEvent) {
@@ -89,6 +90,11 @@ class _MapGateState extends State<MapGate> {
     _onPoiTap(poi);
   }
 
+  Future<void> _loadParks() async {
+    final polys = await loadGeoJsonPolygons('assets/geo/delta_po.geojson');
+    if (mounted) _mapUtils.setPolygons(polys);
+  }
+
   Future<void> _loadPois() async {
     try {
       final characters = await CharactersApi().getAllCharacters();
@@ -96,14 +102,7 @@ class _MapGateState extends State<MapGate> {
 
       setState(() {
         _pois = characters
-            .map(
-              (c) => PredefinedPoi(
-                id: c.id,
-                name: c.name,
-                position: LatLng(c.lat, c.lng),
-                imageAsset: c.imageAsset,
-              ),
-            )
+            .map((c) => c.toPoi())
             .toList();
         _loadingPois = false;
       });
@@ -129,6 +128,7 @@ class _MapGateState extends State<MapGate> {
 
     showModalBottomSheet(
       context: context,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -179,7 +179,8 @@ class _MapGateState extends State<MapGate> {
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
-      isScrollControlled: false,
+      isScrollControlled: true,
+      clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

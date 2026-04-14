@@ -11,6 +11,7 @@ import '../../domain/entities/point_of_interest.dart';
 import '../../domain/entities/routing_model.dart';
 import '../../domain/use_cases/live_router.dart';
 import '../../domain/use_cases/map_service.dart';
+import '../../domain/use_cases/parks/geo_json_loader.dart';
 import '../../domain/use_cases/osrm_routing_provider.dart';
 import '../../domain/use_cases/routing_provider.dart';
 
@@ -26,13 +27,10 @@ import 'package:discover/features/character/presentation/pages/character_detail_
 import 'package:discover/features/maps/presentation/pages/ar_character_page.dart';
 
 class DemoTrackingController extends ChangeNotifier {
-  DemoTrackingController({
-    required MapController mapController,
-    required MapService mapService,
-    required RoutingProvider routingProvider,
-  }) : _mapController = mapController,
-       _mapUtils = mapService,
-       _routing = routingProvider;
+  DemoTrackingController({required MapController mapController, required MapService mapService, required RoutingProvider routingProvider})
+    : _mapController = mapController,
+      _mapUtils = mapService,
+      _routing = routingProvider;
 
   final MapController _mapController;
   final MapService _mapUtils;
@@ -43,8 +41,7 @@ class DemoTrackingController extends ChangeNotifier {
   LatLng? _userLatLng;
   LatLng? get userLatLng => _userLatLng;
 
-  final StreamController<LatLng> _posCtrl =
-      StreamController<LatLng>.broadcast();
+  final StreamController<LatLng> _posCtrl = StreamController<LatLng>.broadcast();
   Stream<LatLng> get positionStream => _posCtrl.stream;
 
   LiveRouter? _liveRouter;
@@ -130,8 +127,7 @@ class DemoTrackingController extends ChangeNotifier {
 
   bool isNearPoi(PredefinedPoi poi, {double toleranceMeters = 20}) {
     if (_userLatLng == null) return false;
-    return _dist.as(LengthUnit.Meter, _userLatLng!, poi.position) <=
-        toleranceMeters;
+    return _dist.as(LengthUnit.Meter, _userLatLng!, poi.position) <= toleranceMeters;
   }
 
   void selectPoi(PredefinedPoi poi) {
@@ -176,9 +172,7 @@ class DemoTrackingController extends ChangeNotifier {
       if (_remainingRoute.isNotEmpty) {
         final bounds = LatLngBounds.fromPoints(_remainingRoute);
         _safe(() {
-          _mapController.fitCamera(
-            CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(32)),
-          );
+          _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(32)));
         });
       }
 
@@ -209,11 +203,7 @@ class DemoTrackingController extends ChangeNotifier {
 
   void _onPosition(LatLng newPos) {
     if (_lastUserPosForTrim != null) {
-      _metersSinceLastTrim += _dist.as(
-        LengthUnit.Meter,
-        _lastUserPosForTrim!,
-        newPos,
-      );
+      _metersSinceLastTrim += _dist.as(LengthUnit.Meter, _lastUserPosForTrim!, newPos);
     }
     _lastUserPosForTrim = newPos;
 
@@ -237,16 +227,11 @@ class DemoTrackingController extends ChangeNotifier {
     const thresholdMeters = 15.0;
     const arriveMeters = 20.0;
 
-    while (_remainingRoute.length > 1 &&
-        _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) <
-            thresholdMeters) {
+    while (_remainingRoute.length > 1 && _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first) < thresholdMeters) {
       _remainingRoute.removeAt(0);
     }
 
-    if (!_arrivalShown &&
-        (_remainingRoute.length <= 1 ||
-            _dist.as(LengthUnit.Meter, userPos, _remainingRoute.last) <=
-                arriveMeters)) {
+    if (!_arrivalShown && (_remainingRoute.length <= 1 || _dist.as(LengthUnit.Meter, userPos, _remainingRoute.last) <= arriveMeters)) {
       _arrivalShown = true;
       final poi = _selectedPoi;
       stopTracking();
@@ -265,11 +250,7 @@ class DemoTrackingController extends ChangeNotifier {
 
     double left = _dist.as(LengthUnit.Meter, userPos, _remainingRoute.first);
     for (int i = 0; i < _remainingRoute.length - 1; i++) {
-      left += _dist.as(
-        LengthUnit.Meter,
-        _remainingRoute[i],
-        _remainingRoute[i + 1],
-      );
+      left += _dist.as(LengthUnit.Meter, _remainingRoute[i], _remainingRoute[i + 1]);
     }
 
     _remainMeters = left.clamp(0, double.infinity);
@@ -318,7 +299,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
     // niente move qui: ci pensa initialCenter/initialZoom del MapView
     _ctrl.setInitialUser(_demoStart);
 
-    _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
+    _loadParks();
     _loadPois();
 
     _busSub = ChallengeEventBus.I.stream.listen((e) {
@@ -339,10 +320,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
   void _focusPoiByCharacterId(String characterId) {
     if (_pois.isEmpty) return;
 
-    final poi = _pois
-        .where((p) => p.id == characterId)
-        .cast<PredefinedPoi?>()
-        .firstOrNull;
+    final poi = _pois.where((p) => p.id == characterId).cast<PredefinedPoi?>().firstOrNull;
     if (poi == null) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -353,6 +331,11 @@ class _MapDemoGateState extends State<MapDemoGate> {
     _onPoiTap(poi);
   }
 
+  Future<void> _loadParks() async {
+    final polys = await loadGeoJsonPolygons('assets/geo/delta_po.geojson');
+    if (mounted) _mapUtils.setPolygons(polys);
+  }
+
   Future<void> _loadPois() async {
     try {
       final characters = await CharactersApi().getAllCharacters();
@@ -360,16 +343,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
       _charactersById = {for (final c in characters) c.id: c};
 
       setState(() {
-        _pois = characters
-            .map(
-              (c) => PredefinedPoi(
-                id: c.id,
-                name: c.name,
-                position: LatLng(c.lat, c.lng),
-                imageAsset: c.imageAsset,
-              ),
-            )
-            .toList();
+        _pois = characters.map((c) => c.toPoi()).toList();
         _loadingPois = false;
       });
     } catch (e) {
@@ -392,9 +366,8 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      clipBehavior: Clip.antiAlias,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiBottomSheet(
         poi: poi,
         onStart: () {
@@ -414,21 +387,13 @@ class _MapDemoGateState extends State<MapDemoGate> {
       final repo = ChallengeRepository(client);
 
       try {
-        final (submissionId, wasNew) = await repo
-            .completeTalkChallengeForCharacter(poi.id);
+        final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
 
         if (submissionId != null && wasNew) {
           final allChallenges = await repo.fetchAllWithCharacter();
-          final challenge = allChallenges.firstWhere(
-            (c) => c.characterId == poi.id && c.requiresPhoto == false,
-          );
+          final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
 
-          bus.publish(
-            ChallengeCompletedEvent(
-              submissionId: submissionId,
-              challenge: challenge,
-            ),
-          );
+          bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
         }
       } catch (e) {
         debugPrint('Errore completamento challenge RPC: $e');
@@ -440,10 +405,9 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
     showModalBottomSheet(
       context: context,
-      isScrollControlled: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: true,
+      clipBehavior: Clip.antiAlias,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiArrivalSheet(
         poi: poi,
         onReadStory: () async {
@@ -454,11 +418,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (_) => CharacterDetailPage(character: character),
-              ),
-            );
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => CharacterDetailPage(character: character)));
           } else {
             _showSnack('Dati del personaggio non disponibili.');
           }
@@ -467,11 +427,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
           Navigator.of(ctx).pop();
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (_) => ARCharacterPage(character: character),
-              ),
-            );
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => ARCharacterPage(character: character)));
           } else {
             _showSnack('Dati del personaggio non disponibili.');
           }
@@ -489,9 +445,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
-        final showBanner =
-            _ctrl.isTracking &&
-            (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
+        final showBanner = _ctrl.isTracking && (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
 
         return Scaffold(
           body: Stack(
@@ -507,19 +461,9 @@ class _MapDemoGateState extends State<MapDemoGate> {
               ),
 
               if (_pois.isNotEmpty)
-                OffScreenPoiIndicators(
-                  mapController: _mapController,
-                  pois: _pois,
-                  userLatLng: _ctrl.userLatLng,
-                  onTap: _onPoiTap,
-                ),
+                OffScreenPoiIndicators(mapController: _mapController, pois: _pois, userLatLng: _ctrl.userLatLng, onTap: _onPoiTap),
 
-              EtaBanner(
-                visible: showBanner,
-                remainMeters: _ctrl.remainMeters,
-                etaSeconds: _ctrl.etaSeconds,
-                onStop: _ctrl.stopTracking,
-              ),
+              EtaBanner(visible: showBanner, remainMeters: _ctrl.remainMeters, etaSeconds: _ctrl.etaSeconds, onStop: _ctrl.stopTracking),
 
               Positioned(
                 right: 12,
@@ -548,13 +492,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
                 ),
               ),
 
-              if (_loadingPois)
-                const Positioned(
-                  top: 60,
-                  left: 0,
-                  right: 0,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
+              if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: Center(child: CircularProgressIndicator())),
 
               if (_poisError != null)
                 Positioned(
@@ -565,14 +503,8 @@ class _MapDemoGateState extends State<MapDemoGate> {
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'Errore: $_poisError',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text('Errore: $_poisError', style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

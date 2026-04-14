@@ -5,11 +5,15 @@ class PredefinedPoi {
   final String name;
   final LatLng position;
   final String? imageAsset;
+  final String? locationImage;
+  final String? subtitle;
 
   const PredefinedPoi({
     required this.id,
     required this.name,
     required this.position,
     this.imageAsset,
+    this.locationImage,
+    this.subtitle,
   });
 }

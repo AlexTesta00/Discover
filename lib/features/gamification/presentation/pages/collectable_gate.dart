@@ -441,7 +441,7 @@ class _WheelCarouselState extends State<_WheelCarousel> {
               snapTimeInMillis: _snapMs,
               timeForFullRevolution: 6000,
               isDragInteractive: true,
-              shouldRotate: true,
+              shouldRotate: false,
               clockwise: true,
               spinAxis: Axis.horizontal,
               onValueChanged: _onValueChanged,

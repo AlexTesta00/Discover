@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:discover/features/gamification/domain/use_cases/collectible_service.dart';
+import 'package:flutter_3d_carousel/flutter_3d_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:discover/features/gamification/domain/entities/collectible.dart';
@@ -55,20 +58,13 @@ class _CollectibleGateState extends State<CollectibleGate> {
             return const Center(child: Text('Nessun collezionabile.'));
           }
 
-          return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            physics: const BouncingScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
+          final unlockedCount = items.where((e) => e.unlocked).length;
+          return SizedBox.expand(
+            child: _WheelCarousel(
+              items: items.map((item) => _CollectibleTile(item: item)).toList(),
+              unlockedCount: unlockedCount,
+              totalCount: items.length,
             ),
-            itemCount: items.length,
-            itemBuilder: (context, i) {
-              final item = items[i];
-              return _CollectibleTile(item: item);
-            },
           );
         },
       ),
@@ -201,11 +197,7 @@ class _CollectibleInteractive3DDialogState
     with SingleTickerProviderStateMixin {
   Offset _tilt = Offset.zero;
 
-  late final AnimationController _returnCtrl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 260),
-  );
-
+  late final AnimationController _returnCtrl;
   late Animation<Offset> _returnAnim;
 
   static const _grayMatrix = <double>[
@@ -214,6 +206,15 @@ class _CollectibleInteractive3DDialogState
     0.2126, 0.7152, 0.0722, 0, 0,
     0,      0,      0,      1, 0,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _returnCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+  }
 
   @override
   void dispose() {
@@ -372,6 +373,122 @@ class _Card3DFrame extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── 3D Wheel Carousel ────────────────────────────────────────────────────────
+
+class _WheelCarousel extends StatefulWidget {
+  const _WheelCarousel({
+    required this.items,
+    required this.unlockedCount,
+    required this.totalCount,
+  });
+
+  final List<Widget> items;
+  final int unlockedCount;
+  final int totalCount;
+
+  @override
+  State<_WheelCarousel> createState() => _WheelCarouselState();
+}
+
+class _WheelCarouselState extends State<_WheelCarousel> {
+  int _current = 0;
+  int _pending = 0;
+
+  static const _snapMs = 280;
+
+  void _onValueChanged(double raw) {
+    // Il valore cresce continuamente (anche oltre totalCount per via
+    // dell'auto-rotazione), quindi usiamo il modulo per tornare all'indice.
+    final n = widget.totalCount;
+    // onValueChanged restituisce radianti (0–2π per giro completo).
+    // Convertiamo in indice: raw / 2π * n, poi modulo per wrap-around.
+    final idx = (((raw / (2 * pi)) * n).round() % n + n) % n;
+    _pending = idx;
+    Future.delayed(const Duration(milliseconds: _snapMs + 40), () {
+      if (mounted && _pending != _current) {
+        setState(() => _current = _pending);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final primary = Theme.of(context).colorScheme.primary;
+    final children = widget.items.map((w) => CarouselChild(child: w)).toList();
+    final total = widget.totalCount;
+
+    // Mostra max 12 dots; se ci sono più elementi usa solo il testo
+    final showDots = total <= 12;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      child: Column(
+        children: [
+          // ── Carosello ──────────────────────────────────────────
+          Expanded(
+            child: CarouselWidget3D(
+              children: children,
+              radius: size.height * 0.21,
+              childScale: 0.78,
+              perspectiveStrength: 0.0006,
+              dragSensitivity: 1.2,
+              snapTimeInMillis: _snapMs,
+              timeForFullRevolution: 6000,
+              isDragInteractive: true,
+              shouldRotate: true,
+              clockwise: true,
+              spinAxis: Axis.horizontal,
+              onValueChanged: _onValueChanged,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // ── Dots ───────────────────────────────────────────────
+          if (showDots) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(total, (i) {
+                final active = i == _current;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: active ? 18 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    color: active ? primary : Colors.black12,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          // ── Contatore sbloccati ────────────────────────────────
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 15, color: Colors.black45),
+              children: [
+                TextSpan(
+                  text: '${widget.unlockedCount}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: primary,
+                  ),
+                ),
+                TextSpan(text: ' / $total sbloccate'),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

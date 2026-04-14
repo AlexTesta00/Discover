@@ -58,7 +58,7 @@ flutter:
     - assets/shop/
     - assets/background/
     - assets/characters/
-    - assets/stickers/
+    - assets/cards/
     - assets/places/
     - assets/geo/
     - .env

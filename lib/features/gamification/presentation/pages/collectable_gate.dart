@@ -197,11 +197,7 @@ class _CollectibleInteractive3DDialogState
     with SingleTickerProviderStateMixin {
   Offset _tilt = Offset.zero;
 
-  late final AnimationController _returnCtrl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 260),
-  );
-
+  late final AnimationController _returnCtrl;
   late Animation<Offset> _returnAnim;
 
   static const _grayMatrix = <double>[
@@ -210,6 +206,15 @@ class _CollectibleInteractive3DDialogState
     0.2126, 0.7152, 0.0722, 0, 0,
     0,      0,      0,      1, 0,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _returnCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+  }
 
   @override
   void dispose() {

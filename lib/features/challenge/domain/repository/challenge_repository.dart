@@ -231,28 +231,31 @@ class ChallengeRepository {
     final user = client.auth.currentUser;
     if (user == null) throw const AuthException('Non autenticato');
 
-    final response = await client
-        .rpc(
-          'complete_challenge_for_character',
-          params: {'p_character_id': characterId},
-        )
-        .select()
+    final row = await client
+        .from('challenges')
+        .select('id')
+        .eq('character_id', characterId)
+        .eq('requires_photo', false)
         .maybeSingle();
 
-    if (response == null) {
-      throw Exception('Nessun risultato restituito dalla RPC.');
-    }
-
-    final submissionId = response['submission_id'] as String?;
-    final wasNew = response['was_new'] as bool? ?? false;
-
-    // Se non c'è submissionId → significa che la challenge non esiste per quel personaggio
-    if (submissionId == null) {
+    final challengeId = row?['id'] as String?;
+    if (challengeId == null) {
       debugPrint(
         'Nessuna challenge di dialogo trovata per personaggio $characterId',
       );
       return (null, false);
     }
+
+    final completedIds = await fetchCompletedIds();
+    final wasNew = !completedIds.contains(challengeId);
+
+    final submissionId = await insertChallengeSubmission(
+      challengeId: challengeId,
+      photoMeta: {
+        'source': 'dialogue',
+        'character_id': characterId,
+      },
+    );
 
     return (submissionId, wasNew);
   }

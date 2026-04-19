@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:discover/features/user/domain/use_cases/user_service.dart';
 
 class BalanceNotifier {
   BalanceNotifier._();
@@ -18,9 +17,13 @@ class BalanceNotifier {
     final row = await Supabase.instance.client
         .from('user_profiles')
         .select('balance')
-        .eq('email', getUserEmail()!)
+        .eq('user_id', me.id)
         .maybeSingle();
 
     balance.value = (row?['balance'] as num?)?.toInt() ?? 0;
+  }
+
+  void applyDelta(int delta) {
+    balance.value = (balance.value + delta).clamp(0, 1 << 31);
   }
 }

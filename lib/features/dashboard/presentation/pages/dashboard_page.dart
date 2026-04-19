@@ -59,6 +59,8 @@ class _DashboardPageState extends State<DashboardPage> {
               balance: e.challenge.fenicotteri,
             );
 
+            BalanceNotifier.I.applyDelta(e.challenge.fenicotteri);
+
             if (mounted) {
               await showSuccessChallengeModal(context, challenge: e.challenge);
             }

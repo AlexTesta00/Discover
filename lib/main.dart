@@ -13,6 +13,7 @@ import 'package:discover/features/onboarding/presentation/pages/onboarding_scree
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:discover/utils/domain/use_cases/show_modal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -22,6 +23,13 @@ final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
   await dotenv.load(fileName: '.env');
   await initializeDateFormatting('it_IT', null);
   await Supabase.initialize(

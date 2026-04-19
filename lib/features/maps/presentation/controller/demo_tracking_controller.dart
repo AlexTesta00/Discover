@@ -468,45 +468,43 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
               EtaBanner(visible: showBanner, remainMeters: _ctrl.remainMeters, etaSeconds: _ctrl.etaSeconds, onStop: _ctrl.stopTracking),
 
-              // Bottoni navigazione — in basso a sinistra
-              Positioned(
-                right: 12,
-                top: 24,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FloatingActionButton.small(
-                      heroTag: 'demo_center_user',
-                      onPressed: _ctrl.centerOnUser,
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      elevation: 4,
-                      child: const Icon(Icons.my_location),
-                    ),
-                    const SizedBox(height: 12),
-                    FloatingActionButton.small(
-                      heroTag: 'demo_reset_north',
-                      onPressed: _ctrl.resetRotationNorth,
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      elevation: 4,
-                      child: const Icon(Icons.explore),
-                    ),
-                  ],
-                ),
-              ),
-
-              // FAB fotocamera — in basso a destra
+              // Controlli mappa + FAB fotocamera — in basso a destra
               Positioned(
                 right: 16,
-                bottom: 24,
-                child: FloatingActionButton(
-                  heroTag: 'demo_take_photo',
-                  onPressed: _openPhotoChallengeDialog,
-                  backgroundColor: const Color(0xFFF34E6C),
-                  foregroundColor: Colors.white,
-                  elevation: 6,
-                  child: const Icon(Icons.photo_camera),
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FloatingActionButton.small(
+                        heroTag: 'demo_center_user',
+                        onPressed: _ctrl.centerOnUser,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        elevation: 4,
+                        child: const Icon(Icons.my_location),
+                      ),
+                      const SizedBox(height: 12),
+                      FloatingActionButton.small(
+                        heroTag: 'demo_reset_north',
+                        onPressed: _ctrl.resetRotationNorth,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        elevation: 4,
+                        child: const Icon(Icons.explore),
+                      ),
+                      const SizedBox(height: 12),
+                      FloatingActionButton(
+                        heroTag: 'demo_take_photo',
+                        onPressed: _openPhotoChallengeDialog,
+                        backgroundColor: const Color(0xFFF34E6C),
+                        foregroundColor: Colors.white,
+                        elevation: 6,
+                        child: const Icon(Icons.photo_camera),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 

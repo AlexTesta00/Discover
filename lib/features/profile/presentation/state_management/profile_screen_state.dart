@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_history_page.dart';
 import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/events/presentation/pages/feed_gate.dart';
@@ -22,11 +25,25 @@ class ProfileScreenState extends StatefulWidget {
 class _ProfileScreenStateState extends State<ProfileScreenState> {
   late Future<Either<String, User>> _userFuture;
   late int friendsCount;
+  StreamSubscription? _busSub;
 
   @override
   void initState() {
-    _userFuture = _load();
     super.initState();
+    _userFuture = _load();
+    _busSub = ChallengeEventBus.I.stream.listen((event) {
+      if (event is ChallengeCompletedEvent && mounted) {
+        setState(() {
+          _userFuture = _load();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _busSub?.cancel();
+    super.dispose();
   }
 
   Future<Either<String, User>> _load() async {

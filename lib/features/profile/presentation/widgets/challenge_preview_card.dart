@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/entities/challenge_submission_item.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:flutter/material.dart';
@@ -21,11 +24,33 @@ class ChallengePreviewCard extends StatefulWidget {
 
 class _ChallengePreviewCardState extends State<ChallengePreviewCard> {
   late Future<List<ChallengeSubmissionItem>> _future;
+  StreamSubscription? _busSub;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _busSub = ChallengeEventBus.I.stream.listen((event) {
+      if (event is ChallengeCompletedEvent && mounted) {
+        setState(() {
+          _future = _load();
+        });
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ChallengePreviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.email != widget.email) {
+      _future = _load();
+    }
+  }
+
+  @override
+  void dispose() {
+    _busSub?.cancel();
+    super.dispose();
   }
 
   Future<List<ChallengeSubmissionItem>> _load() async {

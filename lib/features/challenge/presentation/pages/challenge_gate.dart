@@ -4,9 +4,6 @@ import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
 import 'package:discover/features/challenge/presentation/widgets/challenge_card.dart';
 import 'package:discover/features/challenge/presentation/widgets/challenge_filter_bar.dart';
-import 'package:discover/features/challenge/presentation/widgets/modal_success_challenge.dart';
-import 'package:discover/features/events/domain/use_cases/event_service.dart';
-import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -39,21 +36,8 @@ class _ChallengeGatePageState extends State<ChallengeGatePage> {
     _busSub = ChallengeEventBus.I.stream.listen((e) async {
       if (e is ChallengeCompletedEvent) {
         try {
-          // 1) assegna XP + Fenicotteri all’utente
-          await addXpAndBalance(
-            xp: e.challenge.xp,
-            balance: e.challenge.fenicotteri,
-          );
-
-          // 2) mostra il modale di successo
-          if (mounted) {
-            await showSuccessChallengeModal(context, challenge: e.challenge);
-          }
-
-          // 3) Aggiorna gli amici
-          await addEvent("Ha completato la challenge '${e.challenge.title}'!");
-
-          // 4) ricarica la lista
+          // La UI di successo viene gestita a livello Dashboard,
+          // così resta visibile anche quando la challenge parte da altre tab.
           await _load();
         } catch (err) {
           if (mounted) {
@@ -61,12 +45,6 @@ class _ChallengeGatePageState extends State<ChallengeGatePage> {
               SnackBar(content: Text('Errore aggiornamento profilo: $err')),
             );
           }
-        }
-      } else if (e is ChallengeCompletionFailedEvent) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Invio fallito: ${e.error}')),
-          );
         }
       }
     });

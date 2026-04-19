@@ -36,13 +36,23 @@ class ChallengeEventBus {
 class ChallengeCompletedEvent extends ChallengeEvent {
   final String submissionId;
   final Challenge challenge;
-  const ChallengeCompletedEvent({required this.submissionId, required this.challenge});
+  final bool isFirstCompletion;
+  const ChallengeCompletedEvent({
+    required this.submissionId,
+    required this.challenge,
+    this.isFirstCompletion = true,
+  });
 }
 
 class ChallengeCompletionFailedEvent extends ChallengeEvent {
   final Challenge challenge;
   final Object error;
   const ChallengeCompletionFailedEvent({required this.challenge, required this.error});
+}
+
+class PhotoChallengeProcessingEvent extends ChallengeEvent {
+  final bool isProcessing;
+  const PhotoChallengeProcessingEvent({required this.isProcessing});
 }
 
 class CharacterArrivedEvent extends ChallengeEvent {

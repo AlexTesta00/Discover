@@ -4,7 +4,9 @@ import 'package:discover/features/authentication/domain/use_cases/authentication
 import 'package:discover/features/authentication/presentation/state_management/authentication_gate.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/presentation/pages/challenge_gate.dart';
+import 'package:discover/features/challenge/presentation/widgets/modal_success_challenge.dart';
 import 'package:discover/features/dashboard/presentation/widgets/balance_pill.dart';
+import 'package:discover/features/events/domain/use_cases/event_service.dart';
 import 'package:discover/features/gamification/presentation/pages/collectable_gate.dart';
 import 'package:discover/features/maps/presentation/controller/demo_tracking_controller.dart';
 import 'package:discover/features/profile/presentation/state_management/profile_screen_state.dart';
@@ -28,6 +30,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   final _controller = PersistentTabController(initialIndex: 0);
   bool _loggingOut = false;
+  bool _photoChallengeProcessing = false;
   StreamSubscription? _busSub;
   String? _levelShort;
   final GlobalKey _rightKey = GlobalKey();
@@ -49,8 +52,42 @@ class _DashboardPageState extends State<DashboardPage> {
       }
 
       if (e is ChallengeCompletedEvent) {
-        await BalanceNotifier.I.refresh();
-        _loadLevel();
+        try {
+          if (e.isFirstCompletion) {
+            await addXpAndBalance(
+              xp: e.challenge.xp,
+              balance: e.challenge.fenicotteri,
+            );
+
+            if (mounted) {
+              await showSuccessChallengeModal(context, challenge: e.challenge);
+            }
+
+            await addEvent(
+              "Ha completato la challenge '${e.challenge.title}'!",
+            );
+          }
+
+          await BalanceNotifier.I.refresh();
+          await _loadLevel();
+        } catch (err) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Errore aggiornamento profilo: $err')),
+          );
+        }
+      }
+
+      if (e is ChallengeCompletionFailedEvent) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invio sfida fallito: ${e.error}')),
+        );
+      }
+
+      if (e is PhotoChallengeProcessingEvent) {
+        if (!mounted) return;
+        setState(() => _photoChallengeProcessing = e.isProcessing);
       }
     });
 
@@ -300,33 +337,69 @@ class _DashboardPageState extends State<DashboardPage> {
             ],
           ),
         ),
-        body: PersistentTabView(
-          controller: _controller,
-          onTabChanged: (index) => setState(() => _currentIndex = index),
-          handleAndroidBackButtonPress: false,
-          tabs: [
-            PersistentTabConfig(
-              screen: const MapDemoGate(),
-              item: ItemConfig(icon: const Icon(Icons.map), title: 'Mappa', activeForegroundColor: AppTheme.primaryColor),
+        body: Stack(
+          children: [
+            PersistentTabView(
+              controller: _controller,
+              onTabChanged: (index) => setState(() => _currentIndex = index),
+              handleAndroidBackButtonPress: false,
+              tabs: [
+                PersistentTabConfig(
+                  screen: const MapDemoGate(),
+                  item: ItemConfig(icon: const Icon(Icons.map), title: 'Mappa', activeForegroundColor: AppTheme.primaryColor),
+                ),
+                PersistentTabConfig(
+                  screen: const ChallengeGatePage(),
+                  item: ItemConfig(icon: const Icon(Icons.emoji_flags_outlined), title: 'Sfide', activeForegroundColor: AppTheme.primaryColor),
+                ),
+                PersistentTabConfig(
+                  screen: ProfileScreenState(onLogout: logout),
+                  item: ItemConfig(icon: const Icon(Icons.account_circle), title: 'Profilo', activeForegroundColor: AppTheme.primaryColor),
+                ),
+                PersistentTabConfig(
+                  screen: const CollectibleGate(),
+                  item: ItemConfig(icon: const Icon(Icons.stars_sharp), title: 'Album', activeForegroundColor: AppTheme.primaryColor),
+                ),
+                PersistentTabConfig(
+                  screen: const ShopGate(),
+                  item: ItemConfig(icon: const Icon(Icons.store), title: 'Negozio', activeForegroundColor: AppTheme.primaryColor),
+                ),
+              ],
+              navBarBuilder: (navBarConfig) => Style2BottomNavBar(navBarConfig: navBarConfig),
             ),
-            PersistentTabConfig(
-              screen: const ChallengeGatePage(),
-              item: ItemConfig(icon: const Icon(Icons.emoji_flags_outlined), title: 'Sfide', activeForegroundColor: AppTheme.primaryColor),
-            ),
-            PersistentTabConfig(
-              screen: ProfileScreenState(onLogout: logout),
-              item: ItemConfig(icon: const Icon(Icons.account_circle), title: 'Profilo', activeForegroundColor: AppTheme.primaryColor),
-            ),
-            PersistentTabConfig(
-              screen: const CollectibleGate(),
-              item: ItemConfig(icon: const Icon(Icons.stars_sharp), title: 'Album', activeForegroundColor: AppTheme.primaryColor),
-            ),
-            PersistentTabConfig(
-              screen: const ShopGate(),
-              item: ItemConfig(icon: const Icon(Icons.store), title: 'Negozio', activeForegroundColor: AppTheme.primaryColor),
-            ),
+            if (_photoChallengeProcessing)
+              Positioned.fill(
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: ColoredBox(
+                    color: Colors.black38,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text(
+                              'Stiamo analizzando e inviando la foto...',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
-          navBarBuilder: (navBarConfig) => Style2BottomNavBar(navBarConfig: navBarConfig),
         ),
       ),
     );

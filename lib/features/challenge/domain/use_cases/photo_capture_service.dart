@@ -14,8 +14,12 @@ class PhotoCaptureService {
     // 1) Permessi
     final status = await Permission.camera.request();
     if (!status.isGranted) {
-      // opzionale: apri impostazioni
-      return null;
+      if (status.isPermanentlyDenied || status.isRestricted) {
+        throw Exception(
+          'Accesso alla fotocamera negato. Abilitalo dalle Impostazioni di iPhone.',
+        );
+      }
+      throw Exception('Accesso alla fotocamera non concesso.');
     }
 
     // 2) Fotocamera

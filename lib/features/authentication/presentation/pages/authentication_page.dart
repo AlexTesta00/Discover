@@ -210,6 +210,8 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               ),
             ),
             obscureText: true,
+            autocorrect: false,
+            enableSuggestions: false,
           ),
           const SizedBox(height: 20),
           ElevatedButton(
@@ -275,28 +277,20 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               ),
             ),
           ),
-          const SizedBox(height: 60),
+          const SizedBox(height: 40),
+          const Divider(thickness: 1, color: Colors.black12),
+          const SizedBox(height: 12),
+          const Text(
+            'Powered by',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 16,
+            child: Image.asset('assets/icons/logo.webp', fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 30),
         ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(bottom: 30, top: 12),
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.black12)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Powered by',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 6),
-            SizedBox(
-              height: 16,
-              child: Image.asset('assets/icons/logo.webp', fit: BoxFit.contain),
-            ),
-          ],
-        ),
       ),
     );
   }

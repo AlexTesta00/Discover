@@ -60,8 +60,10 @@ class ChallengeRepository {
         .toList();
   }
 
-  /// Invia una submission con eventuale foto
-  Future<String> submitChallenge({
+  /// Inserisce SEMPRE una nuova submission (non fa upsert).
+  /// Usato quando si vuole poter completare più volte la stessa challenge
+  /// salvando ogni foto come riga separata in challenge_submissions.
+  Future<String> insertChallengeSubmission({
     required String challengeId,
     File? photoFile,
     Map<String, dynamic>? photoMeta,
@@ -76,48 +78,40 @@ class ChallengeRepository {
     if (photoFile != null) {
       final ext = photoFile.path.split('.').last.toLowerCase();
       final filename = const Uuid().v4();
-
-      // Usa l'email come 2° segmento per rispettare la policy
       photoPath = '$challengeId/$email/$filename.$ext';
-
       await client.storage
           .from('challenge-submissions')
           .upload(photoPath, photoFile);
     }
 
-    try {
-      final upsert = await client
-          .from('challenge_submissions')
-          .upsert({
-            'user_email': email,
-            'challenge_id': challengeId,
-            'note': note.isNotEmpty ? note : null,
-            'photo_path': photoPath,
-            'photo_meta': photoMeta ?? {},
-          }, onConflict: 'user_email,challenge_id')
-          .select()
-          .single();
+    final inserted = await client
+        .from('challenge_submissions')
+        .insert({
+          'user_email': email,
+          'challenge_id': challengeId,
+          'note': note.isNotEmpty ? note : null,
+          'photo_path': photoPath,
+          'photo_meta': photoMeta ?? {},
+        })
+        .select()
+        .single();
 
-      return upsert['id'] as String;
-    } on PostgrestException catch (e) {
-      // 🔥 Intercetta il caso "duplicate key" ed evita di rilanciare
-      if (e.message.contains('duplicate key value') ||
-          e.code == '23505' ||
-          e.message.toLowerCase().contains('unique constraint')) {
-        // Potresti anche fare una select per ottenere l’id già esistente:
-        final existing = await client
-            .from('challenge_submissions')
-            .select('id')
-            .eq('user_email', email)
-            .eq('challenge_id', challengeId)
-            .maybeSingle();
-        if (existing != null && existing['id'] != null) {
-          return existing['id'] as String;
-        }
-        return '';
-      }
-      rethrow; // altri errori veri li rilancia
-    }
+    return inserted['id'] as String;
+  }
+
+  /// Invia una submission con eventuale foto
+  Future<String> submitChallenge({
+    required String challengeId,
+    File? photoFile,
+    Map<String, dynamic>? photoMeta,
+    String note = '',
+  }) async {
+    return insertChallengeSubmission(
+      challengeId: challengeId,
+      photoFile: photoFile,
+      photoMeta: photoMeta,
+      note: note,
+    );
   }
 
   // Restituisce le URL PUBBLICHE di tutte le foto challenge per l'utente [email].

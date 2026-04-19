@@ -46,6 +46,7 @@ void _initEventStream() {
 
   // Listener per foto catturate
   bus.stream.where((e) => e is PhotoCapturedEvent).cast<PhotoCapturedEvent>().listen((e) async {
+    bus.publish(const PhotoChallengeProcessingEvent(isProcessing: true));
     try {
       // 1) etichetta immagine con MLKit
       final mlLabels = await labelService.labelsFor(e.file);
@@ -66,7 +67,10 @@ void _initEventStream() {
         return;
       }
 
-      // ✅ valida: procedi con submit (upload + DB), includi le ml labels nei meta
+      // ✅ valida: controlla se e' la prima volta PRIMA di fare submit
+      final completedIds = await repo.fetchCompletedIds();
+      final isFirst = !completedIds.contains(e.challenge.id);
+
       final submissionId = await repo.submitChallenge(
         challengeId: e.challenge.id,
         photoFile: e.file,
@@ -74,9 +78,15 @@ void _initEventStream() {
       );
 
       // 3) pubblica completata (il tuo altro listener premierà + mostrerà il modale success)
-      bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: e.challenge));
+      bus.publish(ChallengeCompletedEvent(
+        submissionId: submissionId,
+        challenge: e.challenge,
+        isFirstCompletion: isFirst,
+      ));
     } catch (err) {
       bus.publish(ChallengeCompletionFailedEvent(challenge: e.challenge, error: err));
+    } finally {
+      bus.publish(const PhotoChallengeProcessingEvent(isProcessing: false));
     }
   });
 

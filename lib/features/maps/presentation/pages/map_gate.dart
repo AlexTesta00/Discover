@@ -1,6 +1,13 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
+import 'package:discover/features/challenge/domain/use_cases/photo_capture_service.dart';
+import 'package:discover/features/challenge/domain/use_cases/photo_label_service.dart';
+import 'package:discover/features/challenge/presentation/widgets/modal_not_completed.dart';
+import 'package:discover/features/challenge/utils/utils.dart';
+import 'package:discover/features/maps/presentation/widgets/photo_challenge_picker_dialog.dart';
 import 'package:discover/features/maps/presentation/controller/tracking_controller.dart';
 import 'package:discover/features/maps/presentation/pages/ar_character_page.dart';
 import 'package:discover/features/maps/presentation/widgets/banner.dart';
@@ -40,11 +47,8 @@ class _MapGateState extends State<MapGate> {
   final MapService _mapUtils = MapService();
   final RoutingProvider _routing = OSRMRoutingProvider();
 
-  late final TrackingController _ctrl = TrackingController(
-    mapController: _mapController,
-    mapService: _mapUtils,
-    routingProvider: _routing,
-  )..onArrived = _showArrivalModal;
+  late final TrackingController _ctrl = TrackingController(mapController: _mapController, mapService: _mapUtils, routingProvider: _routing)
+    ..onArrived = _showArrivalModal;
 
   // POI & characters
   List<PredefinedPoi> _pois = [];
@@ -77,10 +81,7 @@ class _MapGateState extends State<MapGate> {
   void _focusPoiByCharacterId(String characterId) {
     if (_pois.isEmpty) return;
 
-    final poi = _pois
-        .where((p) => p.id == characterId)
-        .cast<PredefinedPoi?>()
-        .firstOrNull;
+    final poi = _pois.where((p) => p.id == characterId).cast<PredefinedPoi?>().firstOrNull;
     if (poi == null) return;
 
     setState(() => _highlightPoiId = poi.id);
@@ -99,11 +100,8 @@ class _MapGateState extends State<MapGate> {
     try {
       final characters = await CharactersApi().getAllCharacters();
       _charactersById = {for (final c in characters) c.id: c};
-
       setState(() {
-        _pois = characters
-            .map((c) => c.toPoi())
-            .toList();
+        _pois = characters.map((c) => c.toPoi()).toList();
         _loadingPois = false;
       });
     } catch (e) {
@@ -112,7 +110,9 @@ class _MapGateState extends State<MapGate> {
         _loadingPois = false;
       });
       _showSnack('Errore caricamento personaggi: $e');
+      return;
     }
+
   }
 
   // TAP marker:
@@ -129,9 +129,7 @@ class _MapGateState extends State<MapGate> {
     showModalBottomSheet(
       context: context,
       clipBehavior: Clip.antiAlias,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiBottomSheet(
         poi: poi,
         onStart: () {
@@ -154,22 +152,14 @@ class _MapGateState extends State<MapGate> {
 
     //Completa la challenge "Parla con X" via RPC
     try {
-      final (submissionId, wasNew) = await repo
-          .completeTalkChallengeForCharacter(poi.id);
+      final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
 
       //Se è la prima volta → emetti l'evento ChallengeCompletedEvent
       if (submissionId != null && wasNew) {
         final allChallenges = await repo.fetchAllWithCharacter();
-        final challenge = allChallenges.firstWhere(
-          (c) => c.characterId == poi.id && c.requiresPhoto == false,
-        );
+        final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
 
-        bus.publish(
-          ChallengeCompletedEvent(
-            submissionId: submissionId,
-            challenge: challenge,
-          ),
-        );
+        bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
       }
     } catch (e) {
       debugPrint('Errore completamento challenge RPC: $e');
@@ -181,20 +171,14 @@ class _MapGateState extends State<MapGate> {
       context: context,
       isScrollControlled: true,
       clipBehavior: Clip.antiAlias,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiArrivalSheet(
         poi: poi,
         onReadStory: () {
           Navigator.of(ctx).pop();
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (_) => CharacterDetailPage(character: character),
-              ),
-            );
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => CharacterDetailPage(character: character)));
           } else {
             _showSnack('Dati del personaggio non disponibili.');
           }
@@ -203,11 +187,7 @@ class _MapGateState extends State<MapGate> {
           Navigator.of(ctx).pop();
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (_) => ARCharacterPage(character: character),
-              ),
-            );
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => ARCharacterPage(character: character)));
           } else {
             _showSnack('Dati del personaggio non disponibili.');
           }
@@ -221,9 +201,7 @@ class _MapGateState extends State<MapGate> {
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
-        final showBanner =
-            _ctrl.isTracking &&
-            (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
+        final showBanner = _ctrl.isTracking && (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
 
         return Scaffold(
           body: Stack(
@@ -237,25 +215,15 @@ class _MapGateState extends State<MapGate> {
                 onPoiTap: _onPoiTap,
               ),
               if (_pois.isNotEmpty)
-                OffScreenPoiIndicators(
-                  mapController: _mapController,
-                  pois: _pois,
-                  userLatLng: _ctrl.userLatLng,
-                  onTap: _onPoiTap,
-                ),
-              EtaBanner(
-                visible: showBanner,
-                remainMeters: _ctrl.remainMeters,
-                etaSeconds: _ctrl.etaSeconds,
-                onStop: _ctrl.stopTracking,
-              ),
+                OffScreenPoiIndicators(mapController: _mapController, pois: _pois, userLatLng: _ctrl.userLatLng, onTap: _onPoiTap),
+              EtaBanner(visible: showBanner, remainMeters: _ctrl.remainMeters, etaSeconds: _ctrl.etaSeconds, onStop: _ctrl.stopTracking),
+              // Bottoni navigazione — in basso a sinistra
               Positioned(
                 right: 12,
-                bottom: 24,
+                top: 24,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    //Centra su utente
                     FloatingActionButton.small(
                       heroTag: 'center_user',
                       onPressed: _ctrl.centerOnUser,
@@ -265,8 +233,6 @@ class _MapGateState extends State<MapGate> {
                       child: const Icon(Icons.my_location),
                     ),
                     const SizedBox(height: 12),
-
-                    //Reset rotazione
                     FloatingActionButton.small(
                       heroTag: 'reset_north',
                       onPressed: _ctrl.resetRotationNorth,
@@ -278,13 +244,21 @@ class _MapGateState extends State<MapGate> {
                   ],
                 ),
               ),
-              if (_loadingPois)
-                const Positioned(
-                  top: 60,
-                  left: 0,
-                  right: 0,
-                  child: LoadingPage(),
+
+              // FAB fotocamera — in basso a destra
+              Positioned(
+                right: 16,
+                bottom: 24,
+                child: FloatingActionButton(
+                  heroTag: 'take_photo',
+                  onPressed: _openPhotoChallengeDialog,
+                  backgroundColor: const Color(0xFFF34E6C),
+                  foregroundColor: Colors.white,
+                  elevation: 6,
+                  child: const Icon(Icons.photo_camera),
                 ),
+              ),
+              if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: LoadingPage()),
               if (_poisError != null)
                 Positioned(
                   top: 60,
@@ -294,14 +268,8 @@ class _MapGateState extends State<MapGate> {
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'Errore: $_poisError',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text('Errore: $_poisError', style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),
@@ -310,6 +278,86 @@ class _MapGateState extends State<MapGate> {
         );
       },
     );
+  }
+
+  Future<void> _openPhotoChallengeDialog() async {
+    if (_charactersById.isEmpty) {
+      _showSnack('Nessun personaggio disponibile.');
+      return;
+    }
+
+    final characters = _charactersById.values.toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+
+    final selected = await showDialog<Character>(
+      context: context,
+      builder: (_) => PhotoChallengePickerDialog(characters: characters),
+    );
+
+    if (selected == null || !mounted) return;
+
+    List<Challenge> photoChallenges;
+    try {
+      final repo = ChallengeRepository(Supabase.instance.client);
+      final all = await repo.fetchAllWithCharacter();
+      photoChallenges = all.where((c) => c.requiresPhoto).toList();
+    } catch (e) {
+      if (mounted) _showSnack('Errore caricamento sfide: $e');
+      return;
+    }
+
+    if (!mounted) return;
+
+    final matches = photoChallenges.where((c) => c.characterId == selected.id);
+    if (matches.isEmpty) {
+      _showSnack('Nessuna sfida fotografica per ${selected.name}.');
+      return;
+    }
+
+    final challenge = matches.first;
+    final repo = ChallengeRepository(Supabase.instance.client);
+
+    File? file;
+    try {
+      file = await PhotoCaptureService(repo).captureOnly();
+    } catch (e) {
+      if (mounted) _showSnack('Errore fotocamera: $e');
+      return;
+    }
+
+    if (file == null) return; // annullato
+    if (!mounted) return;
+
+    // Validazione ML con context locale (evita il problema di navKey.currentContext null)
+    final labelService = PhotoLabelService(confidence: 0.6);
+    final mlLabels = await labelService.labelsFor(file);
+    final ok = anyLabelMatches(mlLabels: mlLabels, challengeLabels: challenge.labels);
+
+    if (!ok) {
+      if (mounted) await showNotCompletedModal(context, challenge: challenge);
+      return;
+    }
+
+    if (!mounted) return;
+
+    try {
+      final completedIds = await repo.fetchCompletedIds();
+      final isFirst = !completedIds.contains(challenge.id);
+
+      final submissionId = await repo.insertChallengeSubmission(
+        challengeId: challenge.id,
+        photoFile: file,
+        photoMeta: {'ml_labels': mlLabels.toList(), 'challenge_labels': challenge.labels},
+      );
+
+      ChallengeEventBus.I.publish(ChallengeCompletedEvent(
+        submissionId: submissionId,
+        challenge: challenge,
+        isFirstCompletion: isFirst,
+      ));
+    } catch (e) {
+      if (mounted) _showSnack('Errore salvataggio: $e');
+    }
   }
 
   void _showSnack(String msg) {

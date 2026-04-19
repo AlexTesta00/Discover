@@ -1,7 +1,9 @@
 import 'dart:async';
-
+import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
+import 'package:discover/features/challenge/domain/use_cases/photo_capture_service.dart';
+import 'package:discover/features/maps/presentation/widgets/photo_challenge_picker_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -341,7 +343,6 @@ class _MapDemoGateState extends State<MapDemoGate> {
       final characters = await CharactersApi().getAllCharacters();
       if (!mounted) return;
       _charactersById = {for (final c in characters) c.id: c};
-
       setState(() {
         _pois = characters.map((c) => c.toPoi()).toList();
         _loadingPois = false;
@@ -353,7 +354,9 @@ class _MapDemoGateState extends State<MapDemoGate> {
         _loadingPois = false;
       });
       _showSnack('Errore caricamento personaggi: $e');
+      return;
     }
+
   }
 
   void _onPoiTap(PredefinedPoi poi) {
@@ -465,9 +468,10 @@ class _MapDemoGateState extends State<MapDemoGate> {
 
               EtaBanner(visible: showBanner, remainMeters: _ctrl.remainMeters, etaSeconds: _ctrl.etaSeconds, onStop: _ctrl.stopTracking),
 
+              // Bottoni navigazione — in basso a sinistra
               Positioned(
                 right: 12,
-                bottom: 24,
+                top: 24,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -492,6 +496,20 @@ class _MapDemoGateState extends State<MapDemoGate> {
                 ),
               ),
 
+              // FAB fotocamera — in basso a destra
+              Positioned(
+                right: 16,
+                bottom: 24,
+                child: FloatingActionButton(
+                  heroTag: 'demo_take_photo',
+                  onPressed: _openPhotoChallengeDialog,
+                  backgroundColor: const Color(0xFFF34E6C),
+                  foregroundColor: Colors.white,
+                  elevation: 6,
+                  child: const Icon(Icons.photo_camera),
+                ),
+              ),
+
               if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: Center(child: CircularProgressIndicator())),
 
               if (_poisError != null)
@@ -513,6 +531,53 @@ class _MapDemoGateState extends State<MapDemoGate> {
         );
       },
     );
+  }
+
+  Future<void> _openPhotoChallengeDialog() async {
+    if (_charactersById.isEmpty) {
+      _showSnack('Nessun personaggio disponibile.');
+      return;
+    }
+
+    final characters = _charactersById.values.toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+
+    final selected = await showDialog<Character>(
+      context: context,
+      builder: (_) => PhotoChallengePickerDialog(characters: characters),
+    );
+
+    if (selected == null || !mounted) return;
+
+    List<Challenge> photoChallenges;
+    try {
+      final repo = ChallengeRepository(Supabase.instance.client);
+      final all = await repo.fetchAllWithCharacter();
+      photoChallenges = all.where((c) => c.requiresPhoto).toList();
+    } catch (e) {
+      if (mounted) _showSnack('Errore caricamento sfide: $e');
+      return;
+    }
+
+    if (!mounted) return;
+
+    final matches = photoChallenges.where((c) => c.characterId == selected.id);
+    if (matches.isEmpty) {
+      _showSnack('Nessuna sfida fotografica per ${selected.name}.');
+      return;
+    }
+
+    final challenge = matches.first;
+    try {
+      final repo = ChallengeRepository(Supabase.instance.client);
+      final captureService = PhotoCaptureService(repo);
+      final file = await captureService.captureForChallenge(challenge);
+      if (file == null && mounted) {
+        _showSnack('Scatto annullato.');
+      }
+    } catch (e) {
+      if (mounted) _showSnack('Errore fotocamera: $e');
+    }
   }
 
   void _showSnack(String msg) {

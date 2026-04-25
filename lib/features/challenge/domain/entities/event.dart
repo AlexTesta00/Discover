@@ -44,6 +44,11 @@ class ChallengeCompletedEvent extends ChallengeEvent {
   });
 }
 
+class CollectibleAwardedEvent extends ChallengeEvent {
+  final String characterId;
+  const CollectibleAwardedEvent({required this.characterId});
+}
+
 class ChallengeCompletionFailedEvent extends ChallengeEvent {
   final Challenge challenge;
   final Object error;

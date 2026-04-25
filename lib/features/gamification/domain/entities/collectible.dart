@@ -4,6 +4,7 @@ class Collectible {
   final String characterName;
   final String collectibleName;
   final String asset;
+  final String? backAsset;
   final DateTime? acquiredAt;
 
   Collectible({
@@ -12,6 +13,7 @@ class Collectible {
     required this.characterName,
     required this.collectibleName,
     required this.asset,
+    this.backAsset,
     this.acquiredAt,
   });
 
@@ -21,6 +23,7 @@ class Collectible {
         characterName: m['character_name'] as String,
         collectibleName: m['collectible_name'] as String,
         asset: m['asset'] as String,
+        backAsset: m['back'] as String?,
         acquiredAt: DateTime.parse(m['acquired_at'] as String),
       );
 
@@ -30,6 +33,7 @@ class Collectible {
         characterName: m['character_name'] as String,
         collectibleName: m['collectible_name'] as String,
         asset: m['asset'] as String,
+        backAsset: m['back'] as String?,
         acquiredAt: null,
       );
 }

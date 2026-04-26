@@ -144,6 +144,7 @@ void _initEventStream() {
       final awarded = await collRepo.awardIfCompleted(challenge.characterId);
 
       if (awarded) {
+        bus.publish(CollectibleAwardedEvent(characterId: challenge.characterId));
         // mostra modale “hai sbloccato lo sticker”
         final ctx = navKey.currentContext;
         if (ctx != null) {

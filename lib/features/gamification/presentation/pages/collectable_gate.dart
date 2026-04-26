@@ -75,7 +75,7 @@ class _CollectibleGateState extends State<CollectibleGate> {
           final unlockedCount = items.where((e) => e.unlocked).length;
           return SizedBox.expand(
             child: _WheelCarousel(
-              items: items.map((item) => _CollectibleTile(item: item)).toList(),
+              items: items.map((item) => _CollectibleTile(key: ValueKey(item.id), item: item)).toList(),
               unlockedCount: unlockedCount,
               totalCount: items.length,
             ),
@@ -120,7 +120,7 @@ class _CollectibleVm {
 }
 
 class _CollectibleTile extends StatefulWidget {
-  const _CollectibleTile({required this.item});
+  const _CollectibleTile({super.key, required this.item});
   final _CollectibleVm item;
 
   @override

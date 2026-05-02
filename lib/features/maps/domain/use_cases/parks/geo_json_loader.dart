@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -67,4 +68,45 @@ List<List<List<double>>> _parsePolygonCoords(List coords) =>
         .map((ring) => (ring as List)
             .map((pt) => (pt as List).map((v) => (v as num).toDouble()).toList())
             .toList())
+        .toList();
+
+/// Carica un file GeoJSON e restituisce polilinee (LineString / MultiLineString).
+Future<List<Polyline>> loadGeoJsonPolylines(
+  String assetPath, {
+  Color color = Colors.blue,
+  double strokeWidth = 4.0,
+}) async {
+  final jsonStr = await rootBundle.loadString(assetPath);
+  final geoJson = json.decode(jsonStr) as Map<String, dynamic>;
+  final polylines = <Polyline>[];
+
+  final features = geoJson['features'] as List<dynamic>? ?? [];
+  for (final feature in features) {
+    final geometry = (feature as Map<String, dynamic>)['geometry'] as Map<String, dynamic>?;
+    if (geometry == null) continue;
+    final type = geometry['type'] as String;
+
+    List<List<List<double>>> lineGroups;
+    if (type == 'LineString') {
+      lineGroups = [_parseLineCoords(geometry['coordinates'] as List)];
+    } else if (type == 'MultiLineString') {
+      lineGroups = (geometry['coordinates'] as List)
+          .map((l) => _parseLineCoords(l as List))
+          .toList();
+    } else {
+      continue;
+    }
+
+    for (final coords in lineGroups) {
+      final points = coords.map((c) => LatLng(c[1], c[0])).toList();
+      if (points.length < 2) continue;
+      polylines.add(Polyline(points: points, strokeWidth: strokeWidth, color: color));
+    }
+  }
+  return polylines;
+}
+
+List<List<double>> _parseLineCoords(List coords) =>
+    coords
+        .map((pt) => (pt as List).map((v) => (v as num).toDouble()).toList())
         .toList();

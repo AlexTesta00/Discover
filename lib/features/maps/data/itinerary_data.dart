@@ -1,0 +1,43 @@
+import 'package:discover/features/maps/domain/entities/itinerary.dart';
+import 'package:flutter/material.dart';
+
+final List<ItineraryGroup> itineraryGroups = [
+  ItineraryGroup(
+    category: ItineraryCategory.stazioni,
+    label: 'Itinerari per Stazioni',
+    color: const Color(0xFFF5A623),
+    icon: Icons.train,
+    assetPaths: [
+      'assets/geo/itinerari/stazioni/calle-baiona.geojson',
+      'assets/geo/itinerari/stazioni/campotto-argenta.geojson',
+      'assets/geo/itinerari/stazioni/gorino.geojson',
+      'assets/geo/itinerari/stazioni/mesola-fasanara.geojson',
+      'assets/geo/itinerari/stazioni/pineta-cervia.geojson',
+      'assets/geo/itinerari/stazioni/pineta-classe.geojson',
+      'assets/geo/itinerari/stazioni/punte-alberete.geojson',
+      'assets/geo/itinerari/stazioni/saline.geojson',
+      'assets/geo/itinerari/stazioni/trepponti.geojson',
+    ],
+  ),
+  ItineraryGroup(
+    category: ItineraryCategory.parcoPerTutti,
+    label: 'Un Parco per Tutti',
+    color: const Color(0xFF4CAF50),
+    icon: Icons.accessibility_new,
+    assetPaths: [],
+  ),
+  ItineraryGroup(
+    category: ItineraryCategory.bici,
+    label: 'Itinerari in Bici',
+    color: const Color(0xFF2196F3),
+    icon: Icons.directions_bike,
+    assetPaths: [],
+  ),
+  ItineraryGroup(
+    category: ItineraryCategory.birdwatching,
+    label: 'Birdwatching',
+    color: const Color(0xFF009688),
+    icon: Icons.cruelty_free,
+    assetPaths: [],
+  ),
+];

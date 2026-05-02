@@ -62,4 +62,5 @@ flutter:
     - assets/cards/
     - assets/places/
     - assets/geo/
+    - assets/geo/itinerari/stazioni/
     - .env

@@ -1,3 +1,4 @@
+import 'package:discover/features/maps/data/itinerary_descriptions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -104,14 +105,43 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
-              child: Text(
-                'Descrizione dell\'itinerario in arrivo...',
-                style: TextStyle(fontSize: 15, color: Colors.black54),
-              ),
+              child: _DescriptionBody(assetPath: widget.assetPath),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DescriptionBody extends StatelessWidget {
+  const _DescriptionBody({required this.assetPath});
+  final String assetPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final stem = assetPath.split('/').last.replaceAll('.geojson', '');
+    final sections = itineraryDescriptions[stem];
+
+    if (sections == null || sections.isEmpty) {
+      return const Text(
+        'Descrizione non disponibile.',
+        style: TextStyle(fontSize: 15, color: Colors.black54),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final s in sections) ...[
+          if (s.title != null) ...[
+            Text(s.title!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 6),
+          ],
+          Text(s.body, style: const TextStyle(fontSize: 15, height: 1.5)),
+          const SizedBox(height: 16),
+        ],
+      ],
     );
   }
 }

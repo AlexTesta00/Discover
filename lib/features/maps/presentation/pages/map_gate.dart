@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:discover/features/maps/data/itinerary_data.dart';
-import 'package:discover/features/maps/domain/entities/itinerary.dart';
+import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
@@ -58,10 +57,7 @@ class _MapGateState extends State<MapGate> {
   bool _loadingPois = true;
   String? _poisError;
 
-  // Itinerari + visibilità parco
   bool _parkVisible = true;
-  final Set<ItineraryCategory> _visibleCategories = {};
-  final Map<ItineraryCategory, List<Polyline>> _itineraryPolylines = {};
 
   @override
   void initState() {
@@ -220,7 +216,6 @@ class _MapGateState extends State<MapGate> {
                 userLatLng: _ctrl.userLatLng,
                 pois: _pois,
                 onPoiTap: _onPoiTap,
-                extraPolylines: _buildItineraryPolylines(),
                 showParkArea: _parkVisible,
               ),
               if (_pois.isNotEmpty)
@@ -272,7 +267,7 @@ class _MapGateState extends State<MapGate> {
                   minimum: const EdgeInsets.only(bottom: 24),
                   child: FloatingActionButton.small(
                     heroTag: 'itineraries',
-                    onPressed: _openItineraryFilter,
+                    onPressed: _openItineraryPage,
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
                     elevation: 4,
@@ -382,77 +377,9 @@ class _MapGateState extends State<MapGate> {
     }
   }
 
-  Future<void> _toggleItineraryCategory(ItineraryCategory cat, bool enable) async {
-    if (enable) {
-      if (!_itineraryPolylines.containsKey(cat)) {
-        final group = itineraryGroups.firstWhere((g) => g.category == cat);
-        final polylines = <Polyline>[];
-        for (final path in group.assetPaths) {
-          final loaded = await loadGeoJsonPolylines(path, color: group.color);
-          polylines.addAll(loaded);
-        }
-        _itineraryPolylines[cat] = polylines;
-      }
-      setState(() => _visibleCategories.add(cat));
-    } else {
-      setState(() => _visibleCategories.remove(cat));
-    }
-  }
-
-  List<Polyline> _buildItineraryPolylines() => _visibleCategories
-      .expand((cat) => _itineraryPolylines[cat] ?? <Polyline>[])
-      .toList();
-
-  void _openItineraryFilter() {
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Itinerari'),
-          contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SwitchListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.park, color: Color(0xFFE91E8C)),
-                title: const Text('Area del Parco', style: TextStyle(fontSize: 14)),
-                value: _parkVisible,
-                activeTrackColor: const Color(0xFFE91E8C),
-                activeThumbColor: const Color(0xFFE91E8C),
-                onChanged: (val) {
-                  setDialogState(() => _parkVisible = val);
-                  setState(() => _parkVisible = val);
-                },
-              ),
-              const Divider(height: 1),
-              ...itineraryGroups.map((group) {
-              final enabled = _visibleCategories.contains(group.category);
-              return SwitchListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                secondary: Icon(group.icon, color: group.color),
-                title: Text(group.label, style: const TextStyle(fontSize: 14)),
-                value: enabled,
-                activeTrackColor: group.color,
-                activeThumbColor: group.color,
-                onChanged: group.assetPaths.isEmpty ? null : (val) {
-                  setDialogState(() {});
-                  _toggleItineraryCategory(group.category, val);
-                },
-              );
-            }),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Chiudi'),
-            ),
-          ],
-        ),
-      ),
+  void _openItineraryPage() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (_) => const ItineraryPage()),
     );
   }
 

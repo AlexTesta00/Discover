@@ -24,14 +24,25 @@ final List<ItineraryGroup> itineraryGroups = [
     label: 'Un Parco per Tutti',
     color: const Color(0xFF4CAF50),
     icon: Icons.accessibility_new,
-    assetPaths: [],
+    assetPaths: [
+      'assets/geo/itinerari/tutti/pedalando-immersi-nella-pineta.geojson',
+      'assets/geo/itinerari/tutti/pedalando-tra-la-storia.geojson',
+      'assets/geo/itinerari/tutti/pedalando-tra-porto-e-salina.geojson',
+    ],
   ),
   ItineraryGroup(
     category: ItineraryCategory.bici,
     label: 'Itinerari in Bici',
     color: const Color(0xFF2196F3),
     icon: Icons.directions_bike,
-    assetPaths: [],
+    assetPaths: [
+      'assets/geo/itinerari/bici/ciclovia-valli-argine.geojson',
+      'assets/geo/itinerari/bici/da-valle-a-valle.geojson',
+      'assets/geo/itinerari/bici/lamone.geojson',
+      'assets/geo/itinerari/bici/pinete.geojson',
+      'assets/geo/itinerari/bici/ravenna-cervia.geojson',
+      'assets/geo/itinerari/bici/sterrati-savio.geojson',
+    ],
   ),
   ItineraryGroup(
     category: ItineraryCategory.birdwatching,

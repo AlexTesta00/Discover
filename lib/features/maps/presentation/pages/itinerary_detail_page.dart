@@ -73,38 +73,40 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 300,
-            child: polylines == null
-                ? const Center(child: CircularProgressIndicator())
-                : FlutterMap(
-                    options: MapOptions(
-                      initialCameraFit: bounds != null
-                          ? CameraFit.bounds(
-                              bounds: bounds,
-                              padding: const EdgeInsets.all(40),
-                            )
-                          : null,
-                      initialCenter: const LatLng(44.4, 12.2),
-                      initialZoom: 11,
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        tileProvider: NetworkTileProvider(
-                          cachingProvider: const DisabledMapCachingProvider(),
-                        ),
-                        userAgentPackageName: 'it.discover.discover',
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 300,
+              child: polylines == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : FlutterMap(
+                      options: MapOptions(
+                        initialCameraFit: bounds != null
+                            ? CameraFit.bounds(
+                                bounds: bounds,
+                                padding: const EdgeInsets.all(40),
+                              )
+                            : null,
+                        initialCenter: const LatLng(44.4, 12.2),
+                        initialZoom: 11,
                       ),
-                      PolylineLayer(polylines: polylines),
-                    ],
-                  ),
+                      children: [
+                        TileLayer(
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          tileProvider: NetworkTileProvider(
+                            cachingProvider: const DisabledMapCachingProvider(),
+                          ),
+                          userAgentPackageName: 'it.discover.discover',
+                        ),
+                        PolylineLayer(polylines: polylines),
+                      ],
+                    ),
+            ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+          SliverPadding(
+            padding: const EdgeInsets.all(20),
+            sliver: SliverToBoxAdapter(
               child: _DescriptionBody(assetPath: widget.assetPath),
             ),
           ),

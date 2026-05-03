@@ -20,9 +20,14 @@ const Map<String, List<ItinerarySection>> itineraryDescriptions = {
           'Dall’antica Pieve di S. Giorgio fino al Casino di Campotto e al Museo delle Valli di Argenta, l’itinerario suggerito, da percorrere in bicicletta, si sviluppa sull’argine che costeggia la Cassa Bassarone e la Cassa di espansione di Campotto: un tracciato di circa 6 chilometri che consente di spaziare sull’intera superficie valliva disseminata di ninfee, canneti e tifeti. Dal Museo delle Valli prende avvio un percorso, di circa 10 chilometri, che permette di ammirare il paesaggio accompagnati da guida.',
     ),
     ItinerarySection(
-      title: "Tutti i colori del verde",
+      title: 'Tutti i colori del verde',
       body:
           'Parcheggiando nell’area attigua a Vallesanta (dove è attivo un servizio di noleggio bici) il giovedì nei giorni festivi e prefestivi, è possibile compiere in bici tutto l’intero perimetro della valle (circa 9 km) ammirando intorno il caratteristico prato umido. Durante la settimana il circuito percorribile si articola invece su un tratto di 5 chilometri.',
+    ),
+    ItinerarySection(
+      title: 'Info:',
+      body:
+          'Museo delle Valli di Argenta tel. + 39 0532 808058\nMuseo della Bonifica tel. + 39 0532 808058\nIAT Argenta - tel. + 39 0532 330276',
     ),
   ],
 

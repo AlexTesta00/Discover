@@ -1,5 +1,6 @@
 import 'package:discover/features/maps/data/itinerary_data.dart';
 import 'package:discover/features/maps/domain/entities/itinerary.dart';
+import 'package:discover/features/maps/presentation/pages/itinerary_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class ItineraryPage extends StatelessWidget {
@@ -110,6 +111,15 @@ class _ItineraryTab extends StatelessWidget {
             ),
             title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
             trailing: const Icon(Icons.chevron_right, color: Colors.black38),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ItineraryDetailPage(
+                  name: name,
+                  assetPath: sorted[i],
+                  color: group.color,
+                ),
+              ),
+            ),
           ),
         );
       },

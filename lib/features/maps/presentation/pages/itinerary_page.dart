@@ -44,13 +44,34 @@ class ItineraryPage extends StatelessWidget {
   }
 }
 
+const _itineraryNames = <String, String>{
+  // Itinerari per Stazioni
+  'campotto-argenta': 'Campotto di Argenta',
+  'trepponti': 'Centro Storico di Comacchio',
+  'pineta-classe': 'Pineta di Classe',
+  'saline': 'Salina di Cervia',
+  'pineta-cervia': 'Pineta di Cervia',
+  'punte-alberete': 'Pineta San Vitale - Piallasse di Ravenna',
+  'calle-baiona': 'Valli di Comacchio',
+  'mesola-fasanara': 'Mesola - Fasanara',
+  'gorino': 'Goro - Gorino',
+  // Itinerari in Bici
+  'ciclovia-valli-argine': 'Ciclovia delle Valli e Argine degli Angeli',
+  'da-valle-a-valle': 'Da Valle a Valle',
+  'lamone': 'Lungo il Fiume Lamone',
+  'pinete': 'Pedalando nelle Pinete di Ravenna',
+  'ravenna-cervia': 'I Parchi tra Ravenna e Cervia',
+  'sterrati-savio': 'Sugli sterrati lungo il Savio',
+};
+
 class _ItineraryTab extends StatelessWidget {
   const _ItineraryTab({required this.group});
   final ItineraryGroup group;
 
   String _nameFromPath(String path) {
-    final filename = path.split('/').last.replaceAll('.geojson', '');
-    return filename.split('-').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
+    final stem = path.split('/').last.replaceAll('.geojson', '');
+    if (_itineraryNames.containsKey(stem)) return _itineraryNames[stem]!;
+    return stem.split('-').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
   }
 
   @override
@@ -68,12 +89,14 @@ class _ItineraryTab extends StatelessWidget {
       );
     }
 
+    final sorted = [...group.assetPaths]..sort((a, b) => _nameFromPath(a).compareTo(_nameFromPath(b)));
+
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: group.assetPaths.length,
+      itemCount: sorted.length,
       separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (_, i) {
-        final name = _nameFromPath(group.assetPaths[i]);
+        final name = _nameFromPath(sorted[i]);
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,

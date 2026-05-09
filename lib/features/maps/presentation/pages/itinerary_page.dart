@@ -49,9 +49,7 @@ const _itineraryNames = <String, String>{
   // Itinerari per Stazioni
   'campotto-argenta': 'Campotto di Argenta',
   'trepponti': 'Centro Storico di Comacchio',
-  'pineta-classe': 'Pineta di Classe',
-  'saline': 'Salina di Cervia',
-  'pineta-cervia': 'Pineta di Cervia',
+  'pineta-classe-saline': 'Pineta di Classe - Salina di Cervia',
   'punte-alberete': 'Pineta San Vitale - Piallasse di Ravenna',
   'calle-baiona': 'Valli di Comacchio',
   'mesola-fasanara': 'Mesola - Fasanara',

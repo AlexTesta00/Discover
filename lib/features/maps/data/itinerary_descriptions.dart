@@ -54,11 +54,23 @@ const Map<String, List<ItinerarySection>> itineraryDescriptions = {
     ),
   ],
 
-  'pineta-classe': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
-
-  'saline': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
-
-  'pineta-cervia': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
+  'pineta-classe-saline': [
+    ItinerarySection(
+      title: 'Nel cuore della Pineta',
+      body:
+          'Si percorre la SS 16 Adriatica. In località Fosso Ghiaia è posto l\'ingresso alla Pineta di Classe dal quale si arriva al Parco 1° Maggio, cuore della Pineta. Qui partono suggestivi percorsi a piedi, in bicicletta o a cavallo. Inoltrandosi in direzione est si raggiungono la pineta costiera e le dune litoranee oppure, procedendo verso sud, si osservano le zone umide dell\'Ortazzo e dell\'Ortazzino dove si ammirano garzette, folaghe, sterne, cavalieri d\'Italia. I percorsi possono essere ugualmente fruibili giungendo da sud (Cervia – Milano Marittima – Lido di Savio – Lido di Classe) o da nord (Lido di Dante) e persino da Ravenna, percorrendo gli argini dei Fiumi Uniti.',
+    ),
+    ItinerarySection(
+      title: 'Storicamente verde',
+      body:
+          'La secolare Pineta di Cervia offre numerosi percorsi di visita in bicicletta, a piedi o magari di corsa, seguendo il "percorso vita" che si snoda fra i pini: l\'ingresso principale è posto a Milano Marittima. Le "vie della pineta" si insinuano in ogni direzione: verso sud si giunge a Cervia mentre, nel senso opposto – nord – si può raggiungere Lido di Savio. Verso ovest, invece, si trova un luogo ideale per la salute del corpo: le terme. Poco distante: l\'oasi di assoluta tranquillità del Parco naturale di Cervia dove si possono ammirare cervi, daini e anatre di ogni specie.',
+    ),
+    ItinerarySection(
+      title: 'La via del sale',
+      body:
+          'Le millenarie Saline di Cervia rappresentano, oggi, uno straordinario connubio tra lavoro umano e ambiente. Sono facilmente raggiungibili procedendo sulla SS 16 Adriatica. Le saline sono rigorosamente protette ed ospitano migliaia di uccelli tra cui fenicotteri, avocette e gabbiani corallini. Possono essere ammirate in auto o in bicicletta percorrendo la strada che da Cervia porta verso Forlì. Alcuni tratti esterni del bacino salino sono percorribili a piedi. Per visite all\'interno della Salina è necessario rivolgersi al Corpo Forestale dello Stato (tel. 0544 980193) o al Centro Visita del Parco presso le Saline (tel. + 39 0544 973040)',
+    ),
+  ],
 
   'punte-alberete': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
 

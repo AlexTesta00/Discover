@@ -76,9 +76,28 @@ const Map<String, List<ItinerarySection>> itineraryDescriptions = {
 
   'calle-baiona': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
 
-  'mesola-fasanara': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
-
-  'gorino': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
+  'volano-mesola-goro': [
+    ItinerarySection(
+      title: 'A spasso col Duca',
+      body:
+          'Partendo dal centro di Mesola, dopo una visita al Castello, il percorso prosegue verso la seicentesca Torre dell\'Abate e al vicino Bosco della Fasanara. Costeggiando, verso il mare, il Bosco della Mesola, si raggiunge invece la settecentesca Torre Palù. Portandosi poi verso la laguna si arriva al centro di Goro.',
+    ),
+    ItinerarySection(
+      title: 'Il riflesso del verde',
+      body:
+          'Un percorso in bicicletta che si sviluppa sul ricamo del fiume: partendo da Mesola, percorrendo in direzione sud l\'argine, con il Bosco planiziale della Mesola da un lato e il corso del Po dall\'altro, si giunge a Goro. Arrivando fino alla Foce del Po, in prossimità di Gorino è possibile raggiungere, a piedi o in bicicletta, angoli suggestivi fra lingue di terra che si insinuano nella laguna.',
+    ),
+    ItinerarySection(
+      title: 'Il volo dei fenicotteri',
+      body:
+          'Percorrendo, per un breve tratto, la strada Giralda retrostante il complesso abbaziale di Pomposa, si raggiunge la strada per Volano. Passando dalle valli Canneviè - Porticino e dal centro di Volano, si apre l\'incantevole paesaggio delle valli Bertuzzi, Cantone e Nuova.\nIn questa area, da diversi anni, da aprile a ottobre, vive una numerosissima colonia di fenicotteri. Attraverso la strada panoramica Acciaioli - direzione sud - si raggiunge l\'accogliente litorale comacchiese.',
+    ),
+    ItinerarySection(
+      title: 'Info:',
+      body:
+          'Museo del Bosco e del Cervo della Mesola tel. + 39 339 1935943\nIAT Mesola tel. + 39 0533 993358\nIAT Abbazia di Pomposa tel. + 39 0533 719110\nIAT Goro tel. + 39 0533 995030\nTel + 39 3452518596 - E-mail: info@aqua-deltadelpo.com',
+    ),
+  ],
 
   // ── Un Parco per Tutti ────────────────────────────────────────────────────
   'pedalando-immersi-nella-pineta': [

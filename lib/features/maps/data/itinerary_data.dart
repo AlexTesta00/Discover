@@ -10,8 +10,7 @@ final List<ItineraryGroup> itineraryGroups = [
     assetPaths: [
       'assets/geo/itinerari/stazioni/calle-baiona.geojson',
       'assets/geo/itinerari/stazioni/campotto-argenta.geojson',
-      'assets/geo/itinerari/stazioni/gorino.geojson',
-      'assets/geo/itinerari/stazioni/mesola-fasanara.geojson',
+      'assets/geo/itinerari/stazioni/volano-mesola-goro.geojson',
       'assets/geo/itinerari/stazioni/pineta-classe-saline.geojson',
       'assets/geo/itinerari/stazioni/punte-alberete.geojson',
       'assets/geo/itinerari/stazioni/trepponti.geojson',

@@ -52,8 +52,7 @@ const _itineraryNames = <String, String>{
   'pineta-classe-saline': 'Pineta di Classe - Salina di Cervia',
   'punte-alberete': 'Pineta San Vitale - Piallasse di Ravenna',
   'calle-baiona': 'Valli di Comacchio',
-  'mesola-fasanara': 'Mesola - Fasanara',
-  'gorino': 'Goro - Gorino',
+  'volano-mesola-goro': 'Volano Mesola Goro',
   // Itinerari in Bici
   'ciclovia-valli-argine': 'Ciclovia delle Valli e Argine degli Angeli',
   'da-valle-a-valle': 'Da Valle a Valle',

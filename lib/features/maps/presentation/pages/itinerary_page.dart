@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discover/features/maps/data/itinerary_data.dart';
 import 'package:discover/features/maps/domain/entities/itinerary.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_detail_page.dart';
@@ -62,6 +63,25 @@ const _itineraryNames = <String, String>{
   'sterrati-savio': 'Sugli sterrati lungo il Savio',
 };
 
+const _itineraryImages = <String, String>{
+  'campotto-argenta': 'https://www.parcodeltapo.it/fotoGallery/43601_362_PRDPE.jpeg',
+  'trepponti': 'https://www.parcodeltapo.it/fotoGallery/51167_362_PRDPE.jpeg',
+  'punte-alberete': 'https://www.parcodeltapo.it/fotoGallery/43607_362_PRDPE.jpeg',
+  'pineta-classe-saline': 'https://www.parcodeltapo.it/fotoGallery/43627_362_PRDPE.jpeg',
+  'calle-baiona': 'https://www.parcodeltapo.it/fotoGallery/24392_141_PRDPE.jpeg',
+  'volano-mesola-goro': 'https://www.parcodeltapo.it/fotoGallery/43611_362_PRDPE.jpeg',
+  'anello-dolce-salato': 'https://www.parcodeltapo.it/fotoGallery/43606_362_PRDPE.jpeg',
+  'pedalando-tra-la-storia': 'https://www.parcodeltapo.it/fotoGallery/43595_362_PRDPE.jpeg',
+  'pedalando-immersi-nella-pineta': 'https://www.parcodeltapo.it/fotoGallery/43596_362_PRDPE.jpeg',
+  'pedalando-tra-porto-e-salina': 'https://www.parcodeltapo.it/fotoGallery/43597_362_PRDPE.jpeg',
+  'ciclovia-valli-argine': 'https://www.parcodeltapo.it/fotoGallery/47307_362_PRDPE.jpeg',
+  'lamone': 'https://www.parcodeltapo.it/fotoGallery/43630_362_PRDPE.jpeg',
+  'da-valle-a-valle': 'https://www.parcodeltapo.it/fotoGallery/43631_362_PRDPE.jpeg',
+  'sterrati-savio': 'https://www.parcodeltapo.it/fotoGallery/43647_362_PRDPE.jpeg',
+  'ravenna-cervia': 'https://www.parcodeltapo.it/fotoGallery/43633_362_PRDPE.jpeg',
+  'pinete': 'https://www.parcodeltapo.it/fotoGallery/43646_362_PRDPE.jpeg',
+};
+
 class _ItineraryTab extends StatelessWidget {
   const _ItineraryTab({required this.group});
   final ItineraryGroup group;
@@ -116,10 +136,17 @@ class _ItineraryTab extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(color: group.color),
-                  Center(
-                    child: Icon(group.icon, size: 90, color: Colors.white.withValues(alpha: 0.15)),
-                  ),
+                  _itineraryImages.containsKey(sorted[i].split('/').last.replaceAll('.geojson', ''))
+                      ? CachedNetworkImage(
+                          imageUrl: _itineraryImages[sorted[i].split('/').last.replaceAll('.geojson', '')]!,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) => Container(color: group.color),
+                        )
+                      : Container(color: group.color),
+                  if (!_itineraryImages.containsKey(sorted[i].split('/').last.replaceAll('.geojson', '')))
+                    Center(
+                      child: Icon(group.icon, size: 90, color: Colors.white.withValues(alpha: 0.15)),
+                    ),
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

@@ -31,7 +31,28 @@ const Map<String, List<ItinerarySection>> itineraryDescriptions = {
     ),
   ],
 
-  'trepponti': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
+  'trepponti': [
+    ItinerarySection(
+      title: 'In cammino sui ponti',
+      body:
+          'Dal monumentale Ponte Trepponti si arriva al ponte degli Sbirri e costeggiando il canale di Via Agatopisto si incontra il ponte di San Pietro; passando sull’altra riva e attraversando un piccolo ponte in cotto (Ponte dei Sisti) - girando subito a sinistra - si segue poi il corso del canale di via Buonafede, arrivando nella parte retrostante del Museo Delta Antico (il vicolo sulla destra riporta su via Agatopisto). Si prosegue per via E. Fogli, seguendo il corso delle acque, si passa accanto al ponte di Via Cavour. Attraversando altri due ponti su via Carducci e l’omonimo in Rione Carmine: si percorre via del Rosario e di seguito via Muratori. Si è di nuovo al Ponte Trepponti.',
+    ),
+    ItinerarySection(
+      title: 'La "storia" della tradizione',
+      body:
+          'Dal Santuario di S.M. in Aula Regia, dopo la visita alla Manifattura dei Marinati (centro visita del Parco) percorrendo il porticato dei Cappuccini si arriva al centro della città: ecco la Cattedrale di San Cassiano e l’imponente torre campanaria. Proseguendo verso P.tta U. Bassi e portandosi - a sinistra - in via Cavour, si accede al Sacrario dei Caduti; costeggiando il canale - in fondo a destra - si arriva al rione Carmine, dove si può ammirare l’omonima chiesa dedicata alla Madonna. Salendo sul ponte antistante (Ponte del Carmine) è chiaramente visibile uno scorcio della chiesa del Rosario. Percorrendo P.zza Folegatti prima, e via E. Fogli poi, si raggiunge la piccola chiesa di San Pietro annessa all’ex Ospedale settecentesco San Camillo ora sede del Museo Delta Antico.',
+    ),
+    ItinerarySection(
+      title: "Un Museo Sull'Acqua",
+      body:
+          'Il Museo Delta Antico è un museo archeologico di Comacchio, allestito nell’ospedale degli Infermi. Conserva una collezione di circa 2000 reperti di epoca protostorica, spinetica (la città di Spina, a pochi chilometri da Comacchio, era un porto etrusco che commerciava con la Grecia (nella sua necropoli sono state trovate più di 4.000 tombe, alle quali vanno aggiunti gli scavi di una parte dell’abitato), romana e medievale; vi è esposto anche il carico della Fortuna Maris, una nave commerciale di epoca imperiale riemersa nel 1981. Il museo si compone diverse sezioni dedicate a reperti delle culture che vissero nella zona del delta del Po oltre ad una sezione di tema geologico-ambientale che illustra i cambiamenti del territorio nel corso dei millenni, dalla formazione della pianura padana ai giorni nostri.',
+    ),
+    ItinerarySection(
+      title: 'Info:',
+      body:
+          'Centro visite Manifattura dei Marinati Tel. 39 0533 81742\nIAT Comacchio tel. + 39 0533 314154\nMuseo Delta Antico tel. + 39 0533 311316',
+    ),
+  ],
 
   'pineta-classe': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
 
@@ -48,7 +69,9 @@ const Map<String, List<ItinerarySection>> itineraryDescriptions = {
   'gorino': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
 
   // ── Un Parco per Tutti ────────────────────────────────────────────────────
-  'pedalando-immersi-nella-pineta': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
+  'pedalando-immersi-nella-pineta': [
+    ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...'),
+  ],
 
   'pedalando-tra-la-storia': [ItinerarySection(title: 'Titolo sezione', body: 'Testo della sezione...')],
 

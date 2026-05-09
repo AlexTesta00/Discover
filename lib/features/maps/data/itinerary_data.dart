@@ -22,6 +22,7 @@ final List<ItineraryGroup> itineraryGroups = [
     color: const Color(0xFF4CAF50),
     icon: Icons.accessibility_new,
     assetPaths: [
+      'assets/geo/itinerari/tutti/anello-dolce-salato.geojson',
       'assets/geo/itinerari/tutti/pedalando-immersi-nella-pineta.geojson',
       'assets/geo/itinerari/tutti/pedalando-tra-la-storia.geojson',
       'assets/geo/itinerari/tutti/pedalando-tra-porto-e-salina.geojson',

@@ -92,29 +92,67 @@ class _ItineraryTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemCount: sorted.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (_, i) {
         final name = _nameFromPath(sorted[i]);
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: const [BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black12)],
-          ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: group.color.withValues(alpha: 0.12),
-              child: Icon(group.icon, color: group.color, size: 20),
+        return GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ItineraryDetailPage(
+                name: name,
+                assetPath: sorted[i],
+                color: group.color,
+              ),
             ),
-            title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-            trailing: const Icon(Icons.chevron_right, color: Colors.black38),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ItineraryDetailPage(
-                  name: name,
-                  assetPath: sorted[i],
-                  color: group.color,
-                ),
+          ),
+          child: Container(
+            height: 160,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [BoxShadow(blurRadius: 8, offset: Offset(0, 3), color: Colors.black26)],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(color: group.color),
+                  Center(
+                    child: Icon(group.icon, size: 90, color: Colors.white.withValues(alpha: 0.15)),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [Colors.black.withValues(alpha: 0.75), Colors.transparent],
+                        stops: const [0.0, 0.65],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 14,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              shadows: [Shadow(blurRadius: 4, color: Colors.black45)],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

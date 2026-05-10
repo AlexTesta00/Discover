@@ -328,4 +328,94 @@ const Map<String, List<ItinerarySection>> itineraryDescriptions = {
       body: 'Fondo: asfaltato e sterrato\nTipologia Bici: mountain bike, gravel',
     ),
   ],
+
+  // ── Birdwatching ─────────────────────────────────────────────────────────
+  'birdwatching-campotto-argenta': [
+    ItinerarySection(
+      title: 'Valle Santa',
+      body:
+          'Il percorso di Valle Santa compie l\'intero perimetro della bella palude d\'acqua dolce, per una lunghezza di circa 8,5 chilometri.\nDall\'ingresso si prosegue verso sud, fino a giungere ai camminamenti schermati che permettono di osservare l\'avifauna in sosta nei prati umidi ai margini della palude, ove è possibile osservare, tra gli altri, spatole, sgarze ciuffetto, nitticore, alzavole e mestoloni, cavalieri d\'Italia e pittime reali.',
+    ),
+    ItinerarySection(
+      body:
+          'Si costeggiano poi estesi canneti su cui volteggia il falco di palude e da cui in primavera giungono i canti degli acrocefalini e i richiami di porciglione, voltolino e schiribilla. Il percorso prosegue sull\'argine del torrente Sillaro, fino a svoltare lungo la riva della palude che costeggia il bosco del Traversante, sede della garzaia. Qui, tra salici e pioppi ai cui rami sono appesi i nidi dei pendolini, si osservano spettacolari scorci della palude, con canneti ove nidificano gli aironi rossi ed estesi lamineti, su cui volteggiano i mignattini piombati.',
+    ),
+  ],
+
+  'birdwatching-saline': [
+    ItinerarySection(
+      body:
+          'La Salina di Cervia rappresenta la stazione più a Sud del Parco Regionale del Delta del Po. E\' un ambiente di elevato interesse naturalistico e paesaggistico, tanto da essere stato inserito come Zona Umida di Importanza Internazionale nella Convenzione di Ramsar e dal 1979 è divenuto Riserva Naturale dello Stato. La Salina si estende su una superficie di 827 ettari ed è percorsa all\'interno da una fitta rete di canali.',
+    ),
+    ItinerarySection(
+      body:
+          'Sotto il profilo avifaunistico l\'ambiente delle saline è popolato da specie come il Fenicottero rosa, il Cavaliere d\'Italia, l\'Avocetta, gli aironi tipici del Delta del Po e altre specie protette. Grazie alle sue caratteristiche è zona di sosta e nidificazione per numerose specie di uccelli che occupano i piccoli argini e gli isolotti che si formano all\'interno delle vasche. Le specie regolarmente nidificanti in questo sito e quindi visibili nel periodo primavera - estate, sono Volpoca e Germano reale tra gli Anatidi, mentre tra i Limicoli si osservano Cavaliere d\'Italia, Avocetta, Fratino, Pavoncella e Pettegola. Tra i Caradriformi nidificano Gabbiano corallino e Gabbiano reale, accompagnati da Sternidi come Fraticello e Sterna comune. In autunno e nella stagione invernale invece la salina si riempie di Fischioni, Alzavole, Mestoloni, Codoni, Canapiglie e Germani reali. Per quanto riguarda i rapaci si possono vedere Poiana e Falco di palude.',
+    ),
+    ItinerarySection(
+      title: 'Caratteristiche',
+      body:
+          'Possibilità di avvistare 60 specie\nPunti di osservazione, mascheramenti, torrette, capanni\nBuona agibilità, anche in caso di pioggia',
+    ),
+    ItinerarySection(
+      title: 'Modalità di Fruizione',
+      body:
+          'Aperto da marzo a novembre con orari diversi in base alla stagione\nOrario consigliato: primo mattino e tardo pomeriggio\nDurata: minimo due ore e trenta minuti\nAccesso a pagamento\nPercorsi parzialmente accessibili ai disabili',
+    ),
+    ItinerarySection(
+      title: 'Servizi',
+      body:
+          'Centro visite, museo e bookshop\nParcheggio\nPunto ristoro\nPer le visite guidate possibilità di noleggio binocoli e biciclette',
+    ),
+  ],
+
+  'birdwatching-baiona': [
+    ItinerarySection(
+      title: 'Punte Alberete',
+      body:
+          'Il percorso di visita a Punte Alberete è un sentiero pedonale ad anello di circa 2 chilometri, che parte dal parcheggio sulla statale 309 Romea, a ridosso del canale Fossatone. Il primo tratto attraversa il bosco primigenio allagato di frassini e salici; si prosegue poi nella parte più aperta della palude, tra canneti, chiari e prati umidi, fino a giungere all\'area attrezzata con schermature e il capanno per il birdwatching.\n\nQui si ha la certezza di osservare specie straordinarie, tutte nidificanti nella palude. Nitticore e sgarze ciuffetto involano dai salici, mentre gli aironi rossi si alzano dai folti canneti; i chiari sono popolati da morette tabaccate e fistioni turchi, che in primavera compiono spettacolari voli di corteggiamento. Davanti al capanno è facile osservare i marangoni minori e i mignattai, mentre si alimentano nelle acque limpide. Terminato il percorso è possibile raggiungere, poco più a nord, la Valle Mandriole, dalla cui alta torre panoramica si domina la grande garzaia insediata tra le canne e i saliconi.',
+    ),
+    ItinerarySection(
+      title: 'Pineta di San Vitale e Pialassa della Baiona',
+      body:
+          'Il percorso, che inizia presso la Ca\' Vecia nella pineta di San Vitale, è un sentiero pedonale di circa 4 chilometri. Il primo tratto si addentra nella pineta, che ad un tratto si apre nella spettacolare bassa del Pirottolo, lingua d\'acqua e canneti che serpeggia tra i pini domestici. Oltre la bassa, il bosco diviene più termofilo, mentre ci si avvicina alle rive della pialassa della Baiona, come ad antiche spiagge. Qui è possibile seguire un argine che si addentra nella laguna, lungo il chiaro del Comune, stagno salmastro in cui sostano migliaia di uccelli di passo e dove nidificano volpoca, fistione turco e canapiglia; qui, inoltre, si alimentano regolarmente marangone minore, mignattaio e spatola.\nSul lato opposto si apre la Polalonga, parte di laguna sui cui dossi, appositamente realizzati, nidificano gabbiano roseo, gabbiano corallino, sterna zampenere, sterna comune e fraticello. Il ritorno attraversa un\'altra singolare zona umida salmastra, la buca del Cavedone, che si insinua nella pineta collegando la bassa del Pirottolo alla pialassa.',
+    ),
+  ],
+
+  'birdwatching-valli-comacchio': [
+    ItinerarySection(
+      title: 'Dalla stazione da pesca Foce alla Salina di Comacchio, a Valle di Fossa Porto, a Valle Zavelea',
+      body:
+          'Il percorso, di circa 9 chilometri, inizia dalla Stazione da Pesca Foce. Voltando a sinistra si arriva a Valle Uccelliera, valle salmastra con stormi di anatre di diverse specie, soprattutto in inverno e durante le migrazioni. Proseguendo si giunge alla Salina di Comacchio, dove si osservano moltissime specie di limicoli; vi nidificano gabbiani e sterne e vi hanno sede la più grande colonia italiana di fenicotteri e l\'unica colonia italiana di spatole.\n\nAncora da Stazione Foce, voltando a destra, si può percorrere l\'argine Fossa Foce che porta in 5 chilometri verso Valle Zavelea. Qui è possibile avvistare le più importanti specie delle valli di Comacchio. Al termine, si entra in Valle Zavelea, fino alla torretta da cui si osserva la palude, con estesi canneti (in cui nidifica il falco di palude) e con velme fangose ove nidificano fraticelli, sterne comuni, sterne zampenere e la rarissima pernice di mare.\nInfine, sempre da Stazione Foce è possibile imbarcarsi per la visita delle Valli; dal battello, che conduce ad antichi casoni da pesca, si effettuano interessanti osservazioni. Il percorso prosegue lungo la parte settentrionale di Valle Fossa di Porto, con molti dossi che ospitano importanti colonie di caradriformi.',
+    ),
+    ItinerarySection(
+      title: 'Valle Furlana: da Boscoforte a Volta Scirocco',
+      body:
+          'Valle Furlana è la porzione meridionale delle Valli di Comacchio, uno dei santuari italiani del birdwatching. Fenicottero, spatola, airone rosso, gru, volpoca, sterna maggiore, falco pescatore, aquila anatraia maggiore, sono alcune delle rarità che è possibile osservare in questo affascinante itinerario. La Valle Furlana è raggiungibile, attraverso il suggestivo traghetto sul fiume Reno, da Sant\'Alberto, sede del Centro visite del Parco.\nIl percorso sull\'argine, che comincia all\'altezza della celebre penisola di Boscoforte, si snoda per circa 6,5 chilometri incontro al mare Adriatico, fino a Volta Scirocco.\nSi raggiunge dapprima la Lavadena, con un mosaico di dossi ricoperti di vegetazione alofila su cui nidificano importanti colonie di gabbiani, sterne e limicoli.\nPiù oltre, le acque basse della Scorticata ospitano regolarmente migliaia di anatidi, limicoli e ardeidi. Dai capanni attrezzati della tranquilla golena di Volta Scirocco è possibile osservare, tra gli altri, spatole, aironi rossi, cavalieri d\'Italia e canapiglie.',
+    ),
+  ],
+
+  'birdwatching-volano-mesola-goro': [
+    ItinerarySection(
+      title: 'Sull\'argine del Po di Goro',
+      body:
+          'Il percorso sull\'argine del Po di Goro, lungo circa 25 chilometri, parte dal Centro visite del Castello della Mesola e, passata la Sacca di Goro, giunge alla Lanterna Vecchia, in Valle Gorino. Il primo tratto costeggia un lungo tratto del Po, tra boschi ripariali e golene allagate, mentre a destra si susseguono campagne coltivate, pioppeti e lembi di boschi termofili su cui volteggia il lodolaio. Presso Goro la golena si allarga in una bella palude, Valle Dindona, che ospita una garzaia di nitticora, garzetta, sgarza ciuffetto e airone guardabuoi. Poco oltre, la vista si allarga sul piatto paesaggio della Sacca, un grande braccio di mare racchiuso da una lunga lingua di sabbia protesa nell\'Adriatico. Qui sostano in inverno migliaia di uccelli, mentre in primavera è possibile osservare tutte le specie di gabbiani e sterne nidificanti nel Delta. Il percorso termina presso il vecchio faro, da cui si dominano i vasti canneti di Valle Gorino, originati dalle acque dolci delle foci del Po; qui nidificano falco di palude e airone rosso, facilmente osservabili in volo o ai bordi dei canneti; nei chiari fangosi sostano stormi di limicoli e anatre.',
+    ),
+    ItinerarySection(
+      title: 'Valle Porticino-Canneviè e Valli Bertuzzi',
+      body:
+          'Il percorso all\'interno di Valle Porticino - Canneviè è molto ben attrezzato con schermature e capanni per l\'osservazione degli uccelli; vi si accede dal Casone di Porticino o dal Casone di Canneviè.\nLa Valle salmastra, ricca di vegetazione alofila, ospita numerose specie ornitiche, limicoli, in particolare cavalieri d\'Italia, anatre e centinaia di folaghe. La visita alla stazione può proseguire in bicicletta lungo la strada Acciaioli, che costeggia l\'argine orientale delle splendide Valli Bertuzzi, la laguna salmastra meglio conservata del Delta.\nSui numerosi dossi ricoperti di salicornia nidificano importanti colonie di gabbiani e sterne, che è possibile osservare dalla strada durante i continui spostamenti verso l\'Adriatico e i prati che separano le Valli dal mare, che costituiscono i principali ambienti di alimentazione per le diverse specie. Dalla strada è anche possibile osservare grandissimi stormi di fenicotteri in sosta nelle tranquille acque della valle, assieme ad aironi bianchi maggiori, aironi cenerini, garzette e cormorani.',
+    ),
+  ],
+
+  'birdwatching-vallette-di-ostellato': [
+    ItinerarySection(
+      title: 'Le Vallette di Ostellato',
+      body:
+          'Le Vallette di Ostellato sono un complesso di boschi e paludi d\'acqua dolce, lungo 15 km e compreso tra due grandi canali di bonifica. Il percorso parte dal Villaggio Natura ed è lungo circa 4,5 chilometri; è percorribile a piedi, in bicicletta, con mezzi elettrici o in auto; alla fine del percorso è possibile proseguire ancora, soltanto a piedi, fra macchie di prugnolo, sambuco e tamerice, verso valle Zagno. In questa parte meglio conservata e protetta, vi sono alcuni osservatori per birdwatching, costituiti sia da schermature, sia da capanni.',
+    ),
+    ItinerarySection(
+      body:
+          'Uno degli osservatori principali è nei pressi della voliera delle cicogne bianche, un altro si affaccia su di un chiaro della palude, da cui è possibile osservare le nidificazioni di pendolino, svasso maggiore e airone cenerino. Le Vallette sono un buon punto di osservazione dell\'avifauna durante tutto l\'anno; ospitano tutte le specie di aironi europei, numerose specie di anatre e limicoli, tra cui numerosi cavalieri d\'Italia, ed il già citato nucleo di cicogna bianca.',
+    ),
+  ],
 };

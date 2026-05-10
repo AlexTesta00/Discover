@@ -47,6 +47,13 @@ final List<ItineraryGroup> itineraryGroups = [
     label: 'Birdwatching',
     color: const Color(0xFF009688),
     icon: Icons.cruelty_free,
-    assetPaths: [],
+    assetPaths: [
+      'assets/geo/itinerari/birdwatching/birdwatching-baiona.geojson',
+      'assets/geo/itinerari/birdwatching/birdwatching-campotto-argenta.geojson',
+      'assets/geo/itinerari/birdwatching/birdwatching-saline.geojson',
+      'assets/geo/itinerari/birdwatching/birdwatching-vallette-di-ostellato.geojson',
+      'assets/geo/itinerari/birdwatching/birdwatching-valli-comacchio.geojson',
+      'assets/geo/itinerari/birdwatching/birdwatching-volano-mesola-goro.geojson',
+    ],
   ),
 ];

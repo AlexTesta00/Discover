@@ -22,6 +22,7 @@ class ItineraryDetailPage extends StatefulWidget {
 
 class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
   List<Polyline>? _polylines;
+  List<Polygon>? _polygons;
 
   @override
   void initState() {
@@ -30,32 +31,48 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
   }
 
   Future<void> _load() async {
-    final polylines = await loadGeoJsonPolylines(
-      widget.assetPath,
-      color: widget.color,
-      strokeWidth: 4.0,
-    );
-    if (mounted) setState(() => _polylines = polylines);
+    final results = await Future.wait([
+      loadGeoJsonPolylines(widget.assetPath, color: widget.color, strokeWidth: 4.0),
+      loadGeoJsonPolygons(
+        widget.assetPath,
+        fillColor: widget.color.withValues(alpha: 0.2),
+        borderColor: widget.color,
+        borderWidth: 2.0,
+      ),
+    ]);
+    if (mounted) {
+      setState(() {
+        _polylines = results[0] as List<Polyline>;
+        _polygons = results[1] as List<Polygon>;
+      });
+    }
   }
 
-  LatLngBounds? _computeBounds(List<Polyline> polylines) {
+  LatLngBounds? _computeBounds() {
     double? minLat, maxLat, minLon, maxLon;
-    for (final p in polylines) {
-      for (final pt in p.points) {
-        minLat = minLat == null || pt.latitude < minLat ? pt.latitude : minLat;
-        maxLat = maxLat == null || pt.latitude > maxLat ? pt.latitude : maxLat;
-        minLon = minLon == null || pt.longitude < minLon ? pt.longitude : minLon;
-        maxLon = maxLon == null || pt.longitude > maxLon ? pt.longitude : maxLon;
-      }
+
+    void expand(LatLng pt) {
+      minLat = minLat == null || pt.latitude < minLat! ? pt.latitude : minLat;
+      maxLat = maxLat == null || pt.latitude > maxLat! ? pt.latitude : maxLat;
+      minLon = minLon == null || pt.longitude < minLon! ? pt.longitude : minLon;
+      maxLon = maxLon == null || pt.longitude > maxLon! ? pt.longitude : maxLon;
     }
+
+    for (final p in _polylines ?? []) {
+      for (final pt in p.points) { expand(pt); }
+    }
+    for (final p in _polygons ?? []) {
+      for (final pt in p.points) { expand(pt); }
+    }
+
     if (minLat == null) return null;
-    return LatLngBounds(LatLng(minLat, minLon!), LatLng(maxLat!, maxLon!));
+    return LatLngBounds(LatLng(minLat!, minLon!), LatLng(maxLat!, maxLon!));
   }
 
   @override
   Widget build(BuildContext context) {
-    final polylines = _polylines;
-    final bounds = polylines != null ? _computeBounds(polylines) : null;
+    final loaded = _polylines != null && _polygons != null;
+    final bounds = loaded ? _computeBounds() : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F2),
@@ -78,7 +95,7 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
           SliverToBoxAdapter(
             child: SizedBox(
               height: 300,
-              child: polylines == null
+              child: !loaded
                   ? const Center(child: CircularProgressIndicator())
                   : FlutterMap(
                       options: MapOptions(
@@ -99,7 +116,8 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
                           ),
                           userAgentPackageName: 'it.discover.discover',
                         ),
-                        PolylineLayer(polylines: polylines),
+                        if (_polygons!.isNotEmpty) PolygonLayer(polygons: _polygons!),
+                        if (_polylines!.isNotEmpty) PolylineLayer(polylines: _polylines!),
                       ],
                     ),
             ),

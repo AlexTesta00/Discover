@@ -61,6 +61,13 @@ const _itineraryNames = <String, String>{
   'pinete': 'Pedalando nelle Pinete di Ravenna',
   'ravenna-cervia': 'I Parchi tra Ravenna e Cervia',
   'sterrati-savio': 'Sugli sterrati lungo il Savio',
+  // Birdwatching
+  'birdwatching-baiona': 'Birdwatching Stazione Pineta di San Vitale - Piallasse di Ravenna',
+  'birdwatching-campotto-argenta': 'Birdwatching Campotto di Argenta',
+  'birdwatching-saline': 'Birdwatching Salina di Cervia',
+  'birdwatching-vallette-di-ostellato': 'Birdwatching nelle Vallette di Ostellato',
+  'birdwatching-valli-comacchio': 'Birdwatching Valli di Comacchio',
+  'birdwatching-volano-mesola-goro': 'Birdwatching a Volano - Mesola - Goro',
 };
 
 const _itineraryImages = <String, String>{
@@ -80,6 +87,12 @@ const _itineraryImages = <String, String>{
   'sterrati-savio': 'https://www.parcodeltapo.it/fotoGallery/43647_362_PRDPE.jpeg',
   'ravenna-cervia': 'https://www.parcodeltapo.it/fotoGallery/43633_362_PRDPE.jpeg',
   'pinete': 'https://www.parcodeltapo.it/fotoGallery/43646_362_PRDPE.jpeg',
+  'birdwatching-campotto-argenta': 'https://www.parcodeltapo.it/fotoGallery/27035_362_PRDPE.jpeg',
+  'birdwatching-saline': 'https://www.parcodeltapo.it/fotoGallery/43689_362_PRDPE.jpeg',
+  'birdwatching-baiona': 'https://www.parcodeltapo.it/fotoGallery/38054_362_PRDPE.jpeg',
+  'birdwatching-valli-comacchio': 'https://www.parcodeltapo.it/fotoGallery/43690_362_PRDPE.jpeg',
+  'birdwatching-volano-mesola-goro': 'https://www.parcodeltapo.it/fotoGallery/43685_362_PRDPE.jpeg',
+  'birdwatching-vallette-di-ostellato': 'https://www.parcodeltapo.it/fotoGallery/50929_362_PRDPE.jpeg',
 };
 
 class _ItineraryTab extends StatelessWidget {

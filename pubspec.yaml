@@ -65,4 +65,5 @@ flutter:
     - assets/geo/itinerari/stazioni/
     - assets/geo/itinerari/bici/
     - assets/geo/itinerari/tutti/
+    - assets/geo/itinerari/birdwatching/
     - .env

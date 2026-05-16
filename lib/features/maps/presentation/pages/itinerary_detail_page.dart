@@ -107,6 +107,11 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
                             : null,
                         initialCenter: const LatLng(44.4, 12.2),
                         initialZoom: 11,
+                        interactionOptions: const InteractionOptions(
+                          flags: InteractiveFlag.all,
+                          rotationThreshold: 10.0,
+                          enableMultiFingerGestureRace: true,
+                        ),
                       ),
                       children: [
                         TileLayer(

@@ -245,20 +245,42 @@ class _FaunaBody extends StatelessWidget {
       children: [
         for (final animal in animals) ...[
           Container(
+            height: 72,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black12)],
             ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.black.withValues(alpha: 0.05),
-                child: const Icon(Icons.cruelty_free, size: 20, color: Colors.black54),
-              ),
-              title: Text(animal.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-              subtitle: animal.category != null
-                  ? Text(animal.category!, style: const TextStyle(fontSize: 12, color: Colors.black45))
-                  : null,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                  child: SizedBox(
+                    width: 72,
+                    child: animal.imageAsset != null
+                        ? Image.asset(animal.imageAsset!, fit: BoxFit.cover)
+                        : Container(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            child: const Icon(Icons.cruelty_free, size: 28, color: Colors.black38),
+                          ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(animal.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        if (animal.category != null)
+                          Text(animal.category!, style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),

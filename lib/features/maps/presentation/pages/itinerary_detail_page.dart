@@ -1,5 +1,6 @@
 import 'package:discover/features/maps/data/itinerary_descriptions.dart';
 import 'package:discover/features/maps/data/itinerary_fauna.dart';
+import 'package:discover/features/maps/presentation/pages/itinerary_fullmap_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -60,10 +61,14 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
     }
 
     for (final p in _polylines ?? []) {
-      for (final pt in p.points) { expand(pt); }
+      for (final pt in p.points) {
+        expand(pt);
+      }
     }
     for (final p in _polygons ?? []) {
-      for (final pt in p.points) { expand(pt); }
+      for (final pt in p.points) {
+        expand(pt);
+      }
     }
 
     if (minLat == null) return null;
@@ -99,32 +104,56 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
               height: 300,
               child: !loaded
                   ? const Center(child: CircularProgressIndicator())
-                  : FlutterMap(
-                      options: MapOptions(
-                        initialCameraFit: bounds != null
-                            ? CameraFit.bounds(
-                                bounds: bounds,
-                                padding: const EdgeInsets.all(40),
-                              )
-                            : null,
-                        initialCenter: const LatLng(44.4, 12.2),
-                        initialZoom: 11,
-                        interactionOptions: const InteractionOptions(
-                          flags: InteractiveFlag.all,
-                          rotationThreshold: 10.0,
-                          enableMultiFingerGestureRace: true,
-                        ),
-                      ),
+                  : Stack(
                       children: [
-                        TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          tileProvider: NetworkTileProvider(
-                            cachingProvider: const DisabledMapCachingProvider(),
+                        FlutterMap(
+                          options: MapOptions(
+                            initialCameraFit: bounds != null
+                                ? CameraFit.bounds(
+                                    bounds: bounds,
+                                    padding: const EdgeInsets.all(40),
+                                  )
+                                : null,
+                            initialCenter: const LatLng(44.4, 12.2),
+                            initialZoom: 11,
+                            interactionOptions: const InteractionOptions(
+                              flags: InteractiveFlag.all,
+                              rotationThreshold: 10.0,
+                              enableMultiFingerGestureRace: true,
+                            ),
                           ),
-                          userAgentPackageName: 'it.discover.discover',
+                          children: [
+                            TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              tileProvider: NetworkTileProvider(
+                                cachingProvider: const DisabledMapCachingProvider(),
+                              ),
+                              userAgentPackageName: 'it.discover.discover',
+                            ),
+                            if (_polygons!.isNotEmpty) PolygonLayer(polygons: _polygons!),
+                            if (_polylines!.isNotEmpty) PolylineLayer(polylines: _polylines!),
+                          ],
                         ),
-                        if (_polygons!.isNotEmpty) PolygonLayer(polygons: _polygons!),
-                        if (_polylines!.isNotEmpty) PolylineLayer(polylines: _polylines!),
+                        Positioned(
+                          right: 12,
+                          bottom: 12,
+                          child: FloatingActionButton.small(
+                            heroTag: 'open_fullmap',
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ItineraryFullMapPage(
+                                  name: widget.name,
+                                  assetPath: widget.assetPath,
+                                  color: widget.color,
+                                ),
+                              ),
+                            ),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            elevation: 4,
+                            child: const Icon(Icons.fullscreen),
+                          ),
+                        ),
                       ],
                     ),
             ),

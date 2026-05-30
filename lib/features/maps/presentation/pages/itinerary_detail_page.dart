@@ -1,3 +1,6 @@
+import 'package:discover/features/character/domain/entities/character.dart';
+import 'package:discover/features/character/domain/use_cases/character_service.dart';
+import 'package:discover/features/character/presentation/pages/character_detail_page.dart';
 import 'package:discover/features/maps/data/itinerary_descriptions.dart';
 import 'package:discover/features/maps/data/itinerary_fauna.dart';
 import 'package:discover/features/maps/presentation/pages/itinerary_fullmap_page.dart';
@@ -25,6 +28,7 @@ class ItineraryDetailPage extends StatefulWidget {
 class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
   List<Polyline>? _polylines;
   List<Polygon>? _polygons;
+  List<Character> _characters = [];
 
   @override
   void initState() {
@@ -33,7 +37,7 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
   }
 
   Future<void> _load() async {
-    final results = await Future.wait([
+    final geoResults = await Future.wait([
       loadGeoJsonPolylines(widget.assetPath, color: widget.color, strokeWidth: 4.0),
       loadGeoJsonPolygons(
         widget.assetPath,
@@ -44,9 +48,16 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
     ]);
     if (mounted) {
       setState(() {
-        _polylines = results[0] as List<Polyline>;
-        _polygons = results[1] as List<Polygon>;
+        _polylines = geoResults[0] as List<Polyline>;
+        _polygons = geoResults[1] as List<Polygon>;
       });
+    }
+
+    try {
+      final characters = await CharactersApi().getAllCharacters();
+      if (mounted) setState(() => _characters = characters);
+    } catch (e) {
+      debugPrint('Errore caricamento personaggi in itinerary detail: $e');
     }
   }
 
@@ -175,7 +186,7 @@ class _ItineraryDetailPageState extends State<ItineraryDetailPage> {
                   ),
                   SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
-                    child: _FaunaBody(assetPath: widget.assetPath),
+                    child: _FaunaBody(assetPath: widget.assetPath, characters: _characters),
                   ),
                 ],
               ),
@@ -220,8 +231,9 @@ class _DescriptionBody extends StatelessWidget {
 }
 
 class _FaunaBody extends StatelessWidget {
-  const _FaunaBody({required this.assetPath});
+  const _FaunaBody({required this.assetPath, required this.characters});
   final String assetPath;
+  final List<Character> characters;
 
   @override
   Widget build(BuildContext context) {
@@ -244,48 +256,76 @@ class _FaunaBody extends StatelessWidget {
     return Column(
       children: [
         for (final animal in animals) ...[
-          Container(
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black12)],
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
-                  child: SizedBox(
-                    width: 72,
-                    child: animal.imageAsset != null
-                        ? Image.asset(animal.imageAsset!, fit: BoxFit.cover)
-                        : Container(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            child: const Icon(Icons.cruelty_free, size: 28, color: Colors.black38),
-                          ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(animal.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                        if (animal.category != null)
-                          Text(animal.category!, style: const TextStyle(fontSize: 12, color: Colors.black45)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _AnimalCard(animal: animal, character: characters.cast<Character?>().firstWhere(
+            (c) => c!.name.toLowerCase().contains(animal.name.toLowerCase()),
+            orElse: () => null,
+          )),
           const SizedBox(height: 8),
         ],
       ],
+    );
+  }
+}
+
+class _AnimalCard extends StatelessWidget {
+  const _AnimalCard({required this.animal, required this.character});
+  final ItineraryAnimal animal;
+  final Character? character;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: character == null
+          ? null
+          : () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => CharacterDetailPage(character: character!, chatLocked: true),
+                ),
+              ),
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black12)],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+              child: SizedBox(
+                width: 72,
+                child: animal.imageAsset != null
+                    ? Image.asset(animal.imageAsset!, fit: BoxFit.cover)
+                    : Container(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        child: const Icon(Icons.cruelty_free, size: 28, color: Colors.black38),
+                      ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(animal.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    if (animal.category != null)
+                      Text(animal.category!, style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                  ],
+                ),
+              ),
+            ),
+            if (character != null)
+              const Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: Icon(Icons.chevron_right, color: Colors.black38),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

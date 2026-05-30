@@ -34,6 +34,7 @@ const Map<String, List<ItineraryAnimal>> itineraryFauna = {
   'punte-alberete': [
     ItineraryAnimal(name: 'Fenicottero', category: 'Uccelli', imageAsset: 'assets/characters/fenicottero.webp'),
     ItineraryAnimal(name: 'Airone', category: 'Uccelli', imageAsset: 'assets/characters/airone.webp'),
+    ItineraryAnimal(name: 'Marangone', category: 'Uccelli', imageAsset: 'assets/characters/marangone.webp'),
     ItineraryAnimal(name: 'Fratino', category: 'Uccelli', imageAsset: 'assets/characters/fratino.webp'),
     ItineraryAnimal(name: 'Martin Pescatore', category: 'Uccelli', imageAsset: 'assets/characters/martin.webp'),
     ItineraryAnimal(name: 'Cervo', category: 'Mammiferi', imageAsset: 'assets/characters/cervo.webp'),
@@ -149,6 +150,7 @@ const Map<String, List<ItineraryAnimal>> itineraryFauna = {
 
   'birdwatching-baiona': [
     ItineraryAnimal(name: 'Airone', category: 'Uccelli', imageAsset: 'assets/characters/airone.webp'),
+    ItineraryAnimal(name: 'Marangone', category: 'Uccelli', imageAsset: 'assets/characters/marangone.webp'),
     ItineraryAnimal(name: 'Martin Pescatore', category: 'Uccelli', imageAsset: 'assets/characters/martin.webp'),
     ItineraryAnimal(name: 'Scoiattolo', category: 'Mammiferi', imageAsset: 'assets/characters/scoiattolo.webp'),
   ],
@@ -157,7 +159,7 @@ const Map<String, List<ItineraryAnimal>> itineraryFauna = {
     ItineraryAnimal(name: 'Fenicottero', category: 'Uccelli', imageAsset: 'assets/characters/fenicottero.webp'),
     ItineraryAnimal(name: 'Airone', category: 'Uccelli', imageAsset: 'assets/characters/airone.webp'),
     ItineraryAnimal(name: 'Fratino', category: 'Uccelli', imageAsset: 'assets/characters/fratino.webp'),
-    ItineraryAnimal(name: 'Aquila', category: 'Uccelli', imageAsset: 'assets/characters/acquila.webp'),
+    ItineraryAnimal(name: 'Marangone', category: 'Uccelli', imageAsset: 'assets/characters/marangone.webp'),
     ItineraryAnimal(name: 'Anguilla', category: 'Pesci', imageAsset: 'assets/characters/anguilla.webp'),
   ],
 

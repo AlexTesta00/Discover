@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 class CharacterDetailPage extends StatelessWidget {
   final Character character;
+  final bool chatLocked;
 
   const CharacterDetailPage({
     super.key,
     required this.character,
+    this.chatLocked = false,
   });
 
   @override
@@ -53,48 +55,55 @@ class CharacterDetailPage extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // HEADER IMAGE 16:9 circa
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: headerImage,
-          ),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // HEADER IMAGE 16:9 circa
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: headerImage,
+            ),
 
-          // CONTENUTO
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    character.name,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+            // CONTENUTO
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      character.name,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    character.story,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    Text(
+                      character.story,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
 
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'chat_fab',
-        onPressed: () => Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(
-            builder: (_) => ChatPage(character: character),
-          ),
-        ),
-        icon: const Icon(Icons.chat_bubble_outline),
+        onPressed: chatLocked
+            ? () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Devi incontrare questo animale nel parco prima di potergli parlare.'),
+                ),
+              )
+            : () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (_) => ChatPage(character: character),
+                ),
+              ),
+        backgroundColor: chatLocked ? Colors.grey.shade400 : null,
+        icon: Icon(chatLocked ? Icons.lock_outline : Icons.chat_bubble_outline),
         label: Text('Parla con ${character.name}'),
       ),
     );

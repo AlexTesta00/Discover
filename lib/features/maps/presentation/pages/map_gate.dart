@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
@@ -55,6 +56,8 @@ class _MapGateState extends State<MapGate> {
   Map<String, Character> _charactersById = {};
   bool _loadingPois = true;
   String? _poisError;
+
+  final bool _parkVisible = true;
 
   @override
   void initState() {
@@ -112,7 +115,6 @@ class _MapGateState extends State<MapGate> {
       _showSnack('Errore caricamento personaggi: $e');
       return;
     }
-
   }
 
   // TAP marker:
@@ -213,6 +215,7 @@ class _MapGateState extends State<MapGate> {
                 userLatLng: _ctrl.userLatLng,
                 pois: _pois,
                 onPoiTap: _onPoiTap,
+                showParkArea: _parkVisible,
               ),
               if (_pois.isNotEmpty)
                 OffScreenPoiIndicators(mapController: _mapController, pois: _pois, userLatLng: _ctrl.userLatLng, onTap: _onPoiTap),
@@ -256,6 +259,21 @@ class _MapGateState extends State<MapGate> {
                   ),
                 ),
               ),
+              Positioned(
+                left: 16,
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(bottom: 24),
+                  child: FloatingActionButton.small(
+                    heroTag: 'itineraries',
+                    onPressed: _openItineraryPage,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 4,
+                    child: const Icon(Icons.route),
+                  ),
+                ),
+              ),
               if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: LoadingPage()),
               if (_poisError != null)
                 Positioned(
@@ -284,8 +302,7 @@ class _MapGateState extends State<MapGate> {
       return;
     }
 
-    final characters = _charactersById.values.toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final characters = _charactersById.values.toList()..sort((a, b) => a.name.compareTo(b.name));
 
     final selected = await showDialog<Character>(
       context: context,
@@ -348,14 +365,22 @@ class _MapGateState extends State<MapGate> {
         photoMeta: {'ml_labels': mlLabels.toList(), 'challenge_labels': challenge.labels},
       );
 
-      ChallengeEventBus.I.publish(ChallengeCompletedEvent(
-        submissionId: submissionId,
-        challenge: challenge,
-        isFirstCompletion: isFirst,
-      ));
+      ChallengeEventBus.I.publish(
+        ChallengeCompletedEvent(
+          submissionId: submissionId,
+          challenge: challenge,
+          isFirstCompletion: isFirst,
+        ),
+      );
     } catch (e) {
       if (mounted) _showSnack('Errore salvataggio: $e');
     }
+  }
+
+  void _openItineraryPage() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (_) => const ItineraryPage()),
+    );
   }
 
   void _showSnack(String msg) {

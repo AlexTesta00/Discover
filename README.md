@@ -44,7 +44,7 @@ Discover Project mira a:
 Per informazioni sul progetto e collaborazioni:
 
 - 📧 Email: `info@discover-project.it`  
-
+  
 ---
 
 *Discover Project è realizzato grazie ai fondi europei della Regione Emilia-Romagna.*

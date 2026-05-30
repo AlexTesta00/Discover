@@ -17,6 +17,8 @@ class MapView extends StatelessWidget {
   final void Function(PredefinedPoi)? onPoiTap;
 
   final void Function(LatLng)? onLongPressMap;
+  final List<Polyline> extraPolylines;
+  final bool showParkArea;
 
   const MapView({
     super.key,
@@ -27,6 +29,8 @@ class MapView extends StatelessWidget {
     this.userLatLng,
     this.onPoiTap,
     this.onLongPressMap,
+    this.extraPolylines = const [],
+    this.showParkArea = true,
   });
 
   @override
@@ -81,8 +85,9 @@ class MapView extends StatelessWidget {
               ),
               userAgentPackageName: 'it.discover.discover',
             ),
-            PolygonLayer(polygons: mapUtils.polygons),
+            if (showParkArea) PolygonLayer(polygons: mapUtils.polygons),
             PolylineLayer(polylines: themedPolylines),
+            if (extraPolylines.isNotEmpty) PolylineLayer(polylines: extraPolylines),
             MarkerClusterLayerWidget(
               options: MarkerClusterLayerOptions(
                 maxClusterRadius: 80,

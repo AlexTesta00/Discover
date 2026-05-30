@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
+import 'package:discover/utils/presentation/pages/loading_page.dart';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
@@ -292,6 +294,8 @@ class _MapDemoGateState extends State<MapDemoGate> {
   Map<String, Character> _charactersById = {};
   bool _loadingPois = true;
   String? _poisError;
+
+  final bool _parkVisible = true;
   StreamSubscription? _busSub;
 
   @override
@@ -325,11 +329,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
     final poi = _pois.where((p) => p.id == characterId).cast<PredefinedPoi?>().firstOrNull;
     if (poi == null) return;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _mapController.move(poi.position, 16);
-    });
-
+    _mapController.move(poi.position, 16);
     _onPoiTap(poi);
   }
 
@@ -356,7 +356,6 @@ class _MapDemoGateState extends State<MapDemoGate> {
       _showSnack('Errore caricamento personaggi: $e');
       return;
     }
-
   }
 
   void _onPoiTap(PredefinedPoi poi) {
@@ -382,29 +381,23 @@ class _MapDemoGateState extends State<MapDemoGate> {
   }
 
   void _showArrivalModal(PredefinedPoi poi) async {
-    if (!mounted) return;
+    final bus = ChallengeEventBus.I;
+    final client = Supabase.instance.client;
+    final repo = ChallengeRepository(client);
 
-    Future<void> completeTalkChallengeIfNeeded() async {
-      final bus = ChallengeEventBus.I;
-      final client = Supabase.instance.client;
-      final repo = ChallengeRepository(client);
+    try {
+      final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
 
-      try {
-        final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
-
-        if (submissionId != null && wasNew) {
-          final allChallenges = await repo.fetchAllWithCharacter();
-          final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
-
-          bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
-        }
-      } catch (e) {
-        debugPrint('Errore completamento challenge RPC: $e');
-        if (mounted) {
-          _showSnack('Impossibile completare la challenge: $e');
-        }
+      if (submissionId != null && wasNew) {
+        final allChallenges = await repo.fetchAllWithCharacter();
+        final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
+        bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
       }
+    } catch (e) {
+      debugPrint('Errore completamento challenge RPC: $e');
     }
+
+    if (!mounted) return;
 
     showModalBottomSheet(
       context: context,
@@ -413,12 +406,8 @@ class _MapDemoGateState extends State<MapDemoGate> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiArrivalSheet(
         poi: poi,
-        onReadStory: () async {
+        onReadStory: () {
           Navigator.of(ctx).pop();
-          await completeTalkChallengeIfNeeded();
-
-          if (!mounted) return;
-
           final character = _charactersById[poi.id];
           if (character != null) {
             Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => CharacterDetailPage(character: character)));
@@ -461,6 +450,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
                 pois: _pois,
                 onPoiTap: _onPoiTap,
                 onLongPressMap: _onLongPressTeleport,
+                showParkArea: _parkVisible,
               ),
 
               if (_pois.isNotEmpty)
@@ -508,7 +498,22 @@ class _MapDemoGateState extends State<MapDemoGate> {
                 ),
               ),
 
-              if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: Center(child: CircularProgressIndicator())),
+              Positioned(
+                left: 16,
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(bottom: 24),
+                  child: FloatingActionButton.small(
+                    heroTag: 'demo_itineraries',
+                    onPressed: _openItineraryPage,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 4,
+                    child: const Icon(Icons.route),
+                  ),
+                ),
+              ),
+              if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: LoadingPage()),
 
               if (_poisError != null)
                 Positioned(
@@ -537,8 +542,7 @@ class _MapDemoGateState extends State<MapDemoGate> {
       return;
     }
 
-    final characters = _charactersById.values.toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final characters = _charactersById.values.toList()..sort((a, b) => a.name.compareTo(b.name));
 
     final selected = await showDialog<Character>(
       context: context,
@@ -576,6 +580,12 @@ class _MapDemoGateState extends State<MapDemoGate> {
     } catch (e) {
       if (mounted) _showSnack('Errore fotocamera: $e');
     }
+  }
+
+  void _openItineraryPage() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (_) => const ItineraryPage()),
+    );
   }
 
   void _showSnack(String msg) {

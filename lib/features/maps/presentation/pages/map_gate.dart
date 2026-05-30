@@ -57,7 +57,7 @@ class _MapGateState extends State<MapGate> {
   bool _loadingPois = true;
   String? _poisError;
 
-  bool _parkVisible = true;
+  final bool _parkVisible = true;
 
   @override
   void initState() {
@@ -115,7 +115,6 @@ class _MapGateState extends State<MapGate> {
       _showSnack('Errore caricamento personaggi: $e');
       return;
     }
-
   }
 
   // TAP marker:
@@ -303,8 +302,7 @@ class _MapGateState extends State<MapGate> {
       return;
     }
 
-    final characters = _charactersById.values.toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final characters = _charactersById.values.toList()..sort((a, b) => a.name.compareTo(b.name));
 
     final selected = await showDialog<Character>(
       context: context,
@@ -367,11 +365,13 @@ class _MapGateState extends State<MapGate> {
         photoMeta: {'ml_labels': mlLabels.toList(), 'challenge_labels': challenge.labels},
       );
 
-      ChallengeEventBus.I.publish(ChallengeCompletedEvent(
-        submissionId: submissionId,
-        challenge: challenge,
-        isFirstCompletion: isFirst,
-      ));
+      ChallengeEventBus.I.publish(
+        ChallengeCompletedEvent(
+          submissionId: submissionId,
+          challenge: challenge,
+          isFirstCompletion: isFirst,
+        ),
+      );
     } catch (e) {
       if (mounted) _showSnack('Errore salvataggio: $e');
     }

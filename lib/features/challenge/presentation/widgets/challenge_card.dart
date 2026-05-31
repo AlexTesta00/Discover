@@ -163,7 +163,12 @@ class _ChallengeCardState extends State<ChallengeCard> {
       final client = Supabase.instance.client;
       final repo = ChallengeRepository(client);
       final captureService = PhotoCaptureService(repo);
-      await captureService.captureForChallenge(challenge);
+      final file = await captureService.captureForChallenge(challenge);
+      if (file == null && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Scatto annullato.')));
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

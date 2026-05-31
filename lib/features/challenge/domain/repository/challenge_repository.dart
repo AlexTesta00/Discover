@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:discover/features/challenge/domain/entities/challenge.dart';
+import 'package:discover/features/challenge/domain/entities/challenge_submission_item.dart';
 import 'package:discover/features/user/domain/use_cases/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -59,8 +60,10 @@ class ChallengeRepository {
         .toList();
   }
 
-  /// Invia una submission con eventuale foto
-  Future<String> submitChallenge({
+  /// Inserisce SEMPRE una nuova submission (non fa upsert).
+  /// Usato quando si vuole poter completare più volte la stessa challenge
+  /// salvando ogni foto come riga separata in challenge_submissions.
+  Future<String> insertChallengeSubmission({
     required String challengeId,
     File? photoFile,
     Map<String, dynamic>? photoMeta,
@@ -75,48 +78,40 @@ class ChallengeRepository {
     if (photoFile != null) {
       final ext = photoFile.path.split('.').last.toLowerCase();
       final filename = const Uuid().v4();
-
-      // Usa l'email come 2° segmento per rispettare la policy
       photoPath = '$challengeId/$email/$filename.$ext';
-
       await client.storage
           .from('challenge-submissions')
           .upload(photoPath, photoFile);
     }
 
-    try {
-      final upsert = await client
-          .from('challenge_submissions')
-          .upsert({
-            'user_email': email,
-            'challenge_id': challengeId,
-            'note': note.isNotEmpty ? note : null,
-            'photo_path': photoPath,
-            'photo_meta': photoMeta ?? {},
-          }, onConflict: 'user_email,challenge_id')
-          .select()
-          .single();
+    final inserted = await client
+        .from('challenge_submissions')
+        .insert({
+          'user_email': email,
+          'challenge_id': challengeId,
+          'note': note.isNotEmpty ? note : null,
+          'photo_path': photoPath,
+          'photo_meta': photoMeta ?? {},
+        })
+        .select()
+        .single();
 
-      return upsert['id'] as String;
-    } on PostgrestException catch (e) {
-      // 🔥 Intercetta il caso "duplicate key" ed evita di rilanciare
-      if (e.message.contains('duplicate key value') ||
-          e.code == '23505' ||
-          e.message.toLowerCase().contains('unique constraint')) {
-        // Potresti anche fare una select per ottenere l’id già esistente:
-        final existing = await client
-            .from('challenge_submissions')
-            .select('id')
-            .eq('user_email', email)
-            .eq('challenge_id', challengeId)
-            .maybeSingle();
-        if (existing != null && existing['id'] != null) {
-          return existing['id'] as String;
-        }
-        return '';
-      }
-      rethrow; // altri errori veri li rilancia
-    }
+    return inserted['id'] as String;
+  }
+
+  /// Invia una submission con eventuale foto
+  Future<String> submitChallenge({
+    required String challengeId,
+    File? photoFile,
+    Map<String, dynamic>? photoMeta,
+    String note = '',
+  }) async {
+    return insertChallengeSubmission(
+      challengeId: challengeId,
+      photoFile: photoFile,
+      photoMeta: photoMeta,
+      note: note,
+    );
   }
 
   // Restituisce le URL PUBBLICHE di tutte le foto challenge per l'utente [email].
@@ -195,34 +190,72 @@ class ChallengeRepository {
     );
   }
 
+  Future<List<ChallengeSubmissionItem>> getSubmissionsForEmail(
+    String email,
+  ) async {
+    final rows = await client
+        .from('challenge_submissions')
+        .select(
+          'created_at, photo_path, '
+          'challenge:challenges(title, requires_photo, character:characters(image_asset))',
+        )
+        .eq('user_email', email)
+        .order('created_at', ascending: false);
+
+    final bucket = client.storage.from('challenge-submissions');
+    final list = (rows as List).cast<Map<String, dynamic>>();
+
+    return list.map((m) {
+      final challengeMap = m['challenge'] as Map<String, dynamic>?;
+      final title = challengeMap?['title'] as String? ?? 'Sfida sconosciuta';
+      final requiresPhoto = challengeMap?['requires_photo'] as bool? ?? false;
+      final characterMap = challengeMap?['character'] as Map<String, dynamic>?;
+      final imageAsset = characterMap?['image_asset'] as String? ?? '';
+      final photoPath = m['photo_path'] as String?;
+      final photoUrl = (photoPath != null && photoPath.isNotEmpty)
+          ? bucket.getPublicUrl(photoPath)
+          : null;
+      return ChallengeSubmissionItem(
+        completedAt: DateTime.parse(m['created_at'] as String).toLocal(),
+        challengeTitle: title,
+        requiresPhoto: requiresPhoto,
+        characterImageAsset: imageAsset,
+        photoUrl: photoUrl,
+      );
+    }).toList();
+  }
+
   Future<(String?, bool)> completeTalkChallengeForCharacter(
     String characterId,
   ) async {
     final user = client.auth.currentUser;
     if (user == null) throw const AuthException('Non autenticato');
 
-    final response = await client
-        .rpc(
-          'complete_challenge_for_character',
-          params: {'p_character_id': characterId},
-        )
-        .select()
+    final row = await client
+        .from('challenges')
+        .select('id')
+        .eq('character_id', characterId)
+        .eq('requires_photo', false)
         .maybeSingle();
 
-    if (response == null) {
-      throw Exception('Nessun risultato restituito dalla RPC.');
-    }
-
-    final submissionId = response['submission_id'] as String?;
-    final wasNew = response['was_new'] as bool? ?? false;
-
-    // Se non c'è submissionId → significa che la challenge non esiste per quel personaggio
-    if (submissionId == null) {
+    final challengeId = row?['id'] as String?;
+    if (challengeId == null) {
       debugPrint(
         'Nessuna challenge di dialogo trovata per personaggio $characterId',
       );
       return (null, false);
     }
+
+    final completedIds = await fetchCompletedIds();
+    final wasNew = !completedIds.contains(challengeId);
+
+    final submissionId = await insertChallengeSubmission(
+      challengeId: challengeId,
+      photoMeta: {
+        'source': 'dialogue',
+        'character_id': characterId,
+      },
+    );
 
     return (submissionId, wasNew);
   }

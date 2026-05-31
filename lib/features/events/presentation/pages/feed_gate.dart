@@ -7,12 +7,7 @@ typedef GetEventsFeedFn = Future<List<EventItem>> Function({int limit, int offse
 typedef GetUserByEmailFn = Future<User?> Function(String email);
 
 class FeedGate extends StatefulWidget {
-  const FeedGate({
-    super.key,
-    required this.getEventsFeed,
-    required this.getUserByEmail,
-    this.pageSize = 20,
-  });
+  const FeedGate({super.key, required this.getEventsFeed, required this.getUserByEmail, this.pageSize = 20});
 
   final GetEventsFeedFn getEventsFeed;
   final GetUserByEmailFn getUserByEmail;
@@ -78,9 +73,7 @@ class _FeedGateState extends State<FeedGate> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Errore nel caricamento: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Errore nel caricamento: $e')));
       }
     } finally {
       if (mounted) setState(() => _loadingMore = false);
@@ -103,13 +96,14 @@ class _FeedGateState extends State<FeedGate> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          color: Colors.black,
-          onPressed:() {
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
             Navigator.of(context).pop();
           },
         ),
+        title: const Text('Attività', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: SafeArea(child: _buildBody()),
     );
@@ -180,10 +174,7 @@ class _FeedGateState extends State<FeedGate> {
                 : const SizedBox(height: 24);
           }
           final item = _events[i];
-          return EventCard(
-            item: item,
-            getUserByEmail: _cachedUser,
-          );
+          return EventCard(item: item, getUserByEmail: _cachedUser);
         },
       ),
     );
@@ -200,10 +191,7 @@ class _InitialSkeleton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       itemBuilder: (_, _) => Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
-          ),
+          CircleAvatar(radius: 24, backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -215,7 +203,7 @@ class _InitialSkeleton extends StatelessWidget {
                 const SizedBox(height: 8),
               ],
             ),
-          )
+          ),
         ],
       ),
       separatorBuilder: (_, _) => const SizedBox(height: 8),

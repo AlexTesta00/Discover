@@ -9,19 +9,6 @@ class MapService extends ChangeNotifier {
   final List<LatLng> _points = [];
   final List<List<LatLng>> _paths = [];
 
-  //Poligoni del parco
-  final deltaDelPoPolygon = Polygon(
-    points: const [
-      LatLng(44.70947164927037, 12.072101290849702),
-      LatLng(44.3764207482383, 12.072101290849702),
-      LatLng(44.3764207482383, 12.325010817774569),
-      LatLng(44.70947164927037, 12.325010817774569),
-      LatLng(44.70947164927037, 12.072101290849702),
-    ],
-    color: Colors.green.withValues(alpha: 0.18), // riempimento
-    borderColor: Colors.green.withValues(alpha: 0.75), // bordo
-    borderStrokeWidth: 2,
-  );
 
   // ---- GETTER PUBBLICI ----
 

@@ -1,12 +1,15 @@
 import 'package:discover/features/character/domain/entities/character.dart';
+import 'package:discover/features/chat/presentation/pages/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class CharacterDetailPage extends StatelessWidget {
   final Character character;
+  final bool chatLocked;
 
   const CharacterDetailPage({
     super.key,
     required this.character,
+    this.chatLocked = false,
   });
 
   @override
@@ -38,6 +41,17 @@ class CharacterDetailPage extends StatelessWidget {
     }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          color: const Color(0xFFEF4565),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -75,10 +89,22 @@ class CharacterDetailPage extends StatelessWidget {
         ),
       ),
 
-      // FAB indietro (come nello screenshot)
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).maybePop(),
-        child: const Icon(Icons.arrow_back),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'chat_fab',
+        onPressed: chatLocked
+            ? () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Devi incontrare questo animale nel parco prima di potergli parlare.'),
+                ),
+              )
+            : () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (_) => ChatPage(character: character),
+                ),
+              ),
+        backgroundColor: chatLocked ? Colors.grey.shade400 : null,
+        icon: Icon(chatLocked ? Icons.lock_outline : Icons.chat_bubble_outline),
+        label: Text('Parla con ${character.name}'),
       ),
     );
   }

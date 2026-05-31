@@ -1,6 +1,14 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:discover/features/maps/presentation/pages/itinerary_page.dart';
+import 'package:discover/features/challenge/domain/entities/challenge.dart';
 import 'package:discover/features/challenge/domain/entities/event.dart';
 import 'package:discover/features/challenge/domain/repository/challenge_repository.dart';
+import 'package:discover/features/challenge/domain/use_cases/photo_capture_service.dart';
+import 'package:discover/features/challenge/domain/use_cases/photo_label_service.dart';
+import 'package:discover/features/challenge/presentation/widgets/modal_not_completed.dart';
+import 'package:discover/features/challenge/utils/utils.dart';
+import 'package:discover/features/maps/presentation/widgets/photo_challenge_picker_dialog.dart';
 import 'package:discover/features/maps/presentation/controller/tracking_controller.dart';
 import 'package:discover/features/maps/presentation/pages/ar_character_page.dart';
 import 'package:discover/features/maps/presentation/widgets/banner.dart';
@@ -10,9 +18,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/point_of_interest.dart';
 import '../../domain/use_cases/map_service.dart';
+import '../../domain/use_cases/parks/geo_json_loader.dart';
 import '../../domain/use_cases/osrm_routing_provider.dart';
 import '../../domain/use_cases/routing_provider.dart';
 import '../widgets/map_view.dart';
+import '../widgets/off_screen_indicators.dart';
 import '../widgets/poi_bottom_sheet.dart';
 import '../widgets/poi_arrival_sheet.dart';
 import 'package:discover/utils/presentation/pages/loading_page.dart';
@@ -38,11 +48,8 @@ class _MapGateState extends State<MapGate> {
   final MapService _mapUtils = MapService();
   final RoutingProvider _routing = OSRMRoutingProvider();
 
-  late final TrackingController _ctrl = TrackingController(
-    mapController: _mapController,
-    mapService: _mapUtils,
-    routingProvider: _routing,
-  )..onArrived = _showArrivalModal;
+  late final TrackingController _ctrl = TrackingController(mapController: _mapController, mapService: _mapUtils, routingProvider: _routing)
+    ..onArrived = _showArrivalModal;
 
   // POI & characters
   List<PredefinedPoi> _pois = [];
@@ -50,12 +57,17 @@ class _MapGateState extends State<MapGate> {
   bool _loadingPois = true;
   String? _poisError;
 
+  Set<String> _completedTalkCharacterIds = {};
+
+  final bool _parkVisible = true;
+
   @override
   void initState() {
     super.initState();
     _loadPois();
     _ctrl.startLocation();
-    _mapUtils.setPolygons([_mapUtils.deltaDelPoPolygon]);
+    _loadParks();
+    _loadCompletedTalkChallenges();
 
     _busSub = ChallengeEventBus.I.stream.listen((e) {
       if (e is GoToMapForCharacterEvent) {
@@ -75,10 +87,7 @@ class _MapGateState extends State<MapGate> {
   void _focusPoiByCharacterId(String characterId) {
     if (_pois.isEmpty) return;
 
-    final poi = _pois
-        .where((p) => p.id == characterId)
-        .cast<PredefinedPoi?>()
-        .firstOrNull;
+    final poi = _pois.where((p) => p.id == characterId).cast<PredefinedPoi?>().firstOrNull;
     if (poi == null) return;
 
     setState(() => _highlightPoiId = poi.id);
@@ -88,22 +97,17 @@ class _MapGateState extends State<MapGate> {
     _onPoiTap(poi);
   }
 
+  Future<void> _loadParks() async {
+    final polys = await loadGeoJsonPolygons('assets/geo/delta_po.geojson');
+    if (mounted) _mapUtils.setPolygons(polys);
+  }
+
   Future<void> _loadPois() async {
     try {
       final characters = await CharactersApi().getAllCharacters();
       _charactersById = {for (final c in characters) c.id: c};
-
       setState(() {
-        _pois = characters
-            .map(
-              (c) => PredefinedPoi(
-                id: c.id,
-                name: c.name,
-                position: LatLng(c.lat, c.lng),
-                imageAsset: c.imageAsset,
-              ),
-            )
-            .toList();
+        _pois = characters.map((c) => c.toPoi()).toList();
         _loadingPois = false;
       });
     } catch (e) {
@@ -112,6 +116,22 @@ class _MapGateState extends State<MapGate> {
         _loadingPois = false;
       });
       _showSnack('Errore caricamento personaggi: $e');
+      return;
+    }
+  }
+
+  Future<void> _loadCompletedTalkChallenges() async {
+    try {
+      final repo = ChallengeRepository(Supabase.instance.client);
+      final completedIds = await repo.fetchCompletedIds();
+      final allChallenges = await repo.fetchAllWithCharacter();
+      final ids = allChallenges
+          .where((c) => !c.requiresPhoto && completedIds.contains(c.id))
+          .map((c) => c.characterId)
+          .toSet();
+      if (mounted) setState(() => _completedTalkCharacterIds = ids);
+    } catch (e) {
+      debugPrint('Errore caricamento talk challenges completate: $e');
     }
   }
 
@@ -128,9 +148,8 @@ class _MapGateState extends State<MapGate> {
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      clipBehavior: Clip.antiAlias,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiBottomSheet(
         poi: poi,
         onStart: () {
@@ -147,52 +166,38 @@ class _MapGateState extends State<MapGate> {
   //   - Leggi la storia
   //   - Vedi in AR (camera + PNG del personaggio)
   void _showArrivalModal(PredefinedPoi poi) async {
-    final bus = ChallengeEventBus.I;
-    final client = Supabase.instance.client;
-    final repo = ChallengeRepository(client);
+    if (!_completedTalkCharacterIds.contains(poi.id)) {
+      final bus = ChallengeEventBus.I;
+      final repo = ChallengeRepository(Supabase.instance.client);
 
-    //Completa la challenge "Parla con X" via RPC
-    try {
-      final (submissionId, wasNew) = await repo
-          .completeTalkChallengeForCharacter(poi.id);
+      try {
+        final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
+        _completedTalkCharacterIds.add(poi.id);
 
-      //Se è la prima volta → emetti l'evento ChallengeCompletedEvent
-      if (submissionId != null && wasNew) {
-        final allChallenges = await repo.fetchAllWithCharacter();
-        final challenge = allChallenges.firstWhere(
-          (c) => c.characterId == poi.id && c.requiresPhoto == false,
-        );
-
-        bus.publish(
-          ChallengeCompletedEvent(
-            submissionId: submissionId,
-            challenge: challenge,
-          ),
-        );
+        if (submissionId != null && wasNew) {
+          final allChallenges = await repo.fetchAllWithCharacter();
+          final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
+          bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
+        }
+      } catch (e) {
+        debugPrint('Errore completamento challenge RPC: $e');
       }
-    } catch (e) {
-      debugPrint('Errore completamento challenge RPC: $e');
     }
 
     //Mostra il modale di arrivo
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
-      isScrollControlled: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: true,
+      clipBehavior: Clip.antiAlias,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => PoiArrivalSheet(
         poi: poi,
         onReadStory: () {
           Navigator.of(ctx).pop();
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CharacterDetailPage(character: character),
-              ),
-            );
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => CharacterDetailPage(character: character)));
           } else {
             _showSnack('Dati del personaggio non disponibili.');
           }
@@ -201,11 +206,7 @@ class _MapGateState extends State<MapGate> {
           Navigator.of(ctx).pop();
           final character = _charactersById[poi.id];
           if (character != null) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ARCharacterPage(character: character),
-              ),
-            );
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => ARCharacterPage(character: character)));
           } else {
             _showSnack('Dati del personaggio non disponibili.');
           }
@@ -219,9 +220,7 @@ class _MapGateState extends State<MapGate> {
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
-        final showBanner =
-            _ctrl.isTracking &&
-            (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
+        final showBanner = _ctrl.isTracking && (_ctrl.remainMeters > 0 || _ctrl.etaSeconds > 0);
 
         return Scaffold(
           body: Stack(
@@ -233,49 +232,66 @@ class _MapGateState extends State<MapGate> {
                 userLatLng: _ctrl.userLatLng,
                 pois: _pois,
                 onPoiTap: _onPoiTap,
+                showParkArea: _parkVisible,
               ),
-              EtaBanner(
-                visible: showBanner,
-                remainMeters: _ctrl.remainMeters,
-                etaSeconds: _ctrl.etaSeconds,
-                onStop: _ctrl.stopTracking,
+              if (_pois.isNotEmpty)
+                OffScreenPoiIndicators(mapController: _mapController, pois: _pois, userLatLng: _ctrl.userLatLng, onTap: _onPoiTap),
+              EtaBanner(visible: showBanner, remainMeters: _ctrl.remainMeters, etaSeconds: _ctrl.etaSeconds, onStop: _ctrl.stopTracking),
+              // Controlli mappa + FAB fotocamera — in basso a destra
+              Positioned(
+                right: 16,
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FloatingActionButton.small(
+                        heroTag: 'center_user',
+                        onPressed: _ctrl.centerOnUser,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        elevation: 4,
+                        child: const Icon(Icons.my_location),
+                      ),
+                      const SizedBox(height: 12),
+                      FloatingActionButton.small(
+                        heroTag: 'reset_north',
+                        onPressed: _ctrl.resetRotationNorth,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        elevation: 4,
+                        child: const Icon(Icons.explore),
+                      ),
+                      const SizedBox(height: 12),
+                      FloatingActionButton(
+                        heroTag: 'take_photo',
+                        onPressed: _openPhotoChallengeDialog,
+                        backgroundColor: const Color(0xFFF34E6C),
+                        foregroundColor: Colors.white,
+                        elevation: 6,
+                        child: const Icon(Icons.photo_camera),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Positioned(
-                right: 12,
-                bottom: 24,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    //Centra su utente
-                    FloatingActionButton.small(
-                      heroTag: 'center_user',
-                      onPressed: _ctrl.centerOnUser,
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      elevation: 4,
-                      child: const Icon(Icons.my_location),
-                    ),
-                    const SizedBox(height: 12),
-
-                    //Reset rotazione
-                    FloatingActionButton.small(
-                      heroTag: 'reset_north',
-                      onPressed: _ctrl.resetRotationNorth,
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      elevation: 4,
-                      child: const Icon(Icons.explore),
-                    ),
-                  ],
+                left: 16,
+                bottom: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(bottom: 24),
+                  child: FloatingActionButton.small(
+                    heroTag: 'itineraries',
+                    onPressed: _openItineraryPage,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 4,
+                    child: const Icon(Icons.route),
+                  ),
                 ),
               ),
-              if (_loadingPois)
-                const Positioned(
-                  top: 60,
-                  left: 0,
-                  right: 0,
-                  child: LoadingPage(),
-                ),
+              if (_loadingPois) const Positioned(top: 60, left: 0, right: 0, child: LoadingPage()),
               if (_poisError != null)
                 Positioned(
                   top: 60,
@@ -285,14 +301,8 @@ class _MapGateState extends State<MapGate> {
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'Errore: $_poisError',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text('Errore: $_poisError', style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),
@@ -300,6 +310,93 @@ class _MapGateState extends State<MapGate> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _openPhotoChallengeDialog() async {
+    if (_charactersById.isEmpty) {
+      _showSnack('Nessun personaggio disponibile.');
+      return;
+    }
+
+    final characters = _charactersById.values.toList()..sort((a, b) => a.name.compareTo(b.name));
+
+    final selected = await showDialog<Character>(
+      context: context,
+      builder: (_) => PhotoChallengePickerDialog(characters: characters),
+    );
+
+    if (selected == null || !mounted) return;
+
+    List<Challenge> photoChallenges;
+    try {
+      final repo = ChallengeRepository(Supabase.instance.client);
+      final all = await repo.fetchAllWithCharacter();
+      photoChallenges = all.where((c) => c.requiresPhoto).toList();
+    } catch (e) {
+      if (mounted) _showSnack('Errore caricamento sfide: $e');
+      return;
+    }
+
+    if (!mounted) return;
+
+    final matches = photoChallenges.where((c) => c.characterId == selected.id);
+    if (matches.isEmpty) {
+      _showSnack('Nessuna sfida fotografica per ${selected.name}.');
+      return;
+    }
+
+    final challenge = matches.first;
+    final repo = ChallengeRepository(Supabase.instance.client);
+
+    File? file;
+    try {
+      file = await PhotoCaptureService(repo).captureOnly();
+    } catch (e) {
+      if (mounted) _showSnack('Errore fotocamera: $e');
+      return;
+    }
+
+    if (file == null) return; // annullato
+    if (!mounted) return;
+
+    // Validazione ML con context locale (evita il problema di navKey.currentContext null)
+    final labelService = PhotoLabelService(confidence: 0.6);
+    final mlLabels = await labelService.labelsFor(file);
+    final ok = anyLabelMatches(mlLabels: mlLabels, challengeLabels: challenge.labels);
+
+    if (!ok) {
+      if (mounted) await showNotCompletedModal(context, challenge: challenge);
+      return;
+    }
+
+    if (!mounted) return;
+
+    try {
+      final completedIds = await repo.fetchCompletedIds();
+      final isFirst = !completedIds.contains(challenge.id);
+
+      final submissionId = await repo.insertChallengeSubmission(
+        challengeId: challenge.id,
+        photoFile: file,
+        photoMeta: {'ml_labels': mlLabels.toList(), 'challenge_labels': challenge.labels},
+      );
+
+      ChallengeEventBus.I.publish(
+        ChallengeCompletedEvent(
+          submissionId: submissionId,
+          challenge: challenge,
+          isFirstCompletion: isFirst,
+        ),
+      );
+    } catch (e) {
+      if (mounted) _showSnack('Errore salvataggio: $e');
+    }
+  }
+
+  void _openItineraryPage() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (_) => const ItineraryPage()),
     );
   }
 

@@ -8,6 +8,8 @@ class Character {
   final String story;
   final double lat;
   final double lng;
+  final String? locationImage;
+  final String? subtitle;
 
   const Character({
     required this.id,
@@ -16,6 +18,8 @@ class Character {
     required this.story,
     required this.lat,
     required this.lng,
+    this.locationImage,
+    this.subtitle,
   });
 
   LatLng get position => LatLng(lat, lng);
@@ -27,6 +31,8 @@ class Character {
     story: m['story'] as String,
     lat: (m['lat'] as num).toDouble(),
     lng: (m['lng'] as num).toDouble(),
+    locationImage: m['location_image'] as String?,
+    subtitle: m['subtitle'] as String?,
   );
 }
 
@@ -36,5 +42,7 @@ extension CharacterToPoi on Character {
     name: name,
     position: position,
     imageAsset: imageAsset,
+    locationImage: locationImage,
+    subtitle: subtitle,
   );
 }

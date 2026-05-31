@@ -9,16 +9,24 @@ class PhotoCaptureService {
   PhotoCaptureService(this.repo);
   final ChallengeRepository repo;
 
-  /// Ritorna il File della foto scattata (o null se annullato / permesso negato).
+  /// Scatta foto, pubblica PhotoCapturedEvent (flusso con validazione ML).
   Future<File?> captureForChallenge(Challenge challenge) async {
-    // 1) Permessi
+    final file = await captureOnly();
+    if (file == null) return null;
+    ChallengeEventBus.I.publish(PhotoCapturedEvent(file: file, challenge: challenge));
+    return file;
+  }
+
+  /// Scatta foto senza pubblicare eventi — usato quando il submit viene gestito dal chiamante.
+  Future<File?> captureOnly() async {
     final status = await Permission.camera.request();
     if (!status.isGranted) {
-      // opzionale: apri impostazioni
-      return null;
+      if (status.isPermanentlyDenied || status.isRestricted) {
+        throw Exception('Accesso alla fotocamera negato. Abilitalo dalle Impostazioni di iPhone.');
+      }
+      throw Exception('Accesso alla fotocamera non concesso.');
     }
 
-    // 2) Fotocamera
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
       source: ImageSource.camera,
@@ -26,14 +34,6 @@ class PhotoCaptureService {
       preferredCameraDevice: CameraDevice.rear,
     );
     if (xfile == null) return null;
-
-    final file = File(xfile.path);
-
-    // 1) Pubblica l’evento per i subscriber
-    ChallengeEventBus.I.publish(
-      PhotoCapturedEvent(file: file, challenge: challenge),
-    );
-
-    return file;
+    return File(xfile.path);
   }
 }

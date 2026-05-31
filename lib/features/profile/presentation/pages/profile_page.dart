@@ -1,4 +1,4 @@
-import 'package:discover/features/profile/presentation/widgets/challenge_grid.dart';
+import 'package:discover/features/profile/presentation/widgets/challenge_preview_card.dart';
 import 'package:discover/features/profile/presentation/widgets/header.dart';
 import 'package:discover/features/profile/presentation/widgets/info_card.dart';
 import 'package:flutter/material.dart';
@@ -6,26 +6,32 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   final VoidCallback? onOpenFriends;
   final VoidCallback? onOpenFeed;
+  final VoidCallback? onLogout;
+  final VoidCallback? onEditUsername;
+  final VoidCallback? onOpenChallenges;
 
   const ProfilePage({
     super.key,
+    required this.email,
     required this.username,
+    this.onLogout,
+    this.onEditUsername,
     required this.friendsCount,
     required this.levelLabel,
     required this.headerImage,
     required this.avatarImage,
-    required this.challengeImages,
     required this.progress,
     this.onOpenFriends,
     this.onOpenFeed,
+    this.onOpenChallenges,
   });
 
+  final String email;
   final String headerImage;
   final String avatarImage;
   final String username;
   final int friendsCount;
   final String levelLabel;
-  final List<String> challengeImages;
   final double progress;
 
   @override
@@ -33,6 +39,7 @@ class ProfilePage extends StatelessWidget {
     const bg = Color(0xFFF9F7F3);
     final textColor = const Color(0xFF1B1B1B);
     final cardColor = Colors.white;
+    const primary = Color(0xFFEF4565);
     final shadow = [
       BoxShadow(
         color: Colors.black.withValues(alpha: 0.06),
@@ -100,13 +107,26 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 42),
 
             // Username
-            Text(
-              username,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  username,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (onEditUsername != null)
+                  IconButton(
+                    onPressed: onEditUsername,
+                    icon: const Icon(Icons.edit_rounded, size: 18),
+                    color: Colors.black45,
+                    padding: const EdgeInsets.only(left: 4),
+                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
             ),
             const SizedBox(height: 32),
 
@@ -128,7 +148,39 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            ChallengeGrid(images: challengeImages),
+            // Card "Challenge"
+            ChallengePreviewCard(
+              email: email,
+              onOpenChallenges: onOpenChallenges ?? () {},
+              shadow: shadow,
+            ),
+            const SizedBox(height: 32),
+
+            // Bottone "Logout"
+            if (onLogout != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onLogout,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.logout),
+                    label: const Text(
+                      'Logout',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 32),
           ],
         ),
       ),

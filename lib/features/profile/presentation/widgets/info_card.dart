@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
   const InfoCard({
-    super.key, 
+    super.key,
     required this.title,
     required this.value,
     required this.cardColor,
     required this.shadow,
     this.centerValue = false,
+    this.trailing,
   });
 
   final String title;
@@ -15,6 +16,7 @@ class InfoCard extends StatelessWidget {
   final Color cardColor;
   final List<BoxShadow> shadow;
   final bool centerValue;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +38,20 @@ class InfoCard extends StatelessWidget {
         boxShadow: shadow,
       ),
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-      child: Column(
-        crossAxisAlignment:
-            centerValue ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(title, style: titleStyle),
-          const SizedBox(height: 8),
-          Align(
-            alignment: centerValue ? Alignment.center : Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(value, style: valueStyle),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: centerValue ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+              children: [
+                Text(title, style: titleStyle),
+                const SizedBox(height: 8),
+                Text(value, style: valueStyle),
+              ],
             ),
           ),
+          ?trailing,
         ],
       ),
     );

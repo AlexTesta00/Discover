@@ -56,38 +56,14 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         scrolledUnderElevation: 0,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: (onOpenFriends == null && onOpenFeed == null)
-          ? null
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (onOpenFeed != null)
-                  FloatingActionButton.small(
-                    heroTag: 'profile_feed_fab',
-                    onPressed: onOpenFeed,
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    shape: const CircleBorder(),
-                    elevation: 6,
-                    child: const Icon(Icons.notifications_none),
-                  ),
-                if (onOpenFeed != null && onOpenFriends != null)
-                  const SizedBox(height: 12),
-                if (onOpenFriends != null)
-                  FloatingActionButton.small(
-                    heroTag: 'profile_friends_fab',
-                    onPressed: onOpenFriends,
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    shape: const CircleBorder(),
-                    elevation: 6,
-                    child: const Icon(Icons.group_outlined),
-                  ),
-              ],
+        actions: [
+          if (onOpenFeed != null)
+            IconButton(
+              onPressed: onOpenFeed,
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
             ),
+        ],
+      ),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
@@ -136,6 +112,13 @@ class ProfilePage extends StatelessWidget {
               value: '$friendsCount',
               cardColor: cardColor,
               shadow: shadow,
+              trailing: onOpenFriends != null
+                  ? IconButton(
+                      onPressed: onOpenFriends,
+                      icon: const Icon(Icons.group_outlined),
+                      color: Colors.black54,
+                    )
+                  : null,
             ),
             const SizedBox(height: 32),
 

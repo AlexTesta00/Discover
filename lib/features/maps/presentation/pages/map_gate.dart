@@ -57,6 +57,8 @@ class _MapGateState extends State<MapGate> {
   bool _loadingPois = true;
   String? _poisError;
 
+  Set<String> _completedTalkCharacterIds = {};
+
   final bool _parkVisible = true;
 
   @override
@@ -65,6 +67,7 @@ class _MapGateState extends State<MapGate> {
     _loadPois();
     _ctrl.startLocation();
     _loadParks();
+    _loadCompletedTalkChallenges();
 
     _busSub = ChallengeEventBus.I.stream.listen((e) {
       if (e is GoToMapForCharacterEvent) {
@@ -117,6 +120,21 @@ class _MapGateState extends State<MapGate> {
     }
   }
 
+  Future<void> _loadCompletedTalkChallenges() async {
+    try {
+      final repo = ChallengeRepository(Supabase.instance.client);
+      final completedIds = await repo.fetchCompletedIds();
+      final allChallenges = await repo.fetchAllWithCharacter();
+      final ids = allChallenges
+          .where((c) => !c.requiresPhoto && completedIds.contains(c.id))
+          .map((c) => c.characterId)
+          .toSet();
+      if (mounted) setState(() => _completedTalkCharacterIds = ids);
+    } catch (e) {
+      debugPrint('Errore caricamento talk challenges completate: $e');
+    }
+  }
+
   // TAP marker:
   // - entro 20 m → dialog di ARRIVO
   // - altrimenti → bottom sheet "Raggiungi"
@@ -148,23 +166,22 @@ class _MapGateState extends State<MapGate> {
   //   - Leggi la storia
   //   - Vedi in AR (camera + PNG del personaggio)
   void _showArrivalModal(PredefinedPoi poi) async {
-    final bus = ChallengeEventBus.I;
-    final client = Supabase.instance.client;
-    final repo = ChallengeRepository(client);
+    if (!_completedTalkCharacterIds.contains(poi.id)) {
+      final bus = ChallengeEventBus.I;
+      final repo = ChallengeRepository(Supabase.instance.client);
 
-    //Completa la challenge "Parla con X" via RPC
-    try {
-      final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
+      try {
+        final (submissionId, wasNew) = await repo.completeTalkChallengeForCharacter(poi.id);
+        _completedTalkCharacterIds.add(poi.id);
 
-      //Se è la prima volta → emetti l'evento ChallengeCompletedEvent
-      if (submissionId != null && wasNew) {
-        final allChallenges = await repo.fetchAllWithCharacter();
-        final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
-
-        bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
+        if (submissionId != null && wasNew) {
+          final allChallenges = await repo.fetchAllWithCharacter();
+          final challenge = allChallenges.firstWhere((c) => c.characterId == poi.id && c.requiresPhoto == false);
+          bus.publish(ChallengeCompletedEvent(submissionId: submissionId, challenge: challenge));
+        }
+      } catch (e) {
+        debugPrint('Errore completamento challenge RPC: $e');
       }
-    } catch (e) {
-      debugPrint('Errore completamento challenge RPC: $e');
     }
 
     //Mostra il modale di arrivo

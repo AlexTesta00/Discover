@@ -246,6 +246,27 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> logout() async {
     if (_loggingOut) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Sei sicuro di voler uscire?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annulla'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Esci'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
     setState(() => _loggingOut = true);
 
     try {
@@ -352,7 +373,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 PersistentTabConfig(
                   screen: const ChallengeGatePage(),
-                  item: ItemConfig(icon: const Icon(Icons.emoji_flags_outlined), title: 'Sfide', activeForegroundColor: AppTheme.primaryColor),
+                  item: ItemConfig(
+                    icon: const Icon(Icons.emoji_flags_outlined),
+                    title: 'Sfide',
+                    activeForegroundColor: AppTheme.primaryColor,
+                  ),
                 ),
                 PersistentTabConfig(
                   screen: ProfileScreenState(onLogout: logout),
